@@ -32,8 +32,8 @@ __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
 __copyright__ = '''Copyright 2023, Marwin Baumann'''
 __license__ = '''Apache Software License 2.0'''
-__maintainer__ = '''Marwin Baumann'''
-__email__ = '''<mbaumann@schubergphilis.com>'''
+__maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
+__email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 # This is to 'use' the module(s), so lint doesn't complain
