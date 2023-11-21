@@ -1,0 +1,32 @@
+{
+  "template": "https://github.com/costastf/python_project",
+  "commit": "9d8f08cf9d57aca8c9f3ec5837f96e97c8633ab6",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_type": "lib",
+      "full_name": "Marwin Baumann",
+      "email": "mbaumann@schubergphilis.com",
+      "repo_name": "AWS Findings Manager",
+      "main_branch_name": "main",
+      "project_slug": "awsfindingsmanagerlib",
+      "project_short_description": "A library to manage findings in AWS.",
+      "git_url": "git@github.com:schubergphilis/awsfindingsmanagerlib.git",
+      "pypi_repository": "https://upload.pypi.org/legacy/",
+      "gitlab_runner_image": "IMAGE_WITH_PYTHON39_AND_PIPENV",
+      "gitlab_runner_tags": "[docker]",
+      "tags": "securityhub,findings,aws",
+      "development_status": "Beta",
+      "compatible_versions": "3.8",
+      "documentation_url": "https://awsfindingsmanagerlib.readthedocs.org/en/latest",
+      "release_date": "21-11-2023",
+      "year": "2023",
+      "license": "Apache Software License 2.0",
+      "_extensions": [
+        "jinja2_time.TimeExtension"
+      ],
+      "_template": "https://github.com/costastf/python_project"
+    }
+  },
+  "directory": null
+}
