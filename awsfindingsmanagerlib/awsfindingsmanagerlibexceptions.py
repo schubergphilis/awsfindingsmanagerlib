@@ -34,3 +34,31 @@ __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
+
+
+class InvalidAccountListProvided(Exception):
+    """The list of accounts provided are not valid AWS accounts."""
+
+
+class InvalidRegionListProvided(Exception):
+    """The list of regions provided are not valid AWS regions."""
+
+
+class MutuallyExclusiveArguments(Exception):
+    """The arguments provided are mutually exclusive and only one of the should be provided."""
+
+
+class InvalidOrNoCredentials(Exception):
+    """Invalid or no credentials were provided from the environment."""
+
+
+class NoRegion(Exception):
+    """No region is set on the environment or provided to the library."""
+
+
+class InvalidRegion(Exception):
+    """The region provided is not valid."""
+
+
+class UnableToRetrieveSecurityHubRegions(Exception):
+    """Could not retrieve the regions security hub is active in."""
