@@ -260,7 +260,6 @@ class Finding:
             'Days Open': self.days_open
         }
 
-
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
@@ -346,18 +345,6 @@ class FindingsManager:
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
         return aggregating_region
 
-    def get_findings(self, query_filter):
-        """Retrieves findings from security hub based on a provided query.
-
-        Args:
-            query_filter (dict): The query filter to execute on security hub to get the findings.
-
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        return self._get_findings(query_filter)
-
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
     def _get_findings(self, query_filter):
         findings = set()
@@ -431,9 +418,17 @@ class FindingsManager:
             query_filter.update({'AwsAccountId': aws_account_ids})
         return query_filter
     
-    def get_findings(self):
-        pass
-    # run get findings with default filter
+    def get_findings(self, query_filter):
+        """Retrieves findings from security hub based on a provided query.
+
+        Args:
+            query_filter (dict): The query filter to execute on security hub to get the findings.
+
+        Returns:
+            findings (list): A list of findings from security hub.
+
+        """
+        return self._get_findings(query_filter)
     
     def get_findings_by_rule_id(self):
         pass
