@@ -263,7 +263,6 @@ class Finding:
             'Days Open': self.days_open
         }
 
-
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
@@ -425,6 +424,7 @@ class FindingsManager:
             findings (list): A list of findings from security hub.
 
         """
+        
         query_filter = DEFAULT_SECURITY_HUB_FILTER
         return self._get_findings(query_filter)
 
