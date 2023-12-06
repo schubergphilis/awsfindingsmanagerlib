@@ -62,3 +62,7 @@ class InvalidRegion(Exception):
 
 class UnableToRetrieveSecurityHubRegions(Exception):
     """Could not retrieve the regions security hub is active in."""
+
+
+class InvalidRuleType(Exception):
+    """The rule type is not in the accepted rules."""

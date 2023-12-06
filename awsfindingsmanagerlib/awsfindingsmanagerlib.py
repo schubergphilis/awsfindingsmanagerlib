@@ -38,10 +38,9 @@ from opnieuw import retry
 
 from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               NoRegion,
-                                              InvalidOrNoCredentials)
-from .configuration import (AWS_FOUNDATIONAL_SECURITY_FRAMEWORK,
-                            CIS_AWS_FOUNDATION_FRAMEWORK,
-                            PCI_DSS_FRAMEWORK, DEFAULT_SECURITY_HUB_FILTER)
+                                              InvalidOrNoCredentials,
+                                              InvalidRuleType)
+from .configuration import (DEFAULT_SECURITY_HUB_FILTER)
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
@@ -153,21 +152,6 @@ class Finding:
         return self._data.get('Types')
 
     @property
-    def is_cis_aws_foundations_benchmark(self):
-        """Is this cis framework finding."""
-        return CIS_AWS_FOUNDATION_FRAMEWORK in self.compliance_frameworks
-
-    @property
-    def is_pci_dss(self):
-        """Is this pci dss framework finding."""
-        return PCI_DSS_FRAMEWORK in self.compliance_frameworks
-
-    @property
-    def is_aws_foundational_security_best_practices(self):
-        """Is this aws foundational security best practices framework finding."""
-        return AWS_FOUNDATIONAL_SECURITY_FRAMEWORK in self.compliance_frameworks
-
-    @property
     def workflow_status(self):
         """Workflow status."""
         return self._data.get('Workflow', {}).get('Status')
@@ -186,11 +170,6 @@ class Finding:
     def compliance_frameworks(self):
         """Compliance frameworks."""
         return [standard.split('/')[1] for standard in self.compliance_standards]
-
-    @property
-    def rule_id(self):
-        """Rule id."""
-        return self._data.get('ProductFields', {}).get('RuleId')
 
     @property
     def compliance_status(self):
@@ -252,27 +231,69 @@ class Finding:
         """Original payload."""
         return self._data
 
-    @property
-    def measurement_data(self):
-        """Measurement data for computing the energy label."""
-        return {
-            'Finding ID': self.id,
-            'Account ID': self.aws_account_id,
-            'Severity': self.severity,
-            'Workflow State': self.workflow_status,
-            'Days Open': self.days_open
-        }
+
+class Rule:
+    """Models xx"""
+
+    types = ('security_control_id', 'control_id', 'resource_id', 'tag')
+
+    # check also other variables, e.g. action now needs to be SUPPRESSED. etc.
+
+    def __init__(self, type_, value, action, rules, notes):
+        self.type = self._validate_type(type_)
+        self.value = value
+        self.action = action
+        self.rules = rules
+        self.notes = notes
+
+    @staticmethod
+    def _validate_type(type_):
+        if type_ not in Rule.types:
+            raise InvalidRuleType(type_)
+        return type_
 
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
-    def __init__(self, region=None, allowed_regions=None, denied_regions=None):
+    def __init__(self, region=None, allowed_regions=None, denied_regions=None, strict_mode=True):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions, denied_regions)
         self.sts = self._get_sts_client()
         self.ec2 = self._get_ec2_client(region)
         self._aws_regions = None
         self.aws_region = self._validate_region(region) or self._sts_client_config_region
+        self._rules = []
+        self._strict_mode = strict_mode
+        self._rules_errors = []
+
+    @property
+    def rules(self):
+        return self._rules
+
+    @property
+    def rules_errors(self):
+        return self._rules_errors
+
+    def register_rule(self, type_, value, action, rules, notes):
+        self._rules.append(Rule(type_, value, action, rules, notes))
+
+    def register_rules(self, rules):
+        if self._strict_mode:
+            rules = [Rule(**data) for data in rules]
+            self._rules.extend(rules)
+            return True
+        success = True
+        for data in rules:
+            try:
+                self.register_rule(**data)
+            except InvalidRuleType:
+                success = False
+                self._rules_errors.append(data)
+                self._logger.exception(f'Rule with data {data} is invalid')
+        return success
+
+
+
 
     def _validate_region(self, region):
         if any([not region, region in self.regions]):
@@ -346,8 +367,8 @@ class FindingsManager:
             self._logger.info(f'Found aggregating region {aggregating_region}')
         except (IndexError, botocore.exceptions.ClientError):
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
-        return aggregating_region
-
+        # return aggregating_region
+        return 'eu-west-1'
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
     def _get_findings(self, query_filter):
         findings = set()
@@ -392,7 +413,6 @@ class FindingsManager:
         return aws_account_ids
 
     #  pylint: disable=dangerous-default-value
-    # NEEDS TO BE MODIFIED
     @staticmethod
     def calculate_query_filter(query_filter=DEFAULT_SECURITY_HUB_FILTER,
                                allowed_account_ids=None,
@@ -424,28 +444,27 @@ class FindingsManager:
             findings (list): A list of findings from security hub.
 
         """
-        
         query_filter = DEFAULT_SECURITY_HUB_FILTER
         return self._get_findings(query_filter)
 
-    def get_findings_by_rule_id(self):
+    def get_findings_by_rule_id(self, rule_id):
         """Retrieves findings from security hub based on a provided query that filters by rule id.
 
         Returns:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {}  # fix for rule id
+        query_filter = {'ProductFields': [{'Key': 'RuleId', 'Value': rule_id, 'Comparison': 'EQUALS'}]}
         return self._get_findings(query_filter)
 
-    def get_findings_by_control_id(self):
+    def get_findings_by_control_id(self, control_id):
         """Retrieves findings from security hub based on a provided query that filters by control id.
 
         Returns:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {}  # fix for control id
+        query_filter = {'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]} #controlid == ruleid
         return self._get_findings(query_filter)
 
     def get_findings_by_tag(self):

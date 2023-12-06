@@ -46,20 +46,16 @@ LOGGER_BASENAME = '''configuration'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
-DEFAULT_SECURITY_HUB_FILTER = {'UpdatedAt': [{'DateRange': {'Value': 7,
-                                                            'Unit': 'DAYS'}}],
-                               'ComplianceStatus': [{'Value': 'FAILED',
-                                                     'Comparison': 'EQUALS'}],
-                               'WorkflowStatus': [{'Value': 'SUPPRESSED',
-                                                   'Comparison': 'NOT_EQUALS'}],
-                               'RecordState': [{'Value': 'ARCHIVED',
-                                                'Comparison': 'NOT_EQUALS'}]}
-
-AWS_FOUNDATIONAL_SECURITY_FRAMEWORK = 'aws-foundational-security-best-practices'
-CIS_AWS_FOUNDATION_FRAMEWORK = 'cis-aws-foundations-benchmark'
-NIST_800_53_FRAMEWORK = 'nist-800-53'
-PCI_DSS_FRAMEWORK = 'pci-dss'
-DEFAULT_SECURITY_HUB_FRAMEWORKS = {AWS_FOUNDATIONAL_SECURITY_FRAMEWORK}
+DEFAULT_SECURITY_HUB_FILTER = {'ComplianceStatus': [
+    {
+        'Value': 'FAILED',
+        'Comparison': 'EQUALS'
+    },
+    {
+        'Value': 'WARNING',
+        'Comparison': 'EQUALS'
+    }
+]}
 
 
 def get_available_security_hub_regions():
