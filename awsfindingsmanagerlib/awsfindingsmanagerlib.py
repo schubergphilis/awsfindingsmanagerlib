@@ -26,6 +26,23 @@ Main code for awsfindingsmanagerlib.
 """
 
 import logging
+from copy import deepcopy
+from datetime import datetime
+
+import boto3
+import botocore.errorfactory
+import botocore.exceptions
+from botocore.config import Config
+from dateutil.parser import parse
+from opnieuw import retry
+
+from .awsfindingsmanagerlibexceptions import (InvalidRegion,
+                                              NoRegion,
+                                              InvalidOrNoCredentials)
+from .configuration import (AWS_FOUNDATIONAL_SECURITY_FRAMEWORK,
+                            CIS_AWS_FOUNDATION_FRAMEWORK,
+                            PCI_DSS_FRAMEWORK, DEFAULT_SECURITY_HUB_FILTER)
+from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -37,25 +54,11 @@ __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-
 # This is the main prefix used for logging
 LOGGER_BASENAME = '''awsfindingsmanagerlib'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
-class FindingsManager:
-    
-    def get_findings(self):
-        pass
-    
-    def get_findings_by_rule_id(self):
-        pass
-    
-    def get_findings_by_control_id(self):
-        pass
-    
-    def get_findings_by_tag(self):
-        pass
 
 class Finding:
     """Models a finding."""
@@ -393,9 +396,7 @@ class FindingsManager:
     @staticmethod
     def calculate_query_filter(query_filter=DEFAULT_SECURITY_HUB_FILTER,
                                allowed_account_ids=None,
-                               denied_account_ids=None,
-                               #frameworks=DEFAULT_SECURITY_HUB_FRAMEWORKS
-                               ):
+                               denied_account_ids=None):
         """Calculates a Security Hub compatible filter for retrieving findings.
 
         Depending on arguments provided for allow list, deny list and frameworks to retrieve a query is constructed to
@@ -405,8 +406,6 @@ class FindingsManager:
             query_filter: The default filter if no filter is provided.
             allowed_account_ids: The allow list of account ids to get the findings for.
             denied_account_ids: The deny list of account ids to filter out findings for.
-            frameworks: The default frameworks if no frameworks are provided.
-
 
         Returns:
             query_filter (dict): The query filter calculated based on the provided arguments.
@@ -417,24 +416,56 @@ class FindingsManager:
         if aws_account_ids:
             query_filter.update({'AwsAccountId': aws_account_ids})
         return query_filter
-    
-    def get_findings(self, query_filter):
-        """Retrieves findings from security hub based on a provided query.
 
-        Args:
-            query_filter (dict): The query filter to execute on security hub to get the findings.
+    def get_findings(self):
+        """Retrieves findings from security hub based on a default query.
 
         Returns:
             findings (list): A list of findings from security hub.
 
         """
+        
+        query_filter = DEFAULT_SECURITY_HUB_FILTER
         return self._get_findings(query_filter)
-    
+
     def get_findings_by_rule_id(self):
-        pass
-    
+        """Retrieves findings from security hub based on a provided query that filters by rule id.
+
+        Returns:
+            findings (list): A list of findings from security hub.
+
+        """
+        query_filter = {}  # fix for rule id
+        return self._get_findings(query_filter)
+
     def get_findings_by_control_id(self):
-        pass
-    
+        """Retrieves findings from security hub based on a provided query that filters by control id.
+
+        Returns:
+            findings (list): A list of findings from security hub.
+
+        """
+        query_filter = {}  # fix for control id
+        return self._get_findings(query_filter)
+
     def get_findings_by_tag(self):
-        pass
+        """Retrieves findings from security hub based on a provided query that filters by tag.
+
+        Returns:
+            findings (list): A list of findings from security hub.
+
+        """
+        query_filter = {}  # fix for tag
+        return self._get_findings(query_filter)
+
+    def suppress_findings(self):
+        """Suppresses findings from security hub based on a default query."""
+
+    def suppress_findings_by_rule_id(self):
+        """Suppresses findings from security hub based on a query by rule id."""
+
+    def suppress_findings_by_control_id(self):
+        """Suppresses findings from security hub based on a query by control id."""
+
+    def suppress_findings_by_tag(self):
+        """Suppresses findings from security hub based on a query by tag."""
