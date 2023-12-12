@@ -367,8 +367,8 @@ class FindingsManager:
             self._logger.info(f'Found aggregating region {aggregating_region}')
         except (IndexError, botocore.exceptions.ClientError):
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
-        # return aggregating_region
-        return 'eu-west-1'
+        return aggregating_region
+
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
     def _get_findings(self, query_filter):
         findings = set()
