@@ -252,6 +252,7 @@ class Rule:
             raise InvalidRuleType(type_)
         return type_
 
+
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
@@ -291,9 +292,6 @@ class FindingsManager:
                 self._rules_errors.append(data)
                 self._logger.exception(f'Rule with data {data} is invalid')
         return success
-
-
-
 
     def _validate_region(self, region):
         if any([not region, region in self.regions]):
@@ -464,7 +462,8 @@ class FindingsManager:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]} #controlid == ruleid
+        query_filter = {
+            'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]}  # controlid == ruleid
         return self._get_findings(query_filter)
 
     def get_findings_by_tag(self):
