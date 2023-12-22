@@ -233,12 +233,13 @@ class Finding:
 
 
 class Rule:
-    """Models xx"""
+    """Models a rule."""
 
     types = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
     # check also other variables, e.g. action now needs to be SUPPRESSED. etc.
 
+    # pylint: disable=too-many-arguments
     def __init__(self, type_, value, action, rules, notes):
         self.type = self._validate_type(type_)
         self.value = value
@@ -251,6 +252,7 @@ class Rule:
         if type_ not in Rule.types:
             raise InvalidRuleType(type_)
         return type_
+
 
 class FindingsManager:
     """Models security hub and can retrieve findings."""
@@ -274,6 +276,7 @@ class FindingsManager:
     def rules_errors(self):
         return self._rules_errors
 
+    # pylint: disable=too-many-arguments
     def register_rule(self, type_, value, action, rules, notes):
         self._rules.append(Rule(type_, value, action, rules, notes))
 
@@ -291,9 +294,6 @@ class FindingsManager:
                 self._rules_errors.append(data)
                 self._logger.exception(f'Rule with data {data} is invalid')
         return success
-
-
-
 
     def _validate_region(self, region):
         if any([not region, region in self.regions]):
@@ -369,6 +369,7 @@ class FindingsManager:
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
         # return aggregating_region
         return 'eu-west-1'
+
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
     def _get_findings(self, query_filter):
         findings = set()
@@ -464,7 +465,8 @@ class FindingsManager:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]} #controlid == ruleid
+        query_filter = {
+            'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]}  # controlid == ruleid
         return self._get_findings(query_filter)
 
     def get_findings_by_tag(self):
