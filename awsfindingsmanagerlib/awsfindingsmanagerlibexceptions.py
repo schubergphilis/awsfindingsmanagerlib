@@ -66,3 +66,7 @@ class UnableToRetrieveSecurityHubRegions(Exception):
 
 class InvalidRuleType(Exception):
     """The rule type is not in the accepted rules."""
+
+
+class InvalidRuleAction(Exception):
+    """The rule action is not in the accepted rules."""
