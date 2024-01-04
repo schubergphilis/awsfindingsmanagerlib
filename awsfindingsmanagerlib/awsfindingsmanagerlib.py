@@ -39,7 +39,8 @@ from opnieuw import retry
 from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               NoRegion,
                                               InvalidOrNoCredentials,
-                                              InvalidRuleType)
+                                              InvalidRuleType,
+                                              InvalidRuleAction)
 from .configuration import (DEFAULT_SECURITY_HUB_FILTER)
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
@@ -233,18 +234,24 @@ class Finding:
 
 
 class Rule:
-    """Models xx"""
+    """Models a suppression rule."""
 
+    actions = 'suppressed'
     types = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
-    # check also other variables, e.g. action now needs to be SUPPRESSED. etc.
-
+    # pylint: disable=too-many-arguments
     def __init__(self, type_, value, action, rules, notes):
         self.type = self._validate_type(type_)
         self.value = value
-        self.action = action
+        self.action = self._validate_action(action)
         self.rules = rules
         self.notes = notes
+
+    @staticmethod
+    def _validate_action(action):
+        if action not in Rule.actions:
+            raise InvalidRuleAction(action)
+        return action
 
     @staticmethod
     def _validate_type(type_):
@@ -275,6 +282,7 @@ class FindingsManager:
     def rules_errors(self):
         return self._rules_errors
 
+    # pylint: disable=too-many-arguments
     def register_rule(self, type_, value, action, rules, notes):
         self._rules.append(Rule(type_, value, action, rules, notes))
 
@@ -445,35 +453,46 @@ class FindingsManager:
         query_filter = DEFAULT_SECURITY_HUB_FILTER
         return self._get_findings(query_filter)
 
-    def get_findings_by_rule_id(self, rule_id):
-        """Retrieves findings from security hub based on a provided query that filters by rule id.
-
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        query_filter = {'ProductFields': [{'Key': 'RuleId', 'Value': rule_id, 'Comparison': 'EQUALS'}]}
-        return self._get_findings(query_filter)
-
     def get_findings_by_control_id(self, control_id):
         """Retrieves findings from security hub based on a provided query that filters by control id.
 
+         Args:
+            control_id: The identifier of the control.
+
         Returns:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {
-            'ProductFields': [{'Key': 'ControlId', 'Value': control_id, 'Comparison': 'EQUALS'}]}  # controlid == ruleid
+        # For the CIS AWS Foundations Benchmark standard, the field is RuleId.
+        # For other standards, the field is ControlId.
+        query_filter = {'ProductFields': [
+            {
+                'Key': 'ControlId',
+                'Value': control_id,
+                'Comparison': 'EQUALS'
+            },
+            {
+                'Key': 'RuleId',
+                'Value': control_id,
+                'Comparison': 'EQUALS'
+            }
+        ]}
         return self._get_findings(query_filter)
 
-    def get_findings_by_tag(self):
-        """Retrieves findings from security hub based on a provided query that filters by tag.
+    def get_findings_for_tag(self, tag_key, tag_value):
+        """Retrieves findings from security hub based on a provided query that filters for tag.
 
         Returns:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = {}  # fix for tag
+        query_filter = {'ResourceTags': [
+            {
+                'Key': tag_key,
+                'Value': tag_value,
+                'Comparison': 'EQUALS'
+            }
+        ]}
         return self._get_findings(query_filter)
 
     def suppress_findings(self):
