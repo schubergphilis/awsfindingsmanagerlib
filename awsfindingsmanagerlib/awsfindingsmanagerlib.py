@@ -594,6 +594,42 @@ class FindingsManager:
         return all(result)
 
     def _batch_update_findings(self, security_hub, payload):
+        """Sends a payload with a batch of max size of 100
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/securityhub/client/batch_update_findings.html
+        The response is of the form :
+
+            {
+            'ProcessedFindings': [
+                {
+                    'Id': 'string',
+                    'ProductArn': 'string'
+                },
+            ],
+                'UnprocessedFindings': [
+                    {
+                        'FindingIdentifier': {
+                            'Id': 'string',
+                            'ProductArn': 'string'
+                        },
+                        'ErrorCode': 'string',
+                        'ErrorMessage': 'string'
+                    },
+                ]
+            }
+
+        if there are any unprocessed findings it is considered an error.
+
+        Args:
+            security_hub: Security hub client
+            payload: The payload to send to the service
+
+        Returns: True on success False otherwise
+
+        Raises:
+            FailedToBatchUpdate: if strict mode is set and there are failures to update.
+
+        """
         status = True
         response = security_hub.batch_update_findings(payload)
         failed = response.get('UnprocessedFindings')
