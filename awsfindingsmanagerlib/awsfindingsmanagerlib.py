@@ -26,8 +26,11 @@ Main code for awsfindingsmanagerlib.
 """
 
 import logging
+import os
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
+from itertools import islice
 
 import boto3
 import botocore.errorfactory
@@ -59,6 +62,8 @@ LOGGER_BASENAME = '''awsfindingsmanagerlib'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
+MAX_SUPPRESSION_PAYLOAD_SIZE = 100
+
 
 class Finding:
     """Models a finding."""
@@ -66,6 +71,8 @@ class Finding:
     def __init__(self, data: dict) -> None:
         self._data = data
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+        self._note = None
+        self._action = None
 
     def __hash__(self):
         return hash(self.id)
@@ -83,9 +90,30 @@ class Finding:
         return hash(self) != hash(other)
 
     @property
+    def action(self):
+        return self._action
+
+    @action.setter
+    def action(self, action):
+        self._action = action
+
+    @property
+    def note(self):
+        return self._note
+
+    @note.setter
+    def note(self, note):
+        self._note = note
+
+    @property
     def aws_account_id(self):
         """Account id."""
         return self._data.get('AwsAccountId')
+
+    @property
+    def product_arn(self):
+        """Product ARN."""
+        return self._data.get('ProductArn')
 
     @property
     def region(self):
@@ -227,25 +255,62 @@ class Finding:
                                    'last or first observation date is missing.')
             return -1
 
-    @property
-    def original_payload(self):
-        """Original payload."""
-        return self._data
+
+#
+# Rules: # key
+#
+#   # type: ControlID | SecurityControlID | ResourceID | Tag
+#   # value: APIGateway.2
+#   - note:
+#     action: SUPPRESSED
+#     match_on:
+#       control_id: EC2.1
+#       security_control_id:
+#       resource_id:
+#         - ^arn:aws:apigateway:.*$
+#         - ^arn:aws:apigateway:.*$
+#       tag:
+#         - key: test
+#           value: bob
+#         - key: test2
+#           value: alice
+#
+#
+#   - note: CORE - bla - Public IPv4 by design. Instances function as gateway.
+#     action: SUPPRESSED
+#     match_on:
+#       control_id: EC2.9
+#       resource_id:
+#           - ^arn:aws:ec2:eu-west-1:000000000000:instance/i-08adfcb776cdd1208$
+#           - ^arn:aws:ec2:eu-west-1:000000000000:instance/i-006961948e7004653$
 
 
 class Rule:
     """Models a suppression rule."""
 
-    actions = 'suppressed'
-    types = ('security_control_id', 'control_id', 'resource_id', 'tag')
+    actions = ('suppressed',)
+    match_fields = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
     # pylint: disable=too-many-arguments
-    def __init__(self, type_, value, action, rules, notes):
-        self.type = self._validate_type(type_)
-        self.value = value
+    def __init__(self, note, action, match_on):
+        self.match = self._validate_matching_fields(match_on)
         self.action = self._validate_action(action)
-        self.rules = rules
-        self.notes = notes
+        self.note = note
+
+    def __hash__(self):
+        return hash(self.note)
+
+    def __eq__(self, other):
+        """Override the default equals behavior."""
+        if not isinstance(other, Rule):
+            raise ValueError('Not a Rule object')
+        return hash(self) == hash(other)
+
+    def __ne__(self, other):
+        """Override the default unequal behavior."""
+        if not isinstance(other, Rule):
+            raise ValueError('Not a Rule object')
+        return hash(self) != hash(other)
 
     @staticmethod
     def _validate_action(action):
@@ -254,10 +319,36 @@ class Rule:
         return action
 
     @staticmethod
-    def _validate_type(type_):
-        if type_ not in Rule.types:
-            raise InvalidRuleType(type_)
-        return type_
+    def _validate_matching_fields(match_on):
+        diff = set(match_on.keys()) - set(Rule.match_fields)
+        if diff:
+            raise InvalidRuleType(diff)
+        return match_on
+
+    # @property
+    # def query_filter(self):
+    #     # For the CIS AWS Foundations Benchmark standard, the field is RuleId.
+    #     #     # For other standards, the field is ControlId.
+    #     query_filter = {'ProductFields': [
+    #         {
+    #             'Key': 'ControlId',
+    #             'Value': control_id,
+    #             'Comparison': 'EQUALS'
+    #         },
+    #         {
+    #             'Key': 'RuleId',
+    #             'Value': control_id,
+    #             'Comparison': 'EQUALS'
+    #         }
+    #     ]}
+    #     query_filter = {'ResourceTags': [
+    #     #         {
+    #     #             'Key': tag_key,
+    #     #             'Value': tag_value,
+    #     #             'Comparison': 'EQUALS'
+    #     #         }
+    #     #     ]}
+    #     return 'According to match on entries'
 
 
 class FindingsManager:
@@ -283,8 +374,8 @@ class FindingsManager:
         return self._rules_errors
 
     # pylint: disable=too-many-arguments
-    def register_rule(self, type_, value, action, rules, notes):
-        self._rules.append(Rule(type_, value, action, rules, notes))
+    def register_rule(self, note, action, match_on):
+        self._rules.append(Rule(note, action, match_on))
 
     def register_rules(self, rules):
         if self._strict_mode:
@@ -375,28 +466,6 @@ class FindingsManager:
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
         return aggregating_region
 
-    @retry(retry_on_exceptions=botocore.exceptions.ClientError)
-    def _get_findings(self, query_filter):
-        findings = set()
-        aggregating_region = self._get_aggregating_region()
-        regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
-        for region in regions_to_retrieve:
-            self._logger.debug(f'Trying to get findings for region {region}')
-            session = boto3.Session(region_name=region)
-            security_hub = session.client('securityhub')
-            paginator = security_hub.get_paginator('get_findings')
-            iterator = paginator.paginate(Filters=query_filter)
-            try:
-                for page in iterator:
-                    for finding_data in page['Findings']:
-                        finding = Finding(finding_data)
-                        self._logger.debug(f'Adding finding with id {finding.id}')
-                        findings.add(finding)
-            except (security_hub.exceptions.InvalidAccessException, security_hub.exceptions.AccessDeniedException):
-                self._logger.debug(f'No access for Security Hub for region {region}.')
-                continue
-        return list(findings)
-
     @staticmethod
     def _calculate_account_id_filter(allowed_account_ids, denied_account_ids):
         """Calculates the filter targeting allowed or denied account ids.
@@ -420,9 +489,9 @@ class FindingsManager:
 
     #  pylint: disable=dangerous-default-value
     @staticmethod
-    def calculate_query_filter(query_filter=DEFAULT_SECURITY_HUB_FILTER,
-                               allowed_account_ids=None,
-                               denied_account_ids=None):
+    def calculate_query_filter_for_account_ids(query_filter=DEFAULT_SECURITY_HUB_FILTER,
+                                               allowed_account_ids=None,
+                                               denied_account_ids=None):
         """Calculates a Security Hub compatible filter for retrieving findings.
 
         Depending on arguments provided for allow list, deny list and frameworks to retrieve a query is constructed to
@@ -443,6 +512,28 @@ class FindingsManager:
             query_filter.update({'AwsAccountId': aws_account_ids})
         return query_filter
 
+    @retry(retry_on_exceptions=botocore.exceptions.ClientError)
+    def _get_findings(self, query_filter):
+        findings = set()
+        aggregating_region = self._get_aggregating_region()
+        regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
+        for region in regions_to_retrieve:
+            self._logger.debug(f'Trying to get findings for region {region}')
+            session = boto3.Session(region_name=region)
+            security_hub = session.client('securityhub')
+            paginator = security_hub.get_paginator('get_findings')
+            iterator = paginator.paginate(Filters=query_filter)
+            try:
+                for page in iterator:
+                    for finding_data in page['Findings']:
+                        finding = Finding(finding_data)
+                        self._logger.debug(f'Adding finding with id {finding.id}')
+                        findings.add(finding)
+            except (security_hub.exceptions.InvalidAccessException, security_hub.exceptions.AccessDeniedException):
+                self._logger.debug(f'No access for Security Hub for region {region}.')
+                continue
+        return list(findings)
+
     def get_findings(self):
         """Retrieves findings from security hub based on a default query.
 
@@ -450,59 +541,63 @@ class FindingsManager:
             findings (list): A list of findings from security hub.
 
         """
-        query_filter = DEFAULT_SECURITY_HUB_FILTER
-        return self._get_findings(query_filter)
+        all_findings = []
+        for rule in self.rules:
+            findings = self._get_findings(rule.query_filter)
+            for finding in findings:
+                finding.note = rule.note
+                finding.action = rule.action
+            all_findings.extend(findings)
+        initial_size = len(all_findings)
+        findings = list(set(all_findings))
+        diff = initial_size - len(findings)
+        if diff:
+            self._logger.warning(f'Missmatch of finding numbers, there seems to be an overlap of {diff}')
+        return findings
 
-    def get_findings_by_control_id(self, control_id):
-        """Retrieves findings from security hub based on a provided query that filters by control id.
+    def get_findings_by_rule_match(self, note, action, match_on):
+        rule = Rule(note, action, match_on)
+        return self._get_findings(rule.query_filter)
 
-         Args:
-            control_id: The identifier of the control.
+    @staticmethod
+    def _chunk(it, size):
+        it = iter(it)
+        return iter(lambda: tuple(islice(it, size)), ())
 
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        # For the CIS AWS Foundations Benchmark standard, the field is RuleId.
-        # For other standards, the field is ControlId.
-        query_filter = {'ProductFields': [
-            {
-                'Key': 'ControlId',
-                'Value': control_id,
-                'Comparison': 'EQUALS'
-            },
-            {
-                'Key': 'RuleId',
-                'Value': control_id,
-                'Comparison': 'EQUALS'
-            }
-        ]}
-        return self._get_findings(query_filter)
-
-    def get_findings_for_tag(self, tag_key, tag_value):
-        """Retrieves findings from security hub based on a provided query that filters for tag.
-
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        query_filter = {'ResourceTags': [
-            {
-                'Key': tag_key,
-                'Value': tag_value,
-                'Comparison': 'EQUALS'
-            }
-        ]}
-        return self._get_findings(query_filter)
+    @staticmethod
+    def _get_suppressing_payload(findings):
+        findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
+        # group findings by their common notes
+        notes_findings_mapping = defaultdict(list)
+        for finding in findings:
+            notes_findings_mapping[finding.note].append(finding)
+        # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
+        for note, findings in notes_findings_mapping.items():
+            common_finding = findings[0]
+            for chunk in FindingsManager._chunk([{'Id': finding.id,
+                                                  'ProductArn': finding.product_arn}
+                                                 for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
+                yield {'FindingIdentifiers': chunk,
+                       'Workflow': {'Status': common_finding.action},
+                       'Note': {'Text': note,
+                                'UpdatedBy': 'FindingsManager'}}
 
     def suppress_findings(self):
         """Suppresses findings from security hub based on a default query."""
+        security_hub = self._get_security_hub_client(self.aws_region)
+        for payload in self._get_suppressing_payload(self.get_findings()):
+            if os.environ['FINDINGS_MANAGER_DRY_MODE']:
+                self._logger.debug(f'Would send payload {payload} for suppression to Security Hub.')
+            else:
+                security_hub.batch_update_findings(payload)
 
-    def suppress_findings_by_rule_id(self):
-        """Suppresses findings from security hub based on a query by rule id."""
+    # def suppress_findings_by_rule_match(self, note, action, match_on):
+    #     rule = Rule(note, action, match_on)
+    #     return self._get_suppressing_payload()
 
-    def suppress_findings_by_control_id(self):
-        """Suppresses findings from security hub based on a query by control id."""
-
-    def suppress_findings_by_tag(self):
-        """Suppresses findings from security hub based on a query by tag."""
+#
+#     def match_finding_with_rule(self, finding_data):
+#         query_filter = {'Id': finding_data.finding_id}
+#         finding = self._get_findings(query_filter)
+#         return
+#
