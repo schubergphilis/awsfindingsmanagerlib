@@ -88,7 +88,12 @@ class Finding:
             raise ValueError('Not a Finding object')
         return hash(self) != hash(other)
 
-    def register_matched_rule(self, rule):
+    @property
+    def matched_rule(self):
+        return self._matched_rule
+
+    @matched_rule.setter
+    def matched_rule(self, rule):
         if not isinstance(rule, Rule):
             raise InvalidRuleType(f'The argument provided is not a valid rule object. Received: "{rule}"')
         self._matched_rule = rule
@@ -533,7 +538,7 @@ class FindingsManager:
         for rule in self.rules:
             findings = self._get_findings(rule.query_filter)
             for finding in findings:
-                finding.register_matched_rule(rule)
+                finding.matched_rule = rule
             all_findings.extend(findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
