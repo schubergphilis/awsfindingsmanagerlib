@@ -31,6 +31,7 @@ from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
 from itertools import islice
+from re import search
 
 import boto3
 import botocore.errorfactory
@@ -282,11 +283,11 @@ class Finding:
 class Rule:
     """Models a suppression rule."""
 
-    supported_actions = ('suppressed',)
+    supported_actions = ('SUPPRESSED',)
     match_fields = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
     def __init__(self, note, action, match_on):
-        self.match_on = self._validate_matching_fields(match_on)
+        self._match_on = self._validate_matching_fields(match_on)
         self.action = self._validate_action(action)
         self.note = note
 
@@ -304,6 +305,10 @@ class Rule:
         if not isinstance(other, Rule):
             raise ValueError('Not a Rule object')
         return hash(self) != hash(other)
+
+    @property
+    def match_on(self):
+        return self._match_on.get('match_on')
 
     @staticmethod
     def _validate_action(action):
@@ -349,11 +354,10 @@ class Rule:
 
     @property
     def query_filter(self):
-        match_on_data = self.match_on.get('match_on')
         query = deepcopy(DEFAULT_SECURITY_HUB_FILTER)
-        query.update(self._get_control_id_query(match_on_data))
-        query.update(self._get_security_control_id_query(match_on_data))
-        query.update(self._get_tag_query(match_on_data))
+        query.update(self._get_control_id_query(self.match_on))
+        query.update(self._get_security_control_id_query(self.match_on))
+        query.update(self._get_tag_query(self.match_on))
         return query
 
 
@@ -539,6 +543,26 @@ class FindingsManager:
                 continue
         return list(findings)
 
+    @staticmethod
+    def _match_findings_by_rule_resources(rule, findings, logger):
+        resource_id_matches = rule.match_on.get('resource_ids')
+        if not resource_id_matches:
+            logger.debug('No resource id patterns are provided in the rule, all findings used.')
+            for finding in findings:
+                finding.matched_rule = rule
+            return findings
+        matching_findings = []
+        for finding in findings:
+            # Per finding we need to check if any of the resource ids are matching any of the resource id
+            # of the rule. If we have a match we add the finding.
+            for pattern in resource_id_matches:
+                matches = [search(pattern, resource) for resource in finding.resource_ids]
+            if any(matches):  # noqa
+                logger.debug(f'Matched finding {finding.id} with rule with note {rule.note}')
+                finding.matched_rule = rule
+                matching_findings.append(finding)
+        return matching_findings
+
     def get_findings(self):
         """Retrieves findings from security hub based on a default query.
 
@@ -549,9 +573,7 @@ class FindingsManager:
         all_findings = []
         for rule in self.rules:
             findings = self._get_findings(rule.query_filter)
-            for finding in findings:
-                finding.matched_rule = rule
-            all_findings.extend(findings)
+            all_findings.extend(self._match_findings_by_rule_resources(rule, findings, self._logger))
         initial_size = len(all_findings)
         findings = list(set(all_findings))
         diff = initial_size - len(findings)
@@ -599,8 +621,10 @@ class FindingsManager:
         result = []
         for payload in self._get_suppressing_payload(findings):
             self._logger.debug(f'Sending payload {payload} for suppression to Security Hub.')
-            if not os.environ.get('FINDINGS_MANAGER_DRY_MODE'):
-                result.append(self._batch_update_findings(security_hub, payload))
+            if os.environ.get('FINDINGS_MANAGER_DRY_RUN_MODE'):
+                self._logger.debug('Dry run mode is on, skipping the actual suppression.')
+                continue
+            result.append(self._batch_update_findings(security_hub, payload))
         return all(result)
 
     def _batch_update_findings(self, security_hub, payload):
@@ -641,7 +665,7 @@ class FindingsManager:
 
         """
         status = True
-        response = security_hub.batch_update_findings(payload)
+        response = security_hub.batch_update_findings(**payload)
         failed = response.get('UnprocessedFindings')
         if failed:
             if self._strict_mode:
