@@ -561,18 +561,17 @@ class FindingsManager:
     def _get_suppressing_payload(findings):
         findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
         # group findings by their common notes
-        notes_findings_mapping = defaultdict(list)
+        rule_findings_mapping = defaultdict(list)
         for finding in findings:
-            notes_findings_mapping[finding.matched_rule].append(finding)
+            rule_findings_mapping[finding.matched_rule].append(finding)
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
-        for note, findings in notes_findings_mapping.items():
-            common_finding = findings[0]
+        for rule, findings in rule_findings_mapping.items():
             for chunk in FindingsManager._chunk([{'Id': finding.id,
                                                   'ProductArn': finding.product_arn}
                                                  for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
                 yield {'FindingIdentifiers': chunk,
-                       'Workflow': {'Status': common_finding.action},
-                       'Note': {'Text': note,
+                       'Workflow': {'Status': rule.action},
+                       'Note': {'Text': rule.note,
                                 'UpdatedBy': 'FindingsManager'}}
 
     def suppress_matching_findings(self):
