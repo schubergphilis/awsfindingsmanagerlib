@@ -285,7 +285,6 @@ class Rule:
     actions = ('suppressed',)
     match_fields = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
-    # pylint: disable=too-many-arguments
     def __init__(self, note, action, match_on):
         self.match = self._validate_matching_fields(match_on)
         self.action = self._validate_action(action)
@@ -319,8 +318,9 @@ class Rule:
             raise InvalidRuleType(diff)
         return match_on
 
-    # @property
-    # def query_filter(self):
+    @property
+    def query_filter(self):
+        ...
     #     # For the CIS AWS Foundations Benchmark standard, the field is RuleId.
     #     #     # For other standards, the field is ControlId.
     #     query_filter = {'ProductFields': [
@@ -367,7 +367,6 @@ class FindingsManager:
     def rules_errors(self):
         return self._rules_errors
 
-    # pylint: disable=too-many-arguments
     def register_rule(self, note, action, match_on):
         self._rules.append(Rule(note, action, match_on))
 
@@ -565,10 +564,10 @@ class FindingsManager:
         for finding in findings:
             rule_findings_mapping[finding.matched_rule].append(finding)
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
-        for rule, findings in rule_findings_mapping.items():
+        for rule, findings_ in rule_findings_mapping.items():
             for chunk in FindingsManager._chunk([{'Id': finding.id,
                                                   'ProductArn': finding.product_arn}
-                                                 for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
+                                                 for finding in findings_], MAX_SUPPRESSION_PAYLOAD_SIZE):
                 yield {'FindingIdentifiers': chunk,
                        'Workflow': {'Status': rule.action},
                        'Note': {'Text': rule.note,
@@ -593,7 +592,7 @@ class FindingsManager:
         return all(result)
 
     def _batch_update_findings(self, security_hub, payload):
-        """Sends a payload with a batch of max size of 100
+        """Sends a payload with a batch of max size of 100.
 
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/securityhub/client/batch_update_findings.html
         The response is of the form :
