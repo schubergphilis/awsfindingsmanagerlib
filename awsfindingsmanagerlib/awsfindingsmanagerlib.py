@@ -558,7 +558,7 @@ class FindingsManager:
             for pattern in resource_id_matches:
                 matches = [search(pattern, resource) for resource in finding.resource_ids]
             if any(matches):  # noqa
-                logger.debug(f'Matched finding {finding.id} with rule with note {rule.note}')
+                logger.debug(f'Matched finding "{finding.id}" with rule with note "{rule.note}"')
                 finding.matched_rule = rule
                 matching_findings.append(finding)
         return matching_findings
