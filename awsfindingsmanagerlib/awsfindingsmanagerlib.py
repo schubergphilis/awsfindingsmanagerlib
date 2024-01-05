@@ -71,8 +71,7 @@ class Finding:
     def __init__(self, data: dict) -> None:
         self._data = data
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
-        self._note = None
-        self._action = None
+        self._matched_rule = None
 
     def __hash__(self):
         return hash(self.id)
@@ -89,21 +88,10 @@ class Finding:
             raise ValueError('Not a Finding object')
         return hash(self) != hash(other)
 
-    @property
-    def action(self):
-        return self._action
-
-    @action.setter
-    def action(self, action):
-        self._action = action
-
-    @property
-    def note(self):
-        return self._note
-
-    @note.setter
-    def note(self, note):
-        self._note = note
+    def register_matched_rule(self, rule):
+        if not isinstance(rule, Rule):
+            raise InvalidRuleType(f'The argument provided is not a valid rule object. Received: "{rule}"')
+        self._matched_rule = rule
 
     @property
     def aws_account_id(self):
@@ -545,8 +533,7 @@ class FindingsManager:
         for rule in self.rules:
             findings = self._get_findings(rule.query_filter)
             for finding in findings:
-                finding.note = rule.note
-                finding.action = rule.action
+                finding.register_matched_rule(rule)
             all_findings.extend(findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
