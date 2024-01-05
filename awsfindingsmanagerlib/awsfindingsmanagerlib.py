@@ -545,17 +545,11 @@ class FindingsManager:
 
     @staticmethod
     def _match_findings_by_rule_resources(rule, findings, logger):
-        resource_id_matches = rule.match_on.get('resource_ids')
-        if not resource_id_matches:
-            logger.debug('No resource id patterns are provided in the rule, all findings used.')
-            for finding in findings:
-                finding.matched_rule = rule
-            return findings
         matching_findings = []
         for finding in findings:
             # Per finding we need to check if any of the resource ids are matching any of the resource id
             # of the rule. If we have a match we add the finding.
-            for pattern in resource_id_matches:
+            for pattern in rule.match_on.get('resource_ids'):
                 matches = [search(pattern, resource) for resource in finding.resource_ids]
             if any(matches):  # noqa
                 logger.debug(f'Matched finding "{finding.id}" with rule with note "{rule.note}"')
@@ -573,7 +567,14 @@ class FindingsManager:
         all_findings = []
         for rule in self.rules:
             findings = self._get_findings(rule.query_filter)
-            all_findings.extend(self._match_findings_by_rule_resources(rule, findings, self._logger))
+            if not rule.match_on.get('resource_ids'):
+                self._logger.debug('No resource id patterns are provided in the rule, all findings used.')
+                for finding in findings:
+                    finding.matched_rule = rule
+                matching_findings = findings
+            else:
+                matching_findings = self._match_findings_by_rule_resources(rule, findings, self._logger)
+            all_findings.extend(matching_findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
         diff = initial_size - len(findings)
