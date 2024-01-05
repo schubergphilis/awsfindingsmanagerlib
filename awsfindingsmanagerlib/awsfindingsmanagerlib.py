@@ -45,7 +45,7 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               InvalidRuleType,
                                               InvalidRuleAction,
                                               FailedToBatchUpdate)
-from .configuration import (DEFAULT_SECURITY_HUB_FILTER)
+from .configuration import (DEFAULT_SECURITY_HUB_FILTER, match_on_schema)
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
@@ -282,11 +282,11 @@ class Finding:
 class Rule:
     """Models a suppression rule."""
 
-    actions = ('suppressed',)
+    supported_actions = ('suppressed',)
     match_fields = ('security_control_id', 'control_id', 'resource_id', 'tag')
 
     def __init__(self, note, action, match_on):
-        self.match = self._validate_matching_fields(match_on)
+        self.match_on = self._validate_matching_fields(match_on)
         self.action = self._validate_action(action)
         self.note = note
 
@@ -307,42 +307,54 @@ class Rule:
 
     @staticmethod
     def _validate_action(action):
-        if action not in Rule.actions:
-            raise InvalidRuleAction(action)
+        if action not in Rule.supported_actions:
+            raise InvalidRuleAction(f'{action}, valid actions are {Rule.supported_actions}')
         return action
 
     @staticmethod
     def _validate_matching_fields(match_on):
-        diff = set(match_on.keys()) - set(Rule.match_fields)
-        if diff:
-            raise InvalidRuleType(diff)
-        return match_on
+        return match_on_schema.validate(match_on)
+
+    @staticmethod
+    def _get_control_id_query(match_on_data):
+        control_id = match_on_data.get('control_id')
+        if not control_id:
+            return {}
+        # For the CIS AWS Foundations Benchmark standard, the field is RuleId
+        # for other standards the field is ControlId, so we use both.
+        return {'ProductFields': [{'Key': 'ControlId',
+                                   'Value': control_id,
+                                   'Comparison': 'EQUALS'},
+                                  {'Key': 'RuleId',
+                                   'Value': control_id,
+                                   'Comparison': 'EQUALS'}]}
+
+    @staticmethod
+    def _get_security_control_id_query(match_on_data):
+        security_control_id = match_on_data.get('security_control_id')
+        if not security_control_id:
+            return {}
+        return {'ComplianceSecurityControlId': [{'Value': security_control_id,
+                                                 'Comparison': 'EQUALS'}]}
+
+    @staticmethod
+    def _get_tag_query(match_on_data):
+        tags = match_on_data.get('tags')
+        if not tags:
+            return {}
+        return {'ResourceTags': [{'Key': tag.get('key'),
+                                  'Value': tag.get('value'),
+                                  'Comparison': 'EQUALS'}
+                                 for tag in tags]}
 
     @property
     def query_filter(self):
-        ...
-    #     # For the CIS AWS Foundations Benchmark standard, the field is RuleId.
-    #     #     # For other standards, the field is ControlId.
-    #     query_filter = {'ProductFields': [
-    #         {
-    #             'Key': 'ControlId',
-    #             'Value': control_id,
-    #             'Comparison': 'EQUALS'
-    #         },
-    #         {
-    #             'Key': 'RuleId',
-    #             'Value': control_id,
-    #             'Comparison': 'EQUALS'
-    #         }
-    #     ]}
-    #     query_filter = {'ResourceTags': [
-    #     #         {
-    #     #             'Key': tag_key,
-    #     #             'Value': tag_value,
-    #     #             'Comparison': 'EQUALS'
-    #     #         }
-    #     #     ]}
-    #     return 'According to match on entries'
+        match_on_data = self.match_on.get('match_on')
+        query = deepcopy(DEFAULT_SECURITY_HUB_FILTER)
+        query.update(self._get_control_id_query(match_on_data))
+        query.update(self._get_security_control_id_query(match_on_data))
+        query.update(self._get_tag_query(match_on_data))
+        return query
 
 
 class FindingsManager:
