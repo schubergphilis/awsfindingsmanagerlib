@@ -43,7 +43,8 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               NoRegion,
                                               InvalidOrNoCredentials,
                                               InvalidRuleType,
-                                              InvalidRuleAction)
+                                              InvalidRuleAction,
+                                              FailedToBatchUpdate)
 from .configuration import (DEFAULT_SECURITY_HUB_FILTER)
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
@@ -562,7 +563,7 @@ class FindingsManager:
         # group findings by their common notes
         notes_findings_mapping = defaultdict(list)
         for finding in findings:
-            notes_findings_mapping[finding.note].append(finding)
+            notes_findings_mapping[finding.matched_rule].append(finding)
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
         for note, findings in notes_findings_mapping.items():
             common_finding = findings[0]
@@ -574,14 +575,37 @@ class FindingsManager:
                        'Note': {'Text': note,
                                 'UpdatedBy': 'FindingsManager'}}
 
-    def suppress_findings(self):
-        """Suppresses findings from security hub based on a default query."""
+    def suppress_matching_findings(self):
+        """Suppresses findings from security hub based the recorded rules."""
+        return self._suppress_findings(self.get_findings())
+
+    def suppress_findings(self, findings):
+        """Suppresses findings from security hub based on a provided list."""
+        return self._suppress_findings(findings)
+
+    def _suppress_findings(self, findings):
+        """Suppresses findings from security hub based on a provided list of findings."""
         security_hub = self._get_security_hub_client(self.aws_region)
-        for payload in self._get_suppressing_payload(self.get_findings()):
-            if os.environ['FINDINGS_MANAGER_DRY_MODE']:
-                self._logger.debug(f'Would send payload {payload} for suppression to Security Hub.')
-            else:
-                security_hub.batch_update_findings(payload)
+        result = []
+        for payload in self._get_suppressing_payload(findings):
+            self._logger.debug(f'Sending payload {payload} for suppression to Security Hub.')
+            if not os.environ.get('FINDINGS_MANAGER_DRY_MODE'):
+                result.append(self._batch_update_findings(security_hub, payload))
+        return all(result)
+
+    def _batch_update_findings(self, security_hub, payload):
+        status = True
+        response = security_hub.batch_update_findings(payload)
+        failed = response.get('UnprocessedFindings')
+        if failed:
+            if self._strict_mode:
+                raise FailedToBatchUpdate(failed)
+            status = False
+            for fail in failed:
+                id_ = fail.get('FindingIdentifier', '').get('Id')
+                error = fail.get('ErrorMessage')
+                self._logger.error(f'Failed to update finding with ID: "{id_}" with error: "{error}"')
+        return status
 
     # def suppress_findings_by_rule_match(self, note, action, match_on):
     #     rule = Rule(note, action, match_on)

@@ -70,3 +70,7 @@ class InvalidRuleType(Exception):
 
 class InvalidRuleAction(Exception):
     """The rule action is not in the accepted rules."""
+
+
+class FailedToBatchUpdate(Exception):
+    """Failed to batch update security hub findings."""
