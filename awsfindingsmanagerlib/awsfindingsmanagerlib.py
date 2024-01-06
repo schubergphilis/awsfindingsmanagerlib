@@ -570,6 +570,8 @@ class FindingsManager:
             if resource_ids_patterns:
                 matching_findings = [finding for finding in findings
                                      if finding.is_matching_resource_ids(resource_ids_patterns)]
+                self._logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
+                                   f'{[finding.id for finding in matching_findings]}')
             else:
                 self._logger.debug('No resource id patterns are provided in the rule, all findings used.')
                 matching_findings = findings
