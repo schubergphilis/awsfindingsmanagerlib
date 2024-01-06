@@ -251,9 +251,9 @@ class Finding:
             return -1
 
     def is_matching_resource_ids(self, resource_id_patterns):
-        return any([search(pattern, resource)
-                    for resource in self.resource_ids
-                    for pattern in resource_id_patterns])
+        return any(search(pattern, resource)
+                   for resource in self.resource_ids
+                   for pattern in resource_id_patterns)
 
 
 #
