@@ -250,6 +250,11 @@ class Finding:
                                    'last or first observation date is missing.')
             return -1
 
+    def is_matching_resource_ids(self, resource_id_patterns):
+        return any([search(pattern, resource)
+                    for resource in self.resource_ids
+                    for pattern in resource_id_patterns])
+
 
 #
 # Rules: # key
@@ -358,7 +363,7 @@ class Rule:
         query.update(self._get_control_id_query(self.match_on))
         query.update(self._get_security_control_id_query(self.match_on))
         query.update(self._get_tag_query(self.match_on))
-        return query
+        return deepcopy(query)
 
 
 class FindingsManager:
@@ -374,6 +379,12 @@ class FindingsManager:
         self._rules = []
         self._strict_mode = strict_mode
         self._rules_errors = []
+
+    @property
+    def default_query_filter(self):
+        return self.update_query_for_account_ids(DEFAULT_SECURITY_HUB_FILTER,
+                                                 self.allowed_regions,
+                                                 self.denied_regions)
 
     @property
     def rules(self):
@@ -498,9 +509,9 @@ class FindingsManager:
 
     #  pylint: disable=dangerous-default-value
     @staticmethod
-    def calculate_query_filter_for_account_ids(query_filter=DEFAULT_SECURITY_HUB_FILTER,
-                                               allowed_account_ids=None,
-                                               denied_account_ids=None):
+    def update_query_for_account_ids(query_filter=DEFAULT_SECURITY_HUB_FILTER,
+                                     allowed_account_ids=None,
+                                     denied_account_ids=None):
         """Calculates a Security Hub compatible filter for retrieving findings.
 
         Depending on arguments provided for allow list, deny list and frameworks to retrieve a query is constructed to
@@ -543,20 +554,6 @@ class FindingsManager:
                 continue
         return list(findings)
 
-    @staticmethod
-    def _match_findings_by_rule_resources(rule, findings, logger):
-        matching_findings = []
-        for finding in findings:
-            # Per finding we need to check if any of the resource ids are matching any of the resource id
-            # of the rule. If we have a match we add the finding.
-            for pattern in rule.match_on.get('resource_ids'):
-                matches = [search(pattern, resource) for resource in finding.resource_ids]
-            if any(matches):  # noqa
-                logger.debug(f'Matched finding "{finding.id}" with rule with note "{rule.note}"')
-                finding.matched_rule = rule
-                matching_findings.append(finding)
-        return matching_findings
-
     def get_findings(self):
         """Retrieves findings from security hub based on a default query.
 
@@ -566,14 +563,18 @@ class FindingsManager:
         """
         all_findings = []
         for rule in self.rules:
-            findings = self._get_findings(rule.query_filter)
-            if not rule.match_on.get('resource_ids'):
-                self._logger.debug('No resource id patterns are provided in the rule, all findings used.')
-                for finding in findings:
-                    finding.matched_rule = rule
-                matching_findings = findings
+            query = deepcopy(self.default_query_filter)
+            query.update(rule.query_filter)
+            findings = self._get_findings(query)
+            resource_ids_patterns = rule.match_on.get('resource_ids')
+            if resource_ids_patterns:
+                matching_findings = [finding for finding in findings
+                                     if finding.is_matching_resource_ids(resource_ids_patterns)]
             else:
-                matching_findings = self._match_findings_by_rule_resources(rule, findings, self._logger)
+                self._logger.debug('No resource id patterns are provided in the rule, all findings used.')
+                matching_findings = findings
+            for finding in findings:
+                finding.matched_rule = rule
             all_findings.extend(matching_findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
@@ -584,7 +585,9 @@ class FindingsManager:
 
     def get_findings_by_rule_match(self, note, action, match_on):
         rule = Rule(note, action, match_on)
-        return self._get_findings(rule.query_filter)
+        query = deepcopy(self.default_query_filter)
+        query.update(rule.query_filter)
+        return self._get_findings(query)
 
     @staticmethod
     def _chunk(it, size):
