@@ -32,6 +32,7 @@ from copy import deepcopy
 from datetime import datetime
 from itertools import islice
 from re import search
+from typing import List
 
 import boto3
 import botocore.errorfactory
@@ -435,7 +436,7 @@ class FindingsManager:
     def register_rules(self, rules):
         if self._strict_mode:
             rules = [Rule(**data) for data in rules]
-            self._rules.extend(rules)
+            self._rules.add(rules)
             return True
         success = True
         for data in rules:
@@ -740,3 +741,11 @@ class FindingsManager:
         else:
             return None
         return finding
+
+    def suppress_finding_on_matching_rules(self, finding_payload: List):
+        finding = self.validate_finding_on_matching_rules(finding_payload)
+        return self._suppress_findings(finding)
+
+    def suppress_findings_on_matching_rules(self, finding_payloads: List[dict]):
+        findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_payloads]
+        return self._suppress_findings(findings)
