@@ -46,7 +46,8 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               InvalidRuleType,
                                               InvalidRuleAction,
                                               FailedToBatchUpdate,
-                                              MutuallyExclusiveKeys)
+                                              MutuallyExclusiveKeys,
+                                              NoRuleFindings)
 from .configuration import DEFAULT_SECURITY_HUB_FILTER
 from .validations import match_on_schema
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
@@ -153,6 +154,16 @@ class Finding:
         return self._data.get('ProductFields', {}).get('StandardsGuideArn')
 
     @property
+    def rule_id(self):
+        """Rule ID."""
+        return self._data.get('ProductFields', {}).get('RuleId', '')
+
+    @property
+    def control_id(self):
+        """Rule ID."""
+        return self._data.get('ProductFields', {}).get('ControlId', '')
+
+    @property
     def resources(self):
         """A list of resource dicts."""
         return self._data.get('Resources', [{}])
@@ -166,6 +177,11 @@ class Finding:
     def resource_ids(self):
         """Resource ids."""
         return [resource.get('Id') for resource in self._data.get('Resources', [{}])]
+
+    @property
+    def tags(self):
+        """Tags."""
+        return [resource.get('Tags') for resource in self._data.get('Resources', [{}])]
 
     @property
     def generator_id(self):
@@ -201,6 +217,11 @@ class Finding:
     def compliance_status(self):
         """Compliance status."""
         return self._data.get('Compliance', {}).get('Status')
+
+    @property
+    def security_control_id(self):
+        """Security control ID."""
+        return self._data.get('Compliance', {}).get('SecurityControlId', '')
 
     @property
     def compliance_control(self):
@@ -257,34 +278,25 @@ class Finding:
                    for resource in self.resource_ids
                    for pattern in resource_id_patterns)
 
+    def is_matching_tags(self, tags):
+        return any(tag.get(key) == value
+                   for key, value in tags.items
+                   for tag in self.tags)
 
-#
-# Rules: # key
-#
-#   # type: ControlID | SecurityControlID | ResourceID | Tag
-#   # value: APIGateway.2
-#   - note:
-#     action: SUPPRESSED
-#     match_on:
-#       control_id: EC2.1
-#       security_control_id:
-#       resource_id:
-#         - ^arn:aws:apigateway:.*$
-#         - ^arn:aws:apigateway:.*$
-#       tag:
-#         - key: test
-#           value: bob
-#         - key: test2
-#           value: alice
-#
-#
-#   - note: CORE - bla - Public IPv4 by design. Instances function as gateway.
-#     action: SUPPRESSED
-#     match_on:
-#       control_id: EC2.9
-#       resource_id:
-#           - ^arn:aws:ec2:eu-west-1:000000000000:instance/i-08adfcb776cdd1208$
-#           - ^arn:aws:ec2:eu-west-1:000000000000:instance/i-006961948e7004653$
+    def is_matching_rule(self, rule):
+        if not isinstance(rule, Rule):
+            raise InvalidRuleType(rule)
+        if any([self.control_id == rule.control_id,
+                self.rule_id == rule.control_id,
+                self.security_control_id == rule.security_control_id]):
+            self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
+            if not any([rule.resource_ids, rule.tags]):
+                self._logger.debug(f'Rule "{rule.note}" does not seem to match on resources or tags.')
+                return True
+            if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_ids)]):
+                self._logger.debug(f'Matched with rule "{rule.note}" either on resources or tags.')
+                return True
+        return False
 
 
 class Rule:
@@ -405,9 +417,9 @@ class FindingsManager:
 
     @property
     def default_query_filter(self):
-        return self.update_query_for_account_ids(DEFAULT_SECURITY_HUB_FILTER,
-                                                 self.allowed_regions,
-                                                 self.denied_regions)
+        return deepcopy(self.update_query_for_account_ids(DEFAULT_SECURITY_HUB_FILTER,
+                                                          self.allowed_regions,
+                                                          self.denied_regions))
 
     @property
     def rules(self):
@@ -577,6 +589,21 @@ class FindingsManager:
                 continue
         return list(findings)
 
+    @staticmethod
+    def _get_matching_findings(rule, findings, logger):
+        if any([rule.resource_ids, rule.tags]):
+            matching_findings = [finding for finding in findings
+                                 if any([finding.is_matching_resource_ids(rule.resource_ids),
+                                         finding.is_matching_tags(rule.tags)])]
+            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
+                         f'{[finding.id for finding in matching_findings]}')
+        else:
+            logger.debug('No resource id patterns or tags are provided in the rule, all findings used.')
+            matching_findings = findings
+        for finding in matching_findings:
+            finding.matched_rule = rule
+        return matching_findings
+
     def get_findings(self):
         """Retrieves findings from security hub based on a default query.
 
@@ -586,20 +613,10 @@ class FindingsManager:
         """
         all_findings = []
         for rule in self.rules:
-            query = deepcopy(self.default_query_filter)
+            query = self.default_query_filter
             query.update(rule.query_filter)
             findings = self._get_findings(query)
-            resource_ids_patterns = rule.match_on.get('resource_ids')
-            if resource_ids_patterns:
-                matching_findings = [finding for finding in findings
-                                     if finding.is_matching_resource_ids(resource_ids_patterns)]
-                self._logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
-                                   f'{[finding.id for finding in matching_findings]}')
-            else:
-                self._logger.debug('No resource id patterns are provided in the rule, all findings used.')
-                matching_findings = findings
-            for finding in findings:
-                finding.matched_rule = rule
+            matching_findings = self._get_matching_findings(rule, findings, self._logger)
             all_findings.extend(matching_findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
@@ -610,7 +627,7 @@ class FindingsManager:
 
     def get_findings_by_rule_match(self, note, action, match_on):
         rule = Rule(note, action, match_on)
-        query = deepcopy(self.default_query_filter)
+        query = self.default_query_filter
         query.update(rule.query_filter)
         return self._get_findings(query)
 
@@ -619,10 +636,18 @@ class FindingsManager:
         it = iter(it)
         return iter(lambda: tuple(islice(it, size)), ())
 
-    @staticmethod
-    def _get_suppressing_payload(findings):
+    def _validate_rule_in_findings(self, findings):
+        no_rule_matches = [finding.id for finding in findings if not finding.matched_rule]
+        if no_rule_matches:
+            message = f'Findings with the following ids "{no_rule_matches}" do not have matching rules'
+            if self._strict_mode:
+                raise NoRuleFindings(message)
+            self._logger.warning(message)
+        return findings
+
+    def _get_suppressing_payload(self, findings):
         findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
-        # group findings by their common notes
+        findings = self._validate_rule_in_findings(findings)
         rule_findings_mapping = defaultdict(list)
         for finding in findings:
             rule_findings_mapping[finding.matched_rule].append(finding)
@@ -706,13 +731,12 @@ class FindingsManager:
                 self._logger.error(f'Failed to update finding with ID: "{id_}" with error: "{error}"')
         return status
 
-    # def suppress_findings_by_rule_match(self, note, action, match_on):
-    #     rule = Rule(note, action, match_on)
-    #     return self._get_suppressing_payload()
-
-#
-#     def match_finding_with_rule(self, finding_data):
-#         query_filter = {'Id': finding_data.finding_id}
-#         finding = self._get_findings(query_filter)
-#         return
-#
+    def validate_finding_on_matching_rules(self, finding_payload):
+        finding = Finding(**finding_payload)
+        for rule in self.rules:
+            if finding.is_matching_rule(rule):
+                finding.matched_rule = rule
+                break
+        else:
+            return None
+        return Finding

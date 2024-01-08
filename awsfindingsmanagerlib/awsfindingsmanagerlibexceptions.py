@@ -78,3 +78,10 @@ class FailedToBatchUpdate(Exception):
 
 class MutuallyExclusiveKeys(Exception):
     """Entries on match_on field are provided that are mutually exclusive."""
+
+
+class NoRuleFindings(Exception):
+    """Findings with no rules matched are provided to suppress.
+
+    Depending on the strictness set it might be an error or a warning.
+    """
