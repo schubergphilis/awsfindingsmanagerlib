@@ -181,7 +181,7 @@ class Finding:
     @property
     def tags(self):
         """Tags."""
-        return [resource.get('Tags') for resource in self._data.get('Resources', [{}])]
+        return [resource.get('Tags') for resource in self._data.get('Resources', []) if resource.get('Tags')]
 
     @property
     def generator_id(self):
@@ -278,9 +278,9 @@ class Finding:
                    for resource in self.resource_ids
                    for pattern in resource_id_patterns)
 
-    def is_matching_tags(self, tags):
-        return any(tag.get(key) == value
-                   for key, value in tags.items
+    def is_matching_tags(self, rule_tags):
+        return any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
+                   for rule_tag in rule_tags
                    for tag in self.tags)
 
     def is_matching_rule(self, rule):
@@ -411,7 +411,7 @@ class FindingsManager:
         self.ec2 = self._get_ec2_client(region)
         self._aws_regions = None
         self.aws_region = self._validate_region(region) or self._sts_client_config_region
-        self._rules = []
+        self._rules = set()
         self._strict_mode = strict_mode
         self._rules_errors = []
 
@@ -423,14 +423,14 @@ class FindingsManager:
 
     @property
     def rules(self):
-        return self._rules
+        return list(self._rules)
 
     @property
     def rules_errors(self):
         return self._rules_errors
 
     def register_rule(self, note, action, match_on):
-        self._rules.append(Rule(note, action, match_on))
+        self._rules.add(Rule(note, action, match_on))
 
     def register_rules(self, rules):
         if self._strict_mode:
@@ -739,4 +739,4 @@ class FindingsManager:
                 break
         else:
             return None
-        return Finding
+        return finding
