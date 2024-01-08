@@ -291,7 +291,7 @@ class Finding:
                 self.security_control_id == rule.security_control_id]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
             if not any([rule.resource_ids, rule.tags]):
-                self._logger.debug(f'Rule "{rule.note}" does not seem to match on resources or tags.')
+                self._logger.debug(f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
                 return True
             if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_ids)]):
                 self._logger.debug(f'Matched with rule "{rule.note}" either on resources or tags.')
