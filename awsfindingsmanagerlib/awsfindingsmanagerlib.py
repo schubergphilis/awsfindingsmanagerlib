@@ -45,8 +45,10 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               InvalidOrNoCredentials,
                                               InvalidRuleType,
                                               InvalidRuleAction,
-                                              FailedToBatchUpdate)
-from .configuration import (DEFAULT_SECURITY_HUB_FILTER, match_on_schema)
+                                              FailedToBatchUpdate,
+                                              MutuallyExclusiveKeys)
+from .configuration import DEFAULT_SECURITY_HUB_FILTER
+from .validations import match_on_schema
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
@@ -289,7 +291,8 @@ class Rule:
     """Models a suppression rule."""
 
     supported_actions = ('SUPPRESSED',)
-    match_fields = ('security_control_id', 'control_id', 'resource_id', 'tag')
+    match_fields = ('security_control_id', 'control_id', 'resource_ids', 'tags')
+    mutually_exclusive = [('security_control_id', 'control_id')]
 
     def __init__(self, note, action, match_on):
         self._match_on = self._validate_matching_fields(match_on)
@@ -315,6 +318,22 @@ class Rule:
     def match_on(self):
         return self._match_on.get('match_on')
 
+    @property
+    def security_control_id(self):
+        return self.match_on.get('security_control_id', '')
+
+    @property
+    def control_id(self):
+        return self.match_on.get('control_id', '')
+
+    @property
+    def resource_ids(self):
+        return self.match_on.get('resource_ids', [])
+
+    @property
+    def tags(self):
+        return self.match_on.get('tags', [])
+
     @staticmethod
     def _validate_action(action):
         if action not in Rule.supported_actions:
@@ -323,7 +342,11 @@ class Rule:
 
     @staticmethod
     def _validate_matching_fields(match_on):
-        return match_on_schema.validate(match_on)
+        match_on = match_on_schema.validate(match_on)
+        for set_ in Rule.mutually_exclusive:
+            if set(set_).issubset(set(match_on.get('match_on').keys())):
+                raise MutuallyExclusiveKeys(set_)
+        return match_on
 
     @staticmethod
     def _get_control_id_query(match_on_data):

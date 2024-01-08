@@ -74,3 +74,7 @@ class InvalidRuleAction(Exception):
 
 class FailedToBatchUpdate(Exception):
     """Failed to batch update security hub findings."""
+
+
+class MutuallyExclusiveKeys(Exception):
+    """Entries on match_on field are provided that are mutually exclusive."""

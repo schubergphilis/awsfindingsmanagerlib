@@ -30,8 +30,6 @@ import logging
 import urllib.error
 import urllib.request
 
-from schema import Schema, Optional
-
 from .awsfindingsmanagerlibexceptions import UnableToRetrieveSecurityHubRegions
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
@@ -58,20 +56,6 @@ DEFAULT_SECURITY_HUB_FILTER = {'ComplianceStatus': [
         'Comparison': 'EQUALS'
     }
 ]}
-
-# match_on = {'match_on': {'control_id': 'EC2.1',
-#                          'security_control_id': 'bob',
-#                          'resource_ids': ['^arn:aws:apigateway:.*$',
-#                                           '^arn:aws:apigateway:.*$'],
-#                          'tags': [{'key': 'test', 'value': 'bob'},
-#                                   {'key': 'test2', 'value': 'alice'}]}}
-
-match_on_schema = Schema({'match_on': {Optional('control_id'): str,
-                                       Optional('security_control_id'): str,
-                                       Optional('resource_ids'): [str],
-                                       Optional('tags'): [{'key': str,
-                                                           'value': str}]}
-                          })
 
 
 def get_available_security_hub_regions():
