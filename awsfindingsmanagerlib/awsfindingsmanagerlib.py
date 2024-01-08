@@ -732,7 +732,7 @@ class FindingsManager:
         return status
 
     def validate_finding_on_matching_rules(self, finding_payload):
-        finding = Finding(**finding_payload)
+        finding = Finding(finding_payload)
         for rule in self.rules:
             if finding.is_matching_rule(rule):
                 finding.matched_rule = rule
