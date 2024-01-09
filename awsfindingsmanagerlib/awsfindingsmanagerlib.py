@@ -32,7 +32,7 @@ from copy import deepcopy
 from datetime import datetime
 from itertools import islice
 from re import search
-from typing import List
+from typing import List, Dict, Union
 
 import boto3
 import botocore.errorfactory
@@ -48,7 +48,8 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               InvalidRuleAction,
                                               FailedToBatchUpdate,
                                               MutuallyExclusiveKeys,
-                                              NoRuleFindings)
+                                              NoRuleFindings,
+                                              MissingRequiredKeys)
 from .configuration import DEFAULT_SECURITY_HUB_FILTER
 from .validations import match_on_schema
 from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
@@ -73,9 +74,12 @@ MAX_SUPPRESSION_PAYLOAD_SIZE = 100
 
 class Finding:
     """Models a finding."""
+    required_fields = {'FindingProviderFields', 'AwsAccountId', 'RecordState', 'Resources', 'UpdatedAt', 'CompanyName',
+                       'Description', 'Workflow', 'Title', 'ProductFields', 'Id', 'Severity', 'Region', 'Types',
+                       'ProductName', 'WorkflowState', 'ProductArn', 'SchemaVersion', 'GeneratorId', 'CreatedAt'}
 
     def __init__(self, data: dict) -> None:
-        self._data = data
+        self._data = self._validate_data(data)
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._matched_rule = None
 
@@ -93,6 +97,13 @@ class Finding:
         if not isinstance(other, Finding):
             raise ValueError('Not a Finding object')
         return hash(self) != hash(other)
+
+    @staticmethod
+    def _validate_data(data):
+        missing = set(data.keys()) - set(Finding.required_fields)
+        if missing:
+            raise MissingRequiredKeys(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
+        return data
 
     @property
     def matched_rule(self):
@@ -405,7 +416,7 @@ class Rule:
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
-    def __init__(self, region=None, allowed_regions=None, denied_regions=None, strict_mode=True):
+    def __init__(self, region=None, allowed_regions=None, denied_regions=None, strict_mode=True, suppress_label=None):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions, denied_regions)
         self.sts = self._get_sts_client()
@@ -415,6 +426,7 @@ class FindingsManager:
         self._rules = set()
         self._strict_mode = strict_mode
         self._rules_errors = []
+        self._suppress_label = suppress_label or self.__class__.__name__
 
     @property
     def default_query_filter(self):
@@ -660,7 +672,7 @@ class FindingsManager:
                 yield {'FindingIdentifiers': chunk,
                        'Workflow': {'Status': rule.action},
                        'Note': {'Text': rule.note,
-                                'UpdatedBy': 'FindingsManager'}}
+                                'UpdatedBy': self._suppress_label}}
 
     def suppress_matching_findings(self):
         """Suppresses findings from security hub based the recorded rules."""
@@ -742,10 +754,19 @@ class FindingsManager:
             return None
         return finding
 
-    def suppress_finding_on_matching_rules(self, finding_payload: List):
-        finding = self.validate_finding_on_matching_rules(finding_payload)
-        return self._suppress_findings(finding)
+    def suppress_finding_on_matching_rules(self, finding_payload: Dict):
+        return self.suppress_findings_on_matching_rules(finding_payload)
 
-    def suppress_findings_on_matching_rules(self, finding_payloads: List[dict]):
-        findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_payloads]
-        return self._suppress_findings(findings)
+    def suppress_findings_on_matching_rules(self, finding_payloads: Union[List[Dict], Dict]):
+        if isinstance(finding_payloads, dict):
+            finding_payloads = [finding_payloads]
+        if self._strict_mode:
+            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_payloads]
+        else:
+            findings = []
+            for payload in finding_payloads:
+                try:
+                    findings.append(self.validate_finding_on_matching_rules(payload))
+                except MissingRequiredKeys:
+                    self._logger.error(f'Data {payload} seems to be invalid.')
+        return self._suppress_findings([finding for finding in findings if finding])

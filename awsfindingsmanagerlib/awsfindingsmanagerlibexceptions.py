@@ -85,3 +85,7 @@ class NoRuleFindings(Exception):
 
     Depending on the strictness set it might be an error or a warning.
     """
+
+
+class MissingRequiredKeys(Exception):
+    """The data provided for a finding is missing required keys."""
