@@ -74,6 +74,7 @@ MAX_SUPPRESSION_PAYLOAD_SIZE = 100
 
 class Finding:
     """Models a finding."""
+
     required_fields = {'FindingProviderFields', 'AwsAccountId', 'RecordState', 'Resources', 'UpdatedAt', 'CompanyName',
                        'Description', 'Workflow', 'Title', 'ProductFields', 'Id', 'Severity', 'Region', 'Types',
                        'ProductName', 'WorkflowState', 'ProductArn', 'SchemaVersion', 'GeneratorId', 'CreatedAt'}
@@ -416,6 +417,7 @@ class Rule:
 class FindingsManager:
     """Models security hub and can retrieve findings."""
 
+    # pylint: disable=too-many-arguments
     def __init__(self, region=None, allowed_regions=None, denied_regions=None, strict_mode=True, suppress_label=None):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions, denied_regions)
