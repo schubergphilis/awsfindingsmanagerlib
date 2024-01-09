@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: configuration.py
 #
-# Copyright 2023 Marwin Baumann
+# Copyright 2023 Marwin Baumann, Costas Tyfoxylos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ import urllib.request
 
 from .awsfindingsmanagerlibexceptions import UnableToRetrieveSecurityHubRegions
 
-__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
+__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
-__copyright__ = '''Copyright 2023, Marwin Baumann'''
+__copyright__ = '''Copyright 2023, Marwin Baumann, Costas Tyfoxylos'''
 __credits__ = ["Ben van Breukelen", "Costas Tyfoxylos", "Marwin Baumann"]
 __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
