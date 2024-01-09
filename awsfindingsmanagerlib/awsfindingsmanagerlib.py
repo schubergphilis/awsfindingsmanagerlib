@@ -101,7 +101,7 @@ class Finding:
 
     @staticmethod
     def _validate_data(data):
-        missing = set(data.keys()) - set(Finding.required_fields)
+        missing = set(Finding.required_fields) - set(data.keys())
         if missing:
             raise InvalidFindingData(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
         return data
@@ -495,8 +495,8 @@ class FindingsManager:
 
         """
         if self._strict_mode:
-            rules = [Rule(**data) for data in rules]
-            self._rules.add(rules)
+            for data in rules:
+                self._rules.add(Rule(**data))
             return True
         success = True
         for data in rules:
