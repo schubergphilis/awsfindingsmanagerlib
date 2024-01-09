@@ -25,6 +25,8 @@ Main code for awsfindingsmanagerlib.
 
 """
 
+from __future__ import annotations
+
 import logging
 import os
 from collections import defaultdict
@@ -79,193 +81,199 @@ class Finding:
                        'Description', 'Workflow', 'Title', 'ProductFields', 'Id', 'Severity', 'Region', 'Types',
                        'ProductName', 'WorkflowState', 'ProductArn', 'SchemaVersion', 'GeneratorId', 'CreatedAt'}
 
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: Dict) -> None:
         self._data = self._validate_data(data)
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._matched_rule = None
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.id)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Finding) -> bool:
         """Override the default equals behavior."""
         if not isinstance(other, Finding):
             raise ValueError('Not a Finding object')
         return hash(self) == hash(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Finding) -> bool:
         """Override the default unequal behavior."""
         if not isinstance(other, Finding):
             raise ValueError('Not a Finding object')
         return hash(self) != hash(other)
 
     @staticmethod
-    def _validate_data(data):
+    def _validate_data(data: Dict) -> Dict:
         missing = set(Finding.required_fields) - set(data.keys())
         if missing:
             raise InvalidFindingData(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
         return data
 
     @property
-    def matched_rule(self):
+    def matched_rule(self) -> Rule:
+        """The matched rule that is registered in the finding."""
         return self._matched_rule
 
     @matched_rule.setter
-    def matched_rule(self, rule):
+    def matched_rule(self, rule) -> None:
+        """The matched rule setter that is registered in the finding."""
         if not isinstance(rule, Rule):
             raise InvalidRuleType(f'The argument provided is not a valid rule object. Received: "{rule}"')
         self._matched_rule = rule
 
     @property
-    def aws_account_id(self):
+    def aws_account_id(self) -> str:
         """Account id."""
         return self._data.get('AwsAccountId')
 
     @property
-    def product_arn(self):
+    def product_arn(self) -> str:
         """Product ARN."""
         return self._data.get('ProductArn')
 
     @property
-    def region(self):
+    def region(self) -> str:
         """Region."""
         return self._data.get('Region')
 
     @property
-    def id(self):  # pylint: disable=invalid-name
+    def id(self) -> str:  # pylint: disable=invalid-name
         """ID."""
         return self._data.get('Id')
 
     @property
-    def severity(self):
+    def severity(self) -> Optional[str]:
         """Severity."""
         return self._data.get('Severity', {}).get('Label')
 
     @property
-    def title(self):
+    def title(self) -> str:
         """Title."""
         return self._data.get('Title')
 
     @property
-    def description(self):
+    def description(self) -> str:
         """Description."""
         return self._data.get('Description')
 
     @property
-    def remediation_recommendation_text(self):
+    def remediation_recommendation_text(self) -> Optional[str]:
         """Textual recommendation for remediation."""
         return self._data.get('Remediation', {}).get('Recommendation', {}).get('Text')
 
     @property
-    def remediation_recommendation_url(self):
+    def remediation_recommendation_url(self) -> Optional[str]:
         """URL for more information on the remediation."""
         return self._data.get('Remediation', {}).get('Recommendation', {}).get('Url')
 
     @property
-    def standards_guide_arn(self):
+    def standards_guide_arn(self) -> Optional[str]:
         """Arn of the compliance standard."""
         return self._data.get('ProductFields', {}).get('StandardsGuideArn')
 
     @property
-    def rule_id(self):
+    def rule_id(self) -> Optional[str]:
         """Rule ID."""
         return self._data.get('ProductFields', {}).get('RuleId', '')
 
     @property
-    def control_id(self):
+    def control_id(self) -> Optional[str]:
         """Rule ID."""
         return self._data.get('ProductFields', {}).get('ControlId', '')
 
     @property
-    def resources(self):
+    def resources(self) -> Optional[List[Dict]]:
         """A list of resource dicts."""
         return self._data.get('Resources', [{}])
 
     @property
-    def resource_types(self):
+    def resource_types(self) -> List[Optional[str]]:
         """Resource type."""
         return [resource.get('Type') for resource in self._data.get('Resources', [{}])]
 
     @property
-    def resource_ids(self):
+    def resource_ids(self) -> List[Optional[str]]:
         """Resource ids."""
         return [resource.get('Id') for resource in self._data.get('Resources', [{}])]
 
     @property
-    def tags(self):
+    def tags(self) -> List[Optional[Dict]]:
         """Tags."""
         return [resource.get('Tags') for resource in self._data.get('Resources', []) if resource.get('Tags')]
 
     @property
-    def generator_id(self):
+    def generator_id(self) -> str:
         """Generator id."""
         return self._data.get('GeneratorId')
 
     @property
-    def types(self):
+    def types(self) -> Optional[str]:
         """Types."""
-        return self._data.get('Types')
+        return self._data.get('FindingProviderFields', {}).get('Types')
 
     @property
-    def workflow_status(self):
+    def workflow_status(self) -> str:
         """Workflow status."""
         return self._data.get('Workflow', {}).get('Status')
 
     @property
-    def record_state(self):
-        """Record status."""
+    def record_state(self) -> str:
+        """Record state."""
         return self._data.get('RecordState')
 
     @property
-    def compliance_standards(self):
+    def compliance_standards(self) -> List[str]:
         """Compliance standards."""
         return [standard.get('StandardsId') for standard in self._data.get('Compliance').get('AssociatedStandards', [])]
 
     @property
-    def compliance_frameworks(self):
+    def compliance_frameworks(self) -> List[str]:
         """Compliance frameworks."""
         return [standard.split('/')[1] for standard in self.compliance_standards]
 
     @property
-    def compliance_status(self):
+    def compliance_status(self) -> str:
         """Compliance status."""
         return self._data.get('Compliance', {}).get('Status')
 
     @property
-    def security_control_id(self):
+    def security_control_id(self) -> str:
         """Security control ID."""
         return self._data.get('Compliance', {}).get('SecurityControlId', '')
 
     @property
-    def compliance_control(self):
-        """Compliance control."""
-        return self._data.get('Compliance Control')
-
-    @property
-    def first_observed_at(self):
+    def first_observed_at(self) -> Optional[datetime]:
         """First observed at."""
         if self._data.get('FirstObservedAt') is None:
             return self._parse_date_time(self._data.get('CreatedAt'))
         return self._parse_date_time(self._data.get('FirstObservedAt'))
 
     @property
-    def last_observed_at(self):
+    def last_observed_at(self) -> Optional[datetime]:
         """Last observed at."""
         if self._data.get('LastObservedAt') is None:
             return self._parse_date_time(self._data.get('UpdatedAt'))
         return self._parse_date_time(self._data.get('LastObservedAt'))
 
     @property
-    def created_at(self):
+    def created_at(self) -> Optional[datetime]:
         """Created at."""
         return self._parse_date_time(self._data.get('CreatedAt'))
 
     @property
-    def updated_at(self):
+    def updated_at(self) -> Optional[datetime]:
         """Updated at."""
         return self._parse_date_time(self._data.get('UpdatedAt'))
 
-    def _parse_date_time(self, datetime_string):
+    def _parse_date_time(self, datetime_string) -> Optional[datetime]:
+        """Parses a datetime string to a datetime object.
+
+        Args:
+            datetime_string: The string to parse.
+
+        Returns:
+            The converted datetime object.
+
+        """
         try:
             return parse(datetime_string)
         except ValueError:
@@ -273,7 +281,7 @@ class Finding:
             return None
 
     @property
-    def days_open(self):
+    def days_open(self) -> int:
         """Days open."""
         if self.workflow_status == 'RESOLVED':
             return 0
@@ -286,24 +294,62 @@ class Finding:
                                    'last or first observation date is missing.')
             return -1
 
-    def is_matching_resource_ids(self, resource_id_patterns):
+    def is_matching_resource_ids(self, resource_id_patterns) -> bool:
+        """Iterates over all finding resource ids and checks if any match with any of the resource ids provided.
+
+        Args:
+            resource_id_patterns: A list of resource ids regular expression patterns.
+
+        Returns:
+            True if any match is found, False otherwise.
+
+        """
         return any(search(pattern, resource)
                    for resource in self.resource_ids
                    for pattern in resource_id_patterns)
 
-    def is_matching_tags(self, rule_tags):
+    def is_matching_tags(self, rule_tags) -> bool:
+        """Iterates over all finding tags and checks if any match with any of the rule tags provided.
+
+        Args:
+            rule_tags: A list of tags coming from a Rule match_on field.
+
+        Returns:
+            True if any match is found, False otherwise.
+
+        """
         return any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
                    for rule_tag in rule_tags
                    for tag in self.tags)
 
-    def is_matching_rule(self, rule):
+    def is_matching_rule(self, rule: Rule) -> bool:
+        """Checks a rule for a match with the finding.
+
+        If any of control_id, security_control_id or rule_id attributes match between the rule and the finding and the
+        rule does not have any filtering attributes like resource_ids or tags then it is considered a match. (Big blast
+        radius) only matching on the control.
+
+        If the rule has any attributes like resource_ids or tags then a secondary match is searched for any of them with
+        the corresponding finding attributes. If any match is found then the rule is found matching if none are matching
+        then the rule is not considered a matching rule.
+
+        Args:
+            rule: The rule object to match with.
+
+        Returns:
+            True if the finding matched the rule, False otherwise.
+
+        Raises:
+            InvalidRuleType if the object provided is not a Rule object.
+
+        """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
         if any([self.control_id == rule.control_id,
                 self.rule_id == rule.control_id,
                 self.security_control_id == rule.security_control_id]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
-            if not any([rule.resource_ids, rule.tags]):
+            if not any([rule.resource_ids, rule.resource_ids]):
                 self._logger.debug(f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
                 return True
             if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_ids)]):
@@ -319,54 +365,86 @@ class Rule:
     match_fields = ('security_control_id', 'control_id', 'resource_ids', 'tags')
     mutually_exclusive = [('security_control_id', 'control_id')]
 
-    def __init__(self, note, action, match_on):
+    def __init__(self, note: str, action: str, match_on: Dict) -> None:
         self._match_on = self._validate_matching_fields(match_on)
         self.action = self._validate_action(action)
         self.note = note
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.note)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Rule) -> bool:
         """Override the default equals behavior."""
         if not isinstance(other, Rule):
             raise ValueError('Not a Rule object')
         return hash(self) == hash(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Rule) -> bool:
         """Override the default unequal behavior."""
         if not isinstance(other, Rule):
             raise ValueError('Not a Rule object')
         return hash(self) != hash(other)
 
     @property
-    def match_on(self):
+    def match_on(self) -> Dict:
+        """The match_on data of the rule."""
         return self._match_on.get('match_on')
 
     @property
-    def security_control_id(self):
+    def security_control_id(self) -> str:
+        """The security control ID if any, empty string otherwise."""
         return self.match_on.get('security_control_id', '')
 
     @property
-    def control_id(self):
+    def control_id(self) -> str:
+        """The control ID if any, empty string otherwise."""
         return self.match_on.get('control_id', '')
 
     @property
-    def resource_ids(self):
+    def resource_ids(self) -> List[Optional[str]]:
+        """The resource ids specified under the match_on attribute."""
         return self.match_on.get('resource_ids', [])
 
     @property
-    def tags(self):
+    def tags(self) -> List[Optional[str]]:
+        """The tags specified under the match_on attribute."""
         return self.match_on.get('tags', [])
 
     @staticmethod
-    def _validate_action(action):
+    def _validate_action(action) -> str:
+        """Validates that a provided action is supported by the Rule.
+
+        Args:
+            action: The action to check
+
+        Returns:
+            The input action if it is valid.
+
+        Raises:
+            InvalidRuleAction if the action provided is not supported by Rule.
+
+        """
         if action not in Rule.supported_actions:
             raise InvalidRuleAction(f'{action}, valid actions are {Rule.supported_actions}')
         return action
 
     @staticmethod
-    def _validate_matching_fields(match_on):
+    def _validate_matching_fields(match_on) -> Dict:
+        """Validate that the provided match_on data is valid.
+
+        Currently only checks the schema and for the mutually exclusive attributes.
+
+        Args:
+            match_on: The data to validate.
+
+        Returns:
+            The match_on data if valid.
+
+        Raises:
+            MutuallyExclusiveKeys: if mutually exclusive keys are set.
+            SchemaError: If any of the data does not conform to the match_on schema defined under validations.
+
+        """
         match_on = match_on_schema.validate(match_on)
         for set_ in Rule.mutually_exclusive:
             if set(set_).issubset(set(match_on.get('match_on').keys())):
@@ -374,7 +452,16 @@ class Rule:
         return match_on
 
     @staticmethod
-    def _get_control_id_query(match_on_data):
+    def _get_control_id_query(match_on_data) -> Dict:
+        """Constructs a valid query based on a set control ID if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set control ID, empty dictionary otherwise.
+
+        """
         control_id = match_on_data.get('control_id')
         if not control_id:
             return {}
@@ -388,7 +475,16 @@ class Rule:
                                    'Comparison': 'EQUALS'}]}
 
     @staticmethod
-    def _get_security_control_id_query(match_on_data):
+    def _get_security_control_id_query(match_on_data) -> Dict:
+        """Constructs a valid query based on a set security control ID if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set security control ID, empty dictionary otherwise.
+
+        """
         security_control_id = match_on_data.get('security_control_id')
         if not security_control_id:
             return {}
@@ -396,7 +492,16 @@ class Rule:
                                                  'Comparison': 'EQUALS'}]}
 
     @staticmethod
-    def _get_tag_query(match_on_data):
+    def _get_tag_query(match_on_data) -> Dict:
+        """Constructs a valid query based on set tags if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set tags, empty dictionary otherwise.
+
+        """
         tags = match_on_data.get('tags')
         if not tags:
             return {}
@@ -406,7 +511,13 @@ class Rule:
                                  for tag in tags]}
 
     @property
-    def query_filter(self):
+    def query_filter(self) -> Dict:
+        """The query filter of the Rule based on all set attributes.
+
+        Returns:
+            The Security Hub compatible query filter for all attributes set on the Rule.
+
+        """
         query = deepcopy(DEFAULT_SECURITY_HUB_FILTER)
         query.update(self._get_control_id_query(self.match_on))
         query.update(self._get_security_control_id_query(self.match_on))
@@ -415,7 +526,7 @@ class Rule:
 
 
 class FindingsManager:
-    """Models security hub and can retrieve findings."""
+    """Models security hub and can retrieve findings and suppress them."""
 
     # pylint: disable=too-many-arguments
     def __init__(self,
