@@ -87,5 +87,5 @@ class NoRuleFindings(Exception):
     """
 
 
-class MissingRequiredKeys(Exception):
-    """The data provided for a finding is missing required keys."""
+class InvalidFindingData(Exception):
+    """The data provided for a finding is invalid."""

@@ -44,14 +44,6 @@ __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-# match_on = {'match_on': {'control_id': 'EC2.1',
-#                          'security_control_id': 'bob',
-#                          'resource_ids': ['^arn:aws:apigateway:.*$',
-#                                           '^arn:aws:apigateway:.*$'],
-#                          'tags': [{'key': 'test', 'value': 'bob'},
-#                                   {'key': 'test2', 'value': 'alice'}]}}
-#
-
 match_on_schema = Schema({'match_on': {Optional('control_id'): str,
                                        Optional('security_control_id'): str,
                                        Optional('resource_ids'): [str],

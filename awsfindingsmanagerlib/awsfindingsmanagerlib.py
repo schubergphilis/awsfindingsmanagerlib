@@ -32,7 +32,7 @@ from copy import deepcopy
 from datetime import datetime
 from itertools import islice
 from re import search
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 
 import boto3
 import botocore.errorfactory
@@ -49,10 +49,10 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               FailedToBatchUpdate,
                                               MutuallyExclusiveKeys,
                                               NoRuleFindings,
-                                              MissingRequiredKeys)
+                                              InvalidFindingData)
 from .configuration import DEFAULT_SECURITY_HUB_FILTER
 from .validations import match_on_schema
-from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
+from .validations import validate_allowed_denied_account_ids, validate_allowed_denied_regions
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -103,7 +103,7 @@ class Finding:
     def _validate_data(data):
         missing = set(data.keys()) - set(Finding.required_fields)
         if missing:
-            raise MissingRequiredKeys(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
+            raise InvalidFindingData(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
         return data
 
     @property
@@ -418,9 +418,19 @@ class FindingsManager:
     """Models security hub and can retrieve findings."""
 
     # pylint: disable=too-many-arguments
-    def __init__(self, region=None, allowed_regions=None, denied_regions=None, strict_mode=True, suppress_label=None):
+    def __init__(self,
+                 region: str = None,
+                 allowed_regions: Optional[List[str]] = None,
+                 denied_regions: Optional[List[str]] = None,
+                 allowed_account_ids: Optional[List[str]] = None,
+                 denied_account_ids: Optional[List[str]] = None,
+                 strict_mode: bool = True,
+                 suppress_label: str = None):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
-        self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions, denied_regions)
+        self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions,
+                                                                                    denied_regions)
+        self.allowed_account_ids, self.denied_account_ids = validate_allowed_denied_account_ids(allowed_account_ids,
+                                                                                                denied_account_ids)
         self.sts = self._get_sts_client()
         self.ec2 = self._get_ec2_client(region)
         self._aws_regions = None
@@ -432,22 +442,58 @@ class FindingsManager:
 
     @property
     def default_query_filter(self):
+        """The default query filter for the instance of FindingManager.
+
+        Calculates the filter based on the provided allowed or denied account ids that should always be provided to
+        the remote service.
+        """
         return deepcopy(self.update_query_for_account_ids(DEFAULT_SECURITY_HUB_FILTER,
-                                                          self.allowed_regions,
-                                                          self.denied_regions))
+                                                          self.allowed_account_ids,
+                                                          self.denied_account_ids))
 
     @property
     def rules(self):
+        """The registered rules of the manager."""
         return list(self._rules)
 
     @property
     def rules_errors(self):
+        """The errors of registered rules if any and strict mode is not set."""
         return self._rules_errors
 
-    def register_rule(self, note, action, match_on):
-        self._rules.add(Rule(note, action, match_on))
+    def register_rule(self, note: str, action: str, match_on: Dict):
+        """Registers a rule by the provided arguments.
 
-    def register_rules(self, rules):
+        Args:
+            note: The note of the rule.
+            action: The action of the rule.
+            match_on: The "match_on" payload of the rule
+
+        Returns:
+            True on success, False otherwise
+
+        Raises:
+            InvalidRuleType if strict mode is set and the arguments are not valid for a rule.
+
+        """
+        return self.register_rules([{'note': note, 'action': action, 'match_on': match_on}])
+
+    def register_rules(self, rules: List[Dict]):
+        """Registers multiple rules by the provided arguments.
+
+        If strict mode is enabled on the service in case of any errors the invalid data is registered under the
+        rules_errors attribute.
+
+        Args:
+            rules: A list of rule payloads to register.
+
+        Returns:
+            True on success, False otherwise
+
+        Raises:
+            InvalidRuleType if strict mode is set and the arguments are not valid for a rule.
+
+        """
         if self._strict_mode:
             rules = [Rule(**data) for data in rules]
             self._rules.add(rules)
@@ -455,14 +501,14 @@ class FindingsManager:
         success = True
         for data in rules:
             try:
-                self.register_rule(**data)
+                self._rules.add(Rule(**data))
             except InvalidRuleType:
                 success = False
                 self._rules_errors.append(data)
                 self._logger.exception(f'Rule with data {data} is invalid')
         return success
 
-    def _validate_region(self, region):
+    def _validate_region(self, region: str):
         if any([not region, region in self.regions]):
             return region
         raise InvalidRegion(region)
@@ -476,7 +522,7 @@ class FindingsManager:
         return boto3.client('sts')
 
     @staticmethod
-    def _get_security_hub_client(region):
+    def _get_security_hub_client(region: str):
         try:
             config = Config(region_name=region)
             kwargs = {"config": config}
@@ -487,7 +533,7 @@ class FindingsManager:
         return client
 
     @staticmethod
-    def _get_ec2_client(region):
+    def _get_ec2_client(region: str):
         kwargs = {}
         if region:
             config = Config(region_name=region)
@@ -514,7 +560,7 @@ class FindingsManager:
                                  for region in self._describe_ec2_regions()
                                  if region.get('OptInStatus', '') != 'not-opted-in']
             self._logger.debug(f'Regions in EC2 that were opted in are : {self._aws_regions}')
-        if self.allowed_regions:
+        if self.allowed_account_ids:
             self._aws_regions = set(self._aws_regions).intersection(set(self.allowed_regions))
             self._logger.debug(f'Working on allowed regions {self._aws_regions}')
         elif self.denied_regions:
@@ -537,15 +583,16 @@ class FindingsManager:
         return aggregating_region
 
     @staticmethod
-    def _calculate_account_id_filter(allowed_account_ids, denied_account_ids):
+    def _calculate_account_id_filter(allowed_account_ids: Optional[List[str]],
+                                     denied_account_ids: Optional[List[str]]):
         """Calculates the filter targeting allowed or denied account ids.
 
         Args:
-            allowed_account_ids: The account ids if any.
-            denied_account_ids: The Denied ids if any.
+            allowed_account_ids: The allowed account ids if any.
+            denied_account_ids: The denied account ids if any.
 
         Returns:
-            allowed_account_ids, denied_account_ids (tuple(list,list)): If any is set and are valid.
+            A list of query filters for the provided allowed or denied account ids.
 
         """
         allowed_account_ids, denied_account_ids = validate_allowed_denied_account_ids(allowed_account_ids,
@@ -559,12 +606,12 @@ class FindingsManager:
 
     #  pylint: disable=dangerous-default-value
     @staticmethod
-    def update_query_for_account_ids(query_filter=DEFAULT_SECURITY_HUB_FILTER,
-                                     allowed_account_ids=None,
-                                     denied_account_ids=None):
+    def update_query_for_account_ids(query_filter: Dict = DEFAULT_SECURITY_HUB_FILTER,
+                                     allowed_account_ids: Optional[List[str]] = None,
+                                     denied_account_ids: Optional[List[str]] = None):
         """Calculates a Security Hub compatible filter for retrieving findings.
 
-        Depending on arguments provided for allow list, deny list and frameworks to retrieve a query is constructed to
+        Depending on arguments provided for allow list and deny list a query is constructed to
         retrieve only appropriate findings, offloading the filter on the back end.
 
         Args:
@@ -583,7 +630,7 @@ class FindingsManager:
         return query_filter
 
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
-    def _get_findings(self, query_filter):
+    def _get_findings(self, query_filter: Dict):
         findings = set()
         aggregating_region = self._get_aggregating_region()
         regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
@@ -605,7 +652,7 @@ class FindingsManager:
         return list(findings)
 
     @staticmethod
-    def _get_matching_findings(rule, findings, logger):
+    def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger):
         if any([rule.resource_ids, rule.tags]):
             matching_findings = [finding for finding in findings
                                  if any([finding.is_matching_resource_ids(rule.resource_ids),
@@ -620,7 +667,7 @@ class FindingsManager:
         return matching_findings
 
     def get_findings(self):
-        """Retrieves findings from security hub based on a default query.
+        """Retrieves findings from security hub based on the registered rules.
 
         Returns:
             findings (list): A list of findings from security hub.
@@ -640,18 +687,42 @@ class FindingsManager:
             self._logger.warning(f'Missmatch of finding numbers, there seems to be an overlap of {diff}')
         return findings
 
-    def get_findings_by_rule_match(self, note, action, match_on):
+    def get_findings_by_rule_match(self, note: str, action: str, match_on: Dict):
+        """Retrieves findings by the provided rule data.
+
+        Args:
+            note: The note of the rule.
+            action: The action of the rule
+            match_on: The match_on field of the rule.
+
+        Returns:
+            A list of findings that match the provided rule data.
+
+        """
         rule = Rule(note, action, match_on)
         query = self.default_query_filter
         query.update(rule.query_filter)
         return self._get_findings(query)
 
     @staticmethod
-    def _chunk(it, size):
-        it = iter(it)
-        return iter(lambda: tuple(islice(it, size)), ())
+    def _chunk(iterable, size):
+        """Chunking an interable to pieces of provided size."""
+        iterable = iter(iterable)
+        return iter(lambda: tuple(islice(iterable, size)), ())
 
-    def _validate_rule_in_findings(self, findings):
+    def _validate_rule_in_findings(self, findings: List[Finding]):
+        """Validates that the provided findinds have registered matching rules.
+
+        Args:
+            findings: A list of findings to validate.
+
+        Returns:
+            A list of findings with valid matching rules configured.
+
+        Raises:
+            NoRuleFindings if strict mode is enabled and any findings do not have matching rules.
+
+        """
         no_rule_matches = [finding.id for finding in findings if not finding.matched_rule]
         if no_rule_matches:
             message = f'Findings with the following ids "{no_rule_matches}" do not have matching rules'
@@ -660,7 +731,19 @@ class FindingsManager:
             self._logger.warning(message)
         return findings
 
-    def _get_suppressing_payload(self, findings):
+    def _get_suppressing_payload(self, findings: List[Finding]):
+        """Constructs a payload compatible with security hub for all findings based on their matching rules.
+
+        Findings are grouped per common rule and a payload of up to MAX_SUPPRESSION_PAYLOAD_SIZE (currently 100 items)
+        is constructed per common rule and yielded.
+
+        Args:
+            findings: A list of findings to generate suppression payloads for.
+
+        Returns:
+            A generator with suppressing payloads per common note chunked at MAX_SUPPRESSION_PAYLOAD_SIZE
+
+        """
         findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
         findings = self._validate_rule_in_findings(findings)
         rule_findings_mapping = defaultdict(list)
@@ -680,11 +763,11 @@ class FindingsManager:
         """Suppresses findings from security hub based the recorded rules."""
         return self._suppress_findings(self.get_findings())
 
-    def suppress_findings(self, findings):
+    def suppress_findings(self, findings: List[Finding]):
         """Suppresses findings from security hub based on a provided list."""
         return self._suppress_findings(findings)
 
-    def _suppress_findings(self, findings):
+    def _suppress_findings(self, findings: List[Finding]):
         """Suppresses findings from security hub based on a provided list of findings."""
         security_hub = self._get_security_hub_client(self.aws_region)
         result = []
@@ -746,8 +829,22 @@ class FindingsManager:
                 self._logger.error(f'Failed to update finding with ID: "{id_}" with error: "{error}"')
         return status
 
-    def validate_finding_on_matching_rules(self, finding_payload):
-        finding = Finding(finding_payload)
+    def validate_finding_on_matching_rules(self, finding_data: Dict):
+        """Validates that the provided data is correct data for a finding.
+
+        Iterates all registered rules and tries to match the finding with any registered rule (first match is used).
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            A Finding object with a matching rule on success, None if no rule has been matched.
+
+        Raises:
+            InvalidFindingData: The data provided is not valid Finding data.
+
+        """
+        finding = Finding(finding_data)
         for rule in self.rules:
             if finding.is_matching_rule(rule):
                 finding.matched_rule = rule
@@ -756,19 +853,49 @@ class FindingsManager:
             return None
         return finding
 
-    def suppress_finding_on_matching_rules(self, finding_payload: Dict):
-        return self.suppress_findings_on_matching_rules(finding_payload)
+    def suppress_finding_on_matching_rules(self, finding_data: Dict):
+        """Suppresses a findings based on the provided finding data.
 
-    def suppress_findings_on_matching_rules(self, finding_payloads: Union[List[Dict], Dict]):
-        if isinstance(finding_payloads, dict):
-            finding_payloads = [finding_payloads]
+        A finding gets constructed with the provided data, and all rules are checked for a match with the finding.
+        If one is found, the finding is suppressed with the data of the matching rule.
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            True on success False otherwise.
+
+        Raises:
+            InvalidFindingData: If the data is not valid finding data.
+
+        """
+        return self.suppress_findings_on_matching_rules(finding_data)
+
+    def suppress_findings_on_matching_rules(self, finding_data: Union[List[Dict], Dict]):
+        """Suppresses a list of findings based on the provided list of finding data.
+
+        All findings get constructed with the provided data, and all rules are checked for a match with each finding.
+        If one is found, the finding is suppressed with the data of the matching rule.
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            True on success False otherwise.
+
+        Raises:
+            InvalidFindingData: If any data is not valid finding data.
+
+        """
+        if isinstance(finding_data, dict):
+            finding_data = [finding_data]
         if self._strict_mode:
-            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_payloads]
+            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_data]
         else:
             findings = []
-            for payload in finding_payloads:
+            for payload in finding_data:
                 try:
                     findings.append(self.validate_finding_on_matching_rules(payload))
-                except MissingRequiredKeys:
+                except InvalidFindingData:
                     self._logger.error(f'Data {payload} seems to be invalid.')
         return self._suppress_findings([finding for finding in findings if finding])
