@@ -223,7 +223,8 @@ class Finding:
     @property
     def compliance_standards(self) -> List[str]:
         """Compliance standards."""
-        return [standard.get('StandardsId') for standard in self._data.get('Compliance').get('AssociatedStandards', [])]
+        return [standard.get('StandardsId') for standard in self._data.get('Compliance', {}).get('AssociatedStandards',
+                                                                                                 [])]
 
     @property
     def compliance_frameworks(self) -> List[str]:
@@ -427,29 +428,6 @@ class Rule:
         if action not in Rule.supported_actions:
             raise InvalidRuleAction(f'{action}, valid actions are {Rule.supported_actions}')
         return action
-
-    @staticmethod
-    def _validate_matching_fields(match_on) -> Dict:
-        """Validate that the provided match_on data is valid.
-
-        Currently only checks the schema and for the mutually exclusive attributes.
-
-        Args:
-            match_on: The data to validate.
-
-        Returns:
-            The match_on data if valid.
-
-        Raises:
-            MutuallyExclusiveKeys: if mutually exclusive keys are set.
-            SchemaError: If any of the data does not conform to the match_on schema defined under validations.
-
-        """
-        match_on = match_on_schema.validate(match_on)
-        for set_ in Rule.mutually_exclusive:
-            if set(set_).issubset(set(match_on.get('match_on').keys())):
-                raise MutuallyExclusiveKeys(set_)
-        return match_on
 
     @staticmethod
     def _get_control_id_query(match_on_data) -> Dict:
@@ -813,7 +791,8 @@ class FindingsManager:
         rule = Rule(note, action, match_on)
         query = self.default_query_filter
         query.update(rule.query_filter)
-        return self._get_findings(query)
+        findings = self._get_findings(query)
+        return self._get_matching_findings(rule, findings, self._logger)
 
     @staticmethod
     def _chunk(iterable, size):

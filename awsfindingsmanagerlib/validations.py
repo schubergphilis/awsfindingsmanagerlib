@@ -26,12 +26,14 @@ Main code for validations.
 """
 
 import re
+from typing import Dict
 
 from schema import Schema, Optional
 
 from .awsfindingsmanagerlibexceptions import (InvalidAccountListProvided,
                                               MutuallyExclusiveArguments,
-                                              InvalidRegionListProvided)
+                                              InvalidRegionListProvided,
+                                              MutuallyExclusiveKeys)
 from .configuration import SECURITY_HUB_ACTIVE_REGIONS
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
@@ -50,6 +52,30 @@ match_on_schema = Schema({'match_on': {Optional('control_id'): str,
                                        Optional('tags'): [{'key': str,
                                                            'value': str}]}
                           })
+
+
+def validate_match_on_data(match_on, mutually_exclusive) -> Dict:
+    """Validate that the provided match_on data is valid.
+
+    Currently only checks the schema and for the mutually exclusive attributes.
+
+    Args:
+        match_on: The data to validate.
+
+    Returns:
+        The match_on data if valid.
+
+    Raises:
+        MutuallyExclusiveKeys: if mutually exclusive keys are set.
+        SchemaError: If any of the data does not conform to the match_on schema defined under validations.
+
+    """
+    mutually_exclusive = mutually_exclusive or []
+    match_on = match_on_schema.validate(match_on)
+    for set_ in mutually_exclusive:
+        if set(set_).issubset(set(match_on.get('match_on').keys())):
+            raise MutuallyExclusiveKeys(set_)
+    return match_on
 
 
 def is_valid_account_id(account_id):
