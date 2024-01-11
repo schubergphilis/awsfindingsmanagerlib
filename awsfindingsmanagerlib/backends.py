@@ -111,12 +111,21 @@ class DynamoDB(Backend):
         # return self._entries
         return []
 
-#
-# class S3(Backend):
-#
-#     def _get_rules(self):
-#
-#
+
+class S3(Backend):
+
+    def __init__(self, bucket_name, file_name):
+        self._file_contents = self._get_file_contents(bucket_name, file_name)
+
+    @staticmethod
+    def _get_file_contents(bucket_name, file_name):
+        s3 = boto3.resource('s3')
+        return s3.Object(s3.Bucket(bucket_name), file_name).get()['Body'].read()
+
+    def _get_rules(self):
+        data = yaml.safe_load(self._file_contents)
+        return data.get('Rules')
+
 # class GitHub(Backend)
 #
 #     def _get_rules(self):
