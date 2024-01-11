@@ -33,7 +33,8 @@ from schema import Schema, Optional
 from .awsfindingsmanagerlibexceptions import (InvalidAccountListProvided,
                                               MutuallyExclusiveArguments,
                                               InvalidRegionListProvided,
-                                              MutuallyExclusiveKeys)
+                                              MutuallyExclusiveKeys,
+                                              InvalidRuleAction)
 from .configuration import SECURITY_HUB_ACTIVE_REGIONS
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
@@ -46,21 +47,25 @@ __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-match_on_schema = Schema({'match_on': {Optional('control_id'): str,
-                                       Optional('security_control_id'): str,
-                                       Optional('resource_ids'): [str],
-                                       Optional('tags'): [{'key': str,
-                                                           'value': str}]}
-                          })
+rule_schema = Schema({'match_on': {Optional('control_id'): str,
+                                   Optional('security_control_id'): str,
+                                   Optional('resource_ids'): [str],
+                                   Optional('tags'): [{'key': str,
+                                                       'value': str}]},
+                      'note': str,
+                      'action': lambda x: x in ('SUPPRESSED',)})
+
+RULE_SUPPORTED_ACTIONS = ('SUPPRESSED',)
+RULE_MUTUALLY_EXCLUSIVE = [('security_control_id', 'control_id')]
 
 
-def validate_match_on_data(match_on, mutually_exclusive) -> Dict:
+def validate_rule_data(rule_data) -> Dict:
     """Validate that the provided match_on data is valid.
 
     Currently only checks the schema and for the mutually exclusive attributes.
 
     Args:
-        match_on: The data to validate.
+        rule_data: The data to validate.
 
     Returns:
         The match_on data if valid.
@@ -70,12 +75,13 @@ def validate_match_on_data(match_on, mutually_exclusive) -> Dict:
         SchemaError: If any of the data does not conform to the match_on schema defined under validations.
 
     """
-    mutually_exclusive = mutually_exclusive or []
-    match_on = match_on_schema.validate(match_on)
-    for set_ in mutually_exclusive:
-        if set(set_).issubset(set(match_on.get('match_on').keys())):
+    rule_data = rule_schema.validate(rule_data)
+    for set_ in RULE_MUTUALLY_EXCLUSIVE:
+        if set(set_).issubset(set(rule_data.get('match_on').keys())):
             raise MutuallyExclusiveKeys(set_)
-    return match_on
+    if rule_data.get('action') not in RULE_SUPPORTED_ACTIONS:
+        raise InvalidRuleAction(f'{rule_data.get("action")}, valid actions are {RULE_SUPPORTED_ACTIONS}')
+    return rule_data
 
 
 def is_valid_account_id(account_id):

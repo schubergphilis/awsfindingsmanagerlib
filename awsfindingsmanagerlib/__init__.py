@@ -26,7 +26,8 @@ Import all parts from awsfindingsmanagerlib here
    https://google.github.io/styleguide/pyguide.html
 """
 from ._version import __version__
-from .awsfindingsmanagerlib import FindingsManager
+from .awsfindingsmanagerlib import FindingsManager, Rule, Finding
+from .backends import Http
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -41,3 +42,7 @@ __status__ = '''Development'''  # "Prototype", "Development", "Production".
 assert __version__
 
 assert FindingsManager
+assert Rule
+assert Finding
+
+assert Http

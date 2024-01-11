@@ -26,6 +26,12 @@ Main code for backends.
 """
 
 import logging
+from abc import ABC, abstractmethod
+
+import requests
+import yaml
+
+from .validations import validate_rule_data
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -41,34 +47,46 @@ LOGGER_BASENAME = '''backends'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
-# from abc import ABC, abstractmethod
-# from validations import validate_rule
-#
-# class Backend(ABC):
-#
-#     @abstractmethod
-#     def get_rules(self):
-#         return validate_rule()
-#
+
+class Backend(ABC):
+
+    @abstractmethod
+    def _get_rules(self):
+        """Retrieves the rules from the backend.
+
+        Returns:
+            A list of rule data from the backend.
+
+        """
+
+    def get_rules(self):
+        return [validate_rule_data(data) for data in self._get_rules()]
+
+
+class Http(Backend):
+
+    def __init__(self, url):
+        self.url = url
+
+    def _get_rules(self):
+        response = requests.get(self.url, timeout=2)
+        response.raise_for_status()
+        data = yaml.safe_load(response.text)
+        return data.get('Rules')
+
 #
 # class DynamoDB(Backend):
 #
-#     def get_rules(self):
-#         return validate_rule(rules)
+#     def _get_rules(self):
 #
 #
 # class S3(Backend):
 #
-#     def get_rules(self):
-#         return validate_rule(rules)
+#     def _get_rules(self):
 #
 #
 # class GitHub(Backend)
 #
-#     def get_rules(self):
-#         return validate_rule(rules)
+#     def _get_rules(self):
 #
-# class Http(Backend):
 #
-#     def get_rules(self):
-#         return validate_rule(rules)

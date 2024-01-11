@@ -47,14 +47,13 @@ from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               NoRegion,
                                               InvalidOrNoCredentials,
                                               InvalidRuleType,
-                                              InvalidRuleAction,
                                               FailedToBatchUpdate,
-                                              MutuallyExclusiveKeys,
                                               NoRuleFindings,
                                               InvalidFindingData)
 from .configuration import DEFAULT_SECURITY_HUB_FILTER
-from .validations import match_on_schema
-from .validations import validate_allowed_denied_account_ids, validate_allowed_denied_regions
+from .validations import (validate_allowed_denied_account_ids,
+                          validate_allowed_denied_regions,
+                          validate_rule_data)
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -362,14 +361,8 @@ class Finding:
 class Rule:
     """Models a suppression rule."""
 
-    supported_actions = ('SUPPRESSED',)
-    match_fields = ('security_control_id', 'control_id', 'resource_ids', 'tags')
-    mutually_exclusive = [('security_control_id', 'control_id')]
-
     def __init__(self, note: str, action: str, match_on: Dict) -> None:
-        self._match_on = self._validate_matching_fields(match_on)
-        self.action = self._validate_action(action)
-        self.note = note
+        self._data = validate_rule_data({'note': note, 'action': action, 'match_on': match_on})
 
     def __hash__(self) -> int:
         return hash(self.note)
@@ -387,9 +380,21 @@ class Rule:
         return hash(self) != hash(other)
 
     @property
+    def data(self) -> Dict:
+        return self._data
+
+    @property
+    def note(self) -> str:
+        return self._data.get('note')
+
+    @property
+    def action(self) -> str:
+        return self._data.get('action')
+
+    @property
     def match_on(self) -> Dict:
         """The match_on data of the rule."""
-        return self._match_on.get('match_on')
+        return self._data.get('match_on')
 
     @property
     def security_control_id(self) -> str:
@@ -410,24 +415,6 @@ class Rule:
     def tags(self) -> List[Optional[str]]:
         """The tags specified under the match_on attribute."""
         return self.match_on.get('tags', [])
-
-    @staticmethod
-    def _validate_action(action) -> str:
-        """Validates that a provided action is supported by the Rule.
-
-        Args:
-            action: The action to check
-
-        Returns:
-            The input action if it is valid.
-
-        Raises:
-            InvalidRuleAction if the action provided is not supported by Rule.
-
-        """
-        if action not in Rule.supported_actions:
-            raise InvalidRuleAction(f'{action}, valid actions are {Rule.supported_actions}')
-        return action
 
     @staticmethod
     def _get_control_id_query(match_on_data) -> Dict:
