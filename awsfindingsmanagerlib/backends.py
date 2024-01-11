@@ -27,7 +27,9 @@ Main code for backends.
 
 import logging
 from abc import ABC, abstractmethod
+from typing import List, Dict
 
+import boto3
 import requests
 import yaml
 
@@ -74,11 +76,41 @@ class Http(Backend):
         data = yaml.safe_load(response.text)
         return data.get('Rules')
 
-#
-# class DynamoDB(Backend):
-#
-#     def _get_rules(self):
-#
+
+class DynamoDB(Backend):
+
+    def __init__(self, dynamodb_table_name) -> None:
+        self._dynamodb_resource = self._get_dynamodb_client()
+        self._table = self._get_dynamodb_table(dynamodb_table_name)
+
+    @staticmethod
+    def _get_dynamodb_client():
+        return boto3.client('dynamodb')
+
+    @staticmethod
+    def _get_dynamodb_table(dynamodb_table_name):
+        dynamodb_resource = DynamoDB._get_dynamodb_client()
+        return dynamodb_resource.Table(name=dynamodb_table_name)
+
+    def _get_rules(self) -> List[Dict]:
+        response = self._table.scan()
+        data = response['Items']
+        while 'LastEvaluatedKey' in response:
+            response = self._table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+            data.extend(response['Items'])
+        # Here iterate over the data and return the payloads.
+        # Old code follows.
+        # rules = self._suppression_dynamodb_table.get_item(Key={"controlId": self.hash_key})
+        # for rule in rules.get('Item', {}).get('data', {}):
+        #     self._entries.append(
+        #         Rule(action=rule.get('action'),
+        #              rules=rule.get('rules'),
+        #              notes=rule.get('notes'),
+        #              dry_run=rule.get('dry_run', False))
+        #     )
+        # return self._entries
+        return []
+
 #
 # class S3(Backend):
 #
