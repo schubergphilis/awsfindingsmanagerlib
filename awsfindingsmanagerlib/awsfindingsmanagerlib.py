@@ -869,14 +869,17 @@ class FindingsManager:
         message_state = 'suppression' if suppress else 'unsuppression'
         method = self._get_suppressing_payload if suppress else self._get_unsuppressing_payload
         security_hub = self._get_security_hub_client(self.aws_region)
-        result = []
-        for payload in method(findings):  # noqa
+        return all((result for result in self._batch_apply_payloads(security_hub,
+                                                                    method(findings),  # noqa
+                                                                    message_state)))
+
+    def _batch_apply_payloads(self, security_hub, payloads, message_state):
+        for payload in payloads:
             self._logger.debug(f'Sending payload {payload} for {message_state} to Security Hub.')
             if os.environ.get('FINDINGS_MANAGER_DRY_RUN_MODE'):
                 self._logger.debug(f'Dry run mode is on, skipping the actual {message_state}.')
                 continue
-            result.append(self._batch_update_findings(security_hub, payload))
-        return all(result)
+            yield self._batch_update_findings(security_hub, payload)
 
     def _batch_update_findings(self, security_hub, payload):
         """Sends a payload with a batch of max size of 100.
