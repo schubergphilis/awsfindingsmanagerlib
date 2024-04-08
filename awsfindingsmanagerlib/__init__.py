@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: __init__.py
 #
-# Copyright 2023 Marwin Baumann
+# Copyright 2023 Marwin Baumann, Costas Tyfoxylos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ Import all parts from awsfindingsmanagerlib here
    https://google.github.io/styleguide/pyguide.html
 """
 from ._version import __version__
+from .awsfindingsmanagerlib import FindingsManager, Rule, Finding
+from .backends import Http
 
-__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
+__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
-__copyright__ = '''Copyright 2023, Marwin Baumann'''
+__copyright__ = '''Copyright 2023, Marwin Baumann, Costas Tyfoxylos'''
 __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
@@ -38,3 +40,9 @@ __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 # This is to 'use' the module(s), so lint doesn't complain
 assert __version__
+
+assert FindingsManager
+assert Rule
+assert Finding
+
+assert Http

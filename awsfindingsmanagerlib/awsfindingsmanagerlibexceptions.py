@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: awsfindingsmanagerlibexceptions.py
 #
-# Copyright 2023 Marwin Baumann
+# Copyright 2023 Marwin Baumann, Costas Tyfoxylos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ Custom exception code for awsfindingsmanagerlib.
 
 """
 
-__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
+__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
-__copyright__ = '''Copyright 2023, Marwin Baumann'''
+__copyright__ = '''Copyright 2023, Marwin Baumann, Costas Tyfoxylos'''
 __credits__ = ["Ben van Breukelen", "Costas Tyfoxylos", "Marwin Baumann"]
 __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
@@ -62,3 +62,30 @@ class InvalidRegion(Exception):
 
 class UnableToRetrieveSecurityHubRegions(Exception):
     """Could not retrieve the regions security hub is active in."""
+
+
+class InvalidRuleType(Exception):
+    """The rule type is not in the accepted rules."""
+
+
+class InvalidRuleAction(Exception):
+    """The rule action is not in the accepted rules."""
+
+
+class FailedToBatchUpdate(Exception):
+    """Failed to batch update security hub findings."""
+
+
+class MutuallyExclusiveKeys(Exception):
+    """Entries on match_on field are provided that are mutually exclusive."""
+
+
+class NoRuleFindings(Exception):
+    """Findings with no rules matched are provided to suppress.
+
+    Depending on the strictness set it might be an error or a warning.
+    """
+
+
+class InvalidFindingData(Exception):
+    """The data provided for a finding is invalid."""

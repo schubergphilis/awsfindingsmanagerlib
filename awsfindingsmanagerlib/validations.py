@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: validations.py
 #
-# Copyright 2023 Marwin Baumann
+# Copyright 2023 Marwin Baumann, Costas Tyfoxylos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -26,21 +26,62 @@ Main code for validations.
 """
 
 import re
+from typing import Dict
+
+from schema import Schema, Optional
 
 from .awsfindingsmanagerlibexceptions import (InvalidAccountListProvided,
                                               MutuallyExclusiveArguments,
-                                              InvalidRegionListProvided)
+                                              InvalidRegionListProvided,
+                                              MutuallyExclusiveKeys,
+                                              InvalidRuleAction)
 from .configuration import SECURITY_HUB_ACTIVE_REGIONS
 
-__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
+__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
-__copyright__ = '''Copyright 2023, Marwin Baumann'''
+__copyright__ = '''Copyright 2023, Marwin Baumann, Costas Tyfoxylos'''
 __credits__ = ["Ben van Breukelen", "Costas Tyfoxylos", "Marwin Baumann"]
 __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
+
+rule_schema = Schema({'match_on': {Optional('control_id'): str,
+                                   Optional('security_control_id'): str,
+                                   Optional('resource_ids'): [str],
+                                   Optional('tags'): [{'key': str,
+                                                       'value': str}]},
+                      'note': str,
+                      'action': lambda x: x in ('SUPPRESSED',)})
+
+RULE_SUPPORTED_ACTIONS = ('SUPPRESSED',)
+RULE_MUTUALLY_EXCLUSIVE = [('security_control_id', 'control_id')]
+
+
+def validate_rule_data(rule_data) -> Dict:
+    """Validate that the provided match_on data is valid.
+
+    Currently only checks the schema and for the mutually exclusive attributes.
+
+    Args:
+        rule_data: The data to validate.
+
+    Returns:
+        The match_on data if valid.
+
+    Raises:
+        MutuallyExclusiveKeys: if mutually exclusive keys are set.
+        SchemaError: If any of the data does not conform to the match_on schema defined under validations.
+
+    """
+    rule_data = rule_schema.validate(rule_data)
+    for set_ in RULE_MUTUALLY_EXCLUSIVE:
+        if set(set_).issubset(set(rule_data.get('match_on').keys())):
+            raise MutuallyExclusiveKeys(set_)
+    if rule_data.get('action') not in RULE_SUPPORTED_ACTIONS:
+        raise InvalidRuleAction(f'{rule_data.get("action")}, valid actions are {RULE_SUPPORTED_ACTIONS}')
+    return rule_data
 
 
 def is_valid_account_id(account_id):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # File: awsfindingsmanagerlib.py
 #
-# Copyright 2023 Marwin Baumann
+# Copyright 2023 Marwin Baumann, Costas Tyfoxylos
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -25,9 +25,16 @@ Main code for awsfindingsmanagerlib.
 
 """
 
+from __future__ import annotations
+
 import logging
+import os
+from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
+from itertools import islice
+from re import search
+from typing import List, Dict, Union, Optional
 
 import boto3
 import botocore.errorfactory
@@ -38,16 +45,20 @@ from opnieuw import retry
 
 from .awsfindingsmanagerlibexceptions import (InvalidRegion,
                                               NoRegion,
-                                              InvalidOrNoCredentials)
-from .configuration import (AWS_FOUNDATIONAL_SECURITY_FRAMEWORK,
-                            CIS_AWS_FOUNDATION_FRAMEWORK,
-                            PCI_DSS_FRAMEWORK, DEFAULT_SECURITY_HUB_FILTER)
-from .validations import validate_allowed_denied_regions, validate_allowed_denied_account_ids
+                                              InvalidOrNoCredentials,
+                                              InvalidRuleType,
+                                              FailedToBatchUpdate,
+                                              NoRuleFindings,
+                                              InvalidFindingData)
+from .configuration import DEFAULT_SECURITY_HUB_FILTER
+from .validations import (validate_allowed_denied_account_ids,
+                          validate_allowed_denied_regions,
+                          validate_rule_data)
 
-__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
+__author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
 __date__ = '''21-11-2023'''
-__copyright__ = '''Copyright 2023, Marwin Baumann'''
+__copyright__ = '''Copyright 2023, Marwin Baumann, Costas Tyfoxylos'''
 __credits__ = ["Ben van Breukelen", "Costas Tyfoxylos", "Marwin Baumann"]
 __license__ = '''Apache Software License 2.0'''
 __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
@@ -59,174 +70,210 @@ LOGGER_BASENAME = '''awsfindingsmanagerlib'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
+MAX_SUPPRESSION_PAYLOAD_SIZE = 100
+
 
 class Finding:
     """Models a finding."""
 
-    def __init__(self, data: dict) -> None:
-        self._data = data
-        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+    required_fields = {'FindingProviderFields', 'AwsAccountId', 'RecordState', 'Resources', 'UpdatedAt', 'CompanyName',
+                       'Description', 'Workflow', 'Title', 'ProductFields', 'Id', 'Severity', 'Region', 'Types',
+                       'ProductName', 'WorkflowState', 'ProductArn', 'SchemaVersion', 'GeneratorId', 'CreatedAt'}
 
-    def __hash__(self):
+    def __init__(self, data: Dict) -> None:
+        self._data = self._validate_data(data)
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+        self._matched_rule = None
+
+    def __hash__(self) -> int:
         return hash(self.id)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Finding) -> bool:
         """Override the default equals behavior."""
         if not isinstance(other, Finding):
             raise ValueError('Not a Finding object')
         return hash(self) == hash(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other: Finding) -> bool:
         """Override the default unequal behavior."""
         if not isinstance(other, Finding):
             raise ValueError('Not a Finding object')
         return hash(self) != hash(other)
 
+    @staticmethod
+    def _validate_data(data: Dict) -> Dict:
+        missing = set(Finding.required_fields) - set(data.keys())
+        if missing:
+            raise InvalidFindingData(f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
+        return data
+
     @property
-    def aws_account_id(self):
+    def matched_rule(self) -> Rule:
+        """The matched rule that is registered in the finding."""
+        return self._matched_rule
+
+    @matched_rule.setter
+    def matched_rule(self, rule) -> None:
+        """The matched rule setter that is registered in the finding."""
+        if not isinstance(rule, Rule):
+            raise InvalidRuleType(f'The argument provided is not a valid rule object. Received: "{rule}"')
+        self._matched_rule = rule
+
+    @property
+    def aws_account_id(self) -> str:
         """Account id."""
         return self._data.get('AwsAccountId')
 
     @property
-    def region(self):
+    def product_arn(self) -> str:
+        """Product ARN."""
+        return self._data.get('ProductArn')
+
+    @property
+    def region(self) -> str:
         """Region."""
         return self._data.get('Region')
 
     @property
-    def id(self):  # pylint: disable=invalid-name
+    def id(self) -> str:  # pylint: disable=invalid-name
         """ID."""
         return self._data.get('Id')
 
     @property
-    def severity(self):
+    def severity(self) -> Optional[str]:
         """Severity."""
         return self._data.get('Severity', {}).get('Label')
 
     @property
-    def title(self):
+    def title(self) -> str:
         """Title."""
         return self._data.get('Title')
 
     @property
-    def description(self):
+    def description(self) -> str:
         """Description."""
         return self._data.get('Description')
 
     @property
-    def remediation_recommendation_text(self):
+    def remediation_recommendation_text(self) -> Optional[str]:
         """Textual recommendation for remediation."""
         return self._data.get('Remediation', {}).get('Recommendation', {}).get('Text')
 
     @property
-    def remediation_recommendation_url(self):
+    def remediation_recommendation_url(self) -> Optional[str]:
         """URL for more information on the remediation."""
         return self._data.get('Remediation', {}).get('Recommendation', {}).get('Url')
 
     @property
-    def standards_guide_arn(self):
+    def standards_guide_arn(self) -> Optional[str]:
         """Arn of the compliance standard."""
         return self._data.get('ProductFields', {}).get('StandardsGuideArn')
 
     @property
-    def resources(self):
+    def rule_id(self) -> Optional[str]:
+        """Rule ID."""
+        return self._data.get('ProductFields', {}).get('RuleId', '')
+
+    @property
+    def control_id(self) -> Optional[str]:
+        """Rule ID."""
+        return self._data.get('ProductFields', {}).get('ControlId', '')
+
+    @property
+    def resources(self) -> Optional[List[Dict]]:
         """A list of resource dicts."""
         return self._data.get('Resources', [{}])
 
     @property
-    def resource_types(self):
+    def resource_types(self) -> List[Optional[str]]:
         """Resource type."""
         return [resource.get('Type') for resource in self._data.get('Resources', [{}])]
 
     @property
-    def resource_ids(self):
+    def resource_ids(self) -> List[Optional[str]]:
         """Resource ids."""
         return [resource.get('Id') for resource in self._data.get('Resources', [{}])]
 
     @property
-    def generator_id(self):
+    def tags(self) -> List[Optional[Dict]]:
+        """Tags."""
+        return [resource.get('Tags') for resource in self._data.get('Resources', []) if resource.get('Tags')]
+
+    @property
+    def generator_id(self) -> str:
         """Generator id."""
         return self._data.get('GeneratorId')
 
     @property
-    def types(self):
+    def types(self) -> Optional[str]:
         """Types."""
-        return self._data.get('Types')
+        return self._data.get('FindingProviderFields', {}).get('Types')
 
     @property
-    def is_cis_aws_foundations_benchmark(self):
-        """Is this cis framework finding."""
-        return CIS_AWS_FOUNDATION_FRAMEWORK in self.compliance_frameworks
-
-    @property
-    def is_pci_dss(self):
-        """Is this pci dss framework finding."""
-        return PCI_DSS_FRAMEWORK in self.compliance_frameworks
-
-    @property
-    def is_aws_foundational_security_best_practices(self):
-        """Is this aws foundational security best practices framework finding."""
-        return AWS_FOUNDATIONAL_SECURITY_FRAMEWORK in self.compliance_frameworks
-
-    @property
-    def workflow_status(self):
+    def workflow_status(self) -> str:
         """Workflow status."""
         return self._data.get('Workflow', {}).get('Status')
 
     @property
-    def record_state(self):
-        """Record status."""
+    def record_state(self) -> str:
+        """Record state."""
         return self._data.get('RecordState')
 
     @property
-    def compliance_standards(self):
+    def compliance_standards(self) -> List[str]:
         """Compliance standards."""
-        return [standard.get('StandardsId') for standard in self._data.get('Compliance').get('AssociatedStandards', [])]
+        return [standard.get('StandardsId') for standard in self._data.get('Compliance', {}).get('AssociatedStandards',
+                                                                                                 [])]
 
     @property
-    def compliance_frameworks(self):
+    def compliance_frameworks(self) -> List[str]:
         """Compliance frameworks."""
         return [standard.split('/')[1] for standard in self.compliance_standards]
 
     @property
-    def rule_id(self):
-        """Rule id."""
-        return self._data.get('ProductFields', {}).get('RuleId')
-
-    @property
-    def compliance_status(self):
+    def compliance_status(self) -> str:
         """Compliance status."""
         return self._data.get('Compliance', {}).get('Status')
 
     @property
-    def compliance_control(self):
-        """Compliance control."""
-        return self._data.get('Compliance Control')
+    def security_control_id(self) -> str:
+        """Security control ID."""
+        return self._data.get('Compliance', {}).get('SecurityControlId', '')
 
     @property
-    def first_observed_at(self):
+    def first_observed_at(self) -> Optional[datetime]:
         """First observed at."""
         if self._data.get('FirstObservedAt') is None:
             return self._parse_date_time(self._data.get('CreatedAt'))
         return self._parse_date_time(self._data.get('FirstObservedAt'))
 
     @property
-    def last_observed_at(self):
+    def last_observed_at(self) -> Optional[datetime]:
         """Last observed at."""
         if self._data.get('LastObservedAt') is None:
             return self._parse_date_time(self._data.get('UpdatedAt'))
         return self._parse_date_time(self._data.get('LastObservedAt'))
 
     @property
-    def created_at(self):
+    def created_at(self) -> Optional[datetime]:
         """Created at."""
         return self._parse_date_time(self._data.get('CreatedAt'))
 
     @property
-    def updated_at(self):
+    def updated_at(self) -> Optional[datetime]:
         """Updated at."""
         return self._parse_date_time(self._data.get('UpdatedAt'))
 
-    def _parse_date_time(self, datetime_string):
+    def _parse_date_time(self, datetime_string) -> Optional[datetime]:
+        """Parses a datetime string to a datetime object.
+
+        Args:
+            datetime_string: The string to parse.
+
+        Returns:
+            The converted datetime object.
+
+        """
         try:
             return parse(datetime_string)
         except ValueError:
@@ -234,7 +281,7 @@ class Finding:
             return None
 
     @property
-    def days_open(self):
+    def days_open(self) -> int:
         """Days open."""
         if self.workflow_status == 'RESOLVED':
             return 0
@@ -247,34 +294,297 @@ class Finding:
                                    'last or first observation date is missing.')
             return -1
 
+    def is_matching_resource_ids(self, resource_id_patterns) -> bool:
+        """Iterates over all finding resource ids and checks if any match with any of the resource ids provided.
+
+        Args:
+            resource_id_patterns: A list of resource ids regular expression patterns.
+
+        Returns:
+            True if any match is found, False otherwise.
+
+        """
+        return any(search(pattern, resource)
+                   for resource in self.resource_ids
+                   for pattern in resource_id_patterns)
+
+    def is_matching_tags(self, rule_tags) -> bool:
+        """Iterates over all finding tags and checks if any match with any of the rule tags provided.
+
+        Args:
+            rule_tags: A list of tags coming from a Rule match_on field.
+
+        Returns:
+            True if any match is found, False otherwise.
+
+        """
+        return any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
+                   for rule_tag in rule_tags
+                   for tag in self.tags)
+
+    def is_matching_rule(self, rule: Rule) -> bool:
+        """Checks a rule for a match with the finding.
+
+        If any of control_id, security_control_id or rule_id attributes match between the rule and the finding and the
+        rule does not have any filtering attributes like resource_ids or tags then it is considered a match. (Big blast
+        radius) only matching on the control.
+
+        If the rule has any attributes like resource_ids or tags then a secondary match is searched for any of them with
+        the corresponding finding attributes. If any match is found then the rule is found matching if none are matching
+        then the rule is not considered a matching rule.
+
+        Args:
+            rule: The rule object to match with.
+
+        Returns:
+            True if the finding matched the rule, False otherwise.
+
+        Raises:
+            InvalidRuleType if the object provided is not a Rule object.
+
+        """
+        if not isinstance(rule, Rule):
+            raise InvalidRuleType(rule)
+        if any([self.control_id == rule.control_id,
+                self.rule_id == rule.control_id,
+                self.security_control_id == rule.security_control_id]):
+            self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
+            if not any([rule.resource_ids, rule.resource_ids]):
+                self._logger.debug(f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
+                return True
+            if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_ids)]):
+                self._logger.debug(f'Matched with rule "{rule.note}" either on resources or tags.')
+                return True
+        return False
+
+
+class Rule:
+    """Models a suppression rule."""
+
+    def __init__(self, note: str, action: str, match_on: Dict) -> None:
+        self._data = validate_rule_data({'note': note, 'action': action, 'match_on': match_on})
+
+    def __hash__(self) -> int:
+        return hash(self.note)
+
+    def __eq__(self, other: Rule) -> bool:
+        """Override the default equals behavior."""
+        if not isinstance(other, Rule):
+            raise ValueError('Not a Rule object')
+        return hash(self) == hash(other)
+
+    def __ne__(self, other: Rule) -> bool:
+        """Override the default unequal behavior."""
+        if not isinstance(other, Rule):
+            raise ValueError('Not a Rule object')
+        return hash(self) != hash(other)
+
     @property
-    def original_payload(self):
-        """Original payload."""
+    def data(self) -> Dict:
         return self._data
 
     @property
-    def measurement_data(self):
-        """Measurement data for computing the energy label."""
-        return {
-            'Finding ID': self.id,
-            'Account ID': self.aws_account_id,
-            'Severity': self.severity,
-            'Workflow State': self.workflow_status,
-            'Days Open': self.days_open
-        }
+    def note(self) -> str:
+        return self._data.get('note')
+
+    @property
+    def action(self) -> str:
+        return self._data.get('action')
+
+    @property
+    def match_on(self) -> Dict:
+        """The match_on data of the rule."""
+        return self._data.get('match_on')
+
+    @property
+    def security_control_id(self) -> str:
+        """The security control ID if any, empty string otherwise."""
+        return self.match_on.get('security_control_id', '')
+
+    @property
+    def control_id(self) -> str:
+        """The control ID if any, empty string otherwise."""
+        return self.match_on.get('control_id', '')
+
+    @property
+    def resource_ids(self) -> List[Optional[str]]:
+        """The resource ids specified under the match_on attribute."""
+        return self.match_on.get('resource_ids', [])
+
+    @property
+    def tags(self) -> List[Optional[str]]:
+        """The tags specified under the match_on attribute."""
+        return self.match_on.get('tags', [])
+
+    @staticmethod
+    def _get_control_id_query(match_on_data) -> Dict:
+        """Constructs a valid query based on a set control ID if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set control ID, empty dictionary otherwise.
+
+        """
+        control_id = match_on_data.get('control_id')
+        if not control_id:
+            return {}
+        # For the CIS AWS Foundations Benchmark standard, the field is RuleId
+        # for other standards the field is ControlId, so we use both.
+        return {'ProductFields': [{'Key': 'ControlId',
+                                   'Value': control_id,
+                                   'Comparison': 'EQUALS'},
+                                  {'Key': 'RuleId',
+                                   'Value': control_id,
+                                   'Comparison': 'EQUALS'}]}
+
+    @staticmethod
+    def _get_security_control_id_query(match_on_data) -> Dict:
+        """Constructs a valid query based on a set security control ID if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set security control ID, empty dictionary otherwise.
+
+        """
+        security_control_id = match_on_data.get('security_control_id')
+        if not security_control_id:
+            return {}
+        return {'ComplianceSecurityControlId': [{'Value': security_control_id,
+                                                 'Comparison': 'EQUALS'}]}
+
+    @staticmethod
+    def _get_tag_query(match_on_data) -> Dict:
+        """Constructs a valid query based on set tags if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the set tags, empty dictionary otherwise.
+
+        """
+        tags = match_on_data.get('tags')
+        if not tags:
+            return {}
+        return {'ResourceTags': [{'Key': tag.get('key'),
+                                  'Value': tag.get('value'),
+                                  'Comparison': 'EQUALS'}
+                                 for tag in tags]}
+
+    @property
+    def query_filter(self) -> Dict:
+        """The query filter of the Rule based on all set attributes.
+
+        Returns:
+            The Security Hub compatible query filter for all attributes set on the Rule.
+
+        """
+        query = deepcopy(DEFAULT_SECURITY_HUB_FILTER)
+        query.update(self._get_control_id_query(self.match_on))
+        query.update(self._get_security_control_id_query(self.match_on))
+        query.update(self._get_tag_query(self.match_on))
+        return deepcopy(query)
+
 
 class FindingsManager:
-    """Models security hub and can retrieve findings."""
+    """Models security hub and can retrieve findings and suppress them."""
 
-    def __init__(self, region=None, allowed_regions=None, denied_regions=None):
+    # pylint: disable=too-many-arguments
+    def __init__(self,
+                 region: str = None,
+                 allowed_regions: Optional[List[str]] = None,
+                 denied_regions: Optional[List[str]] = None,
+                 allowed_account_ids: Optional[List[str]] = None,
+                 denied_account_ids: Optional[List[str]] = None,
+                 strict_mode: bool = True,
+                 suppress_label: str = None):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
-        self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions, denied_regions)
+        self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions,
+                                                                                    denied_regions)
+        self.allowed_account_ids, self.denied_account_ids = validate_allowed_denied_account_ids(allowed_account_ids,
+                                                                                                denied_account_ids)
         self.sts = self._get_sts_client()
         self.ec2 = self._get_ec2_client(region)
         self._aws_regions = None
         self.aws_region = self._validate_region(region) or self._sts_client_config_region
+        self._rules = set()
+        self._strict_mode = strict_mode
+        self._rules_errors = []
+        self._suppress_label = suppress_label or self.__class__.__name__
 
-    def _validate_region(self, region):
+    @property
+    def default_query_filter(self):
+        """The default query filter for the instance of FindingManager.
+
+        Calculates the filter based on the provided allowed or denied account ids that should always be provided to
+        the remote service.
+        """
+        return deepcopy(self.update_query_for_account_ids(DEFAULT_SECURITY_HUB_FILTER,
+                                                          self.allowed_account_ids,
+                                                          self.denied_account_ids))
+
+    @property
+    def rules(self):
+        """The registered rules of the manager."""
+        return list(self._rules)
+
+    @property
+    def rules_errors(self):
+        """The errors of registered rules if any and strict mode is not set."""
+        return self._rules_errors
+
+    def register_rule(self, note: str, action: str, match_on: Dict):
+        """Registers a rule by the provided arguments.
+
+        Args:
+            note: The note of the rule.
+            action: The action of the rule.
+            match_on: The "match_on" payload of the rule
+
+        Returns:
+            True on success, False otherwise
+
+        Raises:
+            InvalidRuleType if strict mode is set and the arguments are not valid for a rule.
+
+        """
+        return self.register_rules([{'note': note, 'action': action, 'match_on': match_on}])
+
+    def register_rules(self, rules: List[Dict]):
+        """Registers multiple rules by the provided arguments.
+
+        If strict mode is enabled on the service in case of any errors the invalid data is registered under the
+        rules_errors attribute.
+
+        Args:
+            rules: A list of rule payloads to register.
+
+        Returns:
+            True on success, False otherwise
+
+        Raises:
+            InvalidRuleType if strict mode is set and the arguments are not valid for a rule.
+
+        """
+        if self._strict_mode:
+            for data in rules:
+                self._rules.add(Rule(**data))
+            return True
+        success = True
+        for data in rules:
+            try:
+                self._rules.add(Rule(**data))
+            except InvalidRuleType:
+                success = False
+                self._rules_errors.append(data)
+                self._logger.exception(f'Rule with data {data} is invalid')
+        return success
+
+    def _validate_region(self, region: str):
         if any([not region, region in self.regions]):
             return region
         raise InvalidRegion(region)
@@ -288,7 +598,7 @@ class FindingsManager:
         return boto3.client('sts')
 
     @staticmethod
-    def _get_security_hub_client(region):
+    def _get_security_hub_client(region: str):
         try:
             config = Config(region_name=region)
             kwargs = {"config": config}
@@ -299,7 +609,7 @@ class FindingsManager:
         return client
 
     @staticmethod
-    def _get_ec2_client(region):
+    def _get_ec2_client(region: str):
         kwargs = {}
         if region:
             config = Config(region_name=region)
@@ -326,7 +636,7 @@ class FindingsManager:
                                  for region in self._describe_ec2_regions()
                                  if region.get('OptInStatus', '') != 'not-opted-in']
             self._logger.debug(f'Regions in EC2 that were opted in are : {self._aws_regions}')
-        if self.allowed_regions:
+        if self.allowed_account_ids:
             self._aws_regions = set(self._aws_regions).intersection(set(self.allowed_regions))
             self._logger.debug(f'Working on allowed regions {self._aws_regions}')
         elif self.denied_regions:
@@ -348,8 +658,55 @@ class FindingsManager:
             self._logger.debug('Could not get aggregating region, either not set, or a client error')
         return aggregating_region
 
+    @staticmethod
+    def _calculate_account_id_filter(allowed_account_ids: Optional[List[str]],
+                                     denied_account_ids: Optional[List[str]]):
+        """Calculates the filter targeting allowed or denied account ids.
+
+        Args:
+            allowed_account_ids: The allowed account ids if any.
+            denied_account_ids: The denied account ids if any.
+
+        Returns:
+            A list of query filters for the provided allowed or denied account ids.
+
+        """
+        allowed_account_ids, denied_account_ids = validate_allowed_denied_account_ids(allowed_account_ids,
+                                                                                      denied_account_ids)
+        aws_account_ids = []
+        if any([allowed_account_ids, denied_account_ids]):
+            comparison = 'EQUALS' if allowed_account_ids else 'NOT_EQUALS'
+            iterator = allowed_account_ids if allowed_account_ids else denied_account_ids
+            aws_account_ids = [{'Comparison': comparison, 'Value': account} for account in iterator]
+        return aws_account_ids
+
+    #  pylint: disable=dangerous-default-value
+    @staticmethod
+    def update_query_for_account_ids(query_filter: Dict = DEFAULT_SECURITY_HUB_FILTER,
+                                     allowed_account_ids: Optional[List[str]] = None,
+                                     denied_account_ids: Optional[List[str]] = None):
+        """Calculates a Security Hub compatible filter for retrieving findings.
+
+        Depending on arguments provided for allow list and deny list a query is constructed to
+        retrieve only appropriate findings, offloading the filter on the back end.
+
+        Args:
+            query_filter: The default filter if no filter is provided.
+            allowed_account_ids: The allow list of account ids to get the findings for.
+            denied_account_ids: The deny list of account ids to filter out findings for.
+
+        Returns:
+            query_filter (dict): The query filter calculated based on the provided arguments.
+
+        """
+        query_filter = deepcopy(query_filter)
+        aws_account_ids = FindingsManager._calculate_account_id_filter(allowed_account_ids, denied_account_ids)
+        if aws_account_ids:
+            query_filter.update({'AwsAccountId': aws_account_ids})
+        return query_filter
+
     @retry(retry_on_exceptions=botocore.exceptions.ClientError)
-    def _get_findings(self, query_filter):
+    def _get_findings(self, query_filter: Dict):
         findings = set()
         aggregating_region = self._get_aggregating_region()
         regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
@@ -371,101 +728,251 @@ class FindingsManager:
         return list(findings)
 
     @staticmethod
-    def _calculate_account_id_filter(allowed_account_ids, denied_account_ids):
-        """Calculates the filter targeting allowed or denied account ids.
-
-        Args:
-            allowed_account_ids: The account ids if any.
-            denied_account_ids: The Denied ids if any.
-
-        Returns:
-            allowed_account_ids, denied_account_ids (tuple(list,list)): If any is set and are valid.
-
-        """
-        allowed_account_ids, denied_account_ids = validate_allowed_denied_account_ids(allowed_account_ids,
-                                                                                      denied_account_ids)
-        aws_account_ids = []
-        if any([allowed_account_ids, denied_account_ids]):
-            comparison = 'EQUALS' if allowed_account_ids else 'NOT_EQUALS'
-            iterator = allowed_account_ids if allowed_account_ids else denied_account_ids
-            aws_account_ids = [{'Comparison': comparison, 'Value': account} for account in iterator]
-        return aws_account_ids
-
-    #  pylint: disable=dangerous-default-value
-    # NEEDS TO BE MODIFIED
-    @staticmethod
-    def calculate_query_filter(query_filter=DEFAULT_SECURITY_HUB_FILTER,
-                               allowed_account_ids=None,
-                               denied_account_ids=None):
-        """Calculates a Security Hub compatible filter for retrieving findings.
-
-        Depending on arguments provided for allow list, deny list and frameworks to retrieve a query is constructed to
-        retrieve only appropriate findings, offloading the filter on the back end.
-
-        Args:
-            query_filter: The default filter if no filter is provided.
-            allowed_account_ids: The allow list of account ids to get the findings for.
-            denied_account_ids: The deny list of account ids to filter out findings for.
-
-        Returns:
-            query_filter (dict): The query filter calculated based on the provided arguments.
-
-        """
-        query_filter = deepcopy(query_filter)
-        aws_account_ids = FindingsManager._calculate_account_id_filter(allowed_account_ids, denied_account_ids)
-        if aws_account_ids:
-            query_filter.update({'AwsAccountId': aws_account_ids})
-        return query_filter
+    def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger):
+        if any([rule.resource_ids, rule.tags]):
+            matching_findings = [finding for finding in findings
+                                 if any([finding.is_matching_resource_ids(rule.resource_ids),
+                                         finding.is_matching_tags(rule.tags)])]
+            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
+                         f'{[finding.id for finding in matching_findings]}')
+        else:
+            logger.debug('No resource id patterns or tags are provided in the rule, all findings used.')
+            matching_findings = findings
+        for finding in matching_findings:
+            finding.matched_rule = rule
+        return matching_findings
 
     def get_findings(self):
-        """Retrieves findings from security hub based on a default query.
+        """Retrieves findings from security hub based on the registered rules.
 
         Returns:
             findings (list): A list of findings from security hub.
 
         """
-        
-        query_filter = DEFAULT_SECURITY_HUB_FILTER
-        return self._get_findings(query_filter)
+        all_findings = []
+        for rule in self.rules:
+            query = self.default_query_filter
+            query.update(rule.query_filter)
+            findings = self._get_findings(query)
+            matching_findings = self._get_matching_findings(rule, findings, self._logger)
+            all_findings.extend(matching_findings)
+        initial_size = len(all_findings)
+        findings = list(set(all_findings))
+        diff = initial_size - len(findings)
+        if diff:
+            self._logger.warning(f'Missmatch of finding numbers, there seems to be an overlap of {diff}')
+        return findings
 
-    def get_findings_by_rule_id(self):
-        """Retrieves findings from security hub based on a provided query that filters by rule id.
+    def get_findings_by_rule_match(self, note: str, action: str, match_on: Dict):
+        """Retrieves findings by the provided rule data.
 
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        query_filter = {}  # fix for rule id
-        return self._get_findings(query_filter)
-
-    def get_findings_by_control_id(self):
-        """Retrieves findings from security hub based on a provided query that filters by control id.
-
-        Returns:
-            findings (list): A list of findings from security hub.
-
-        """
-        query_filter = {}  # fix for control id
-        return self._get_findings(query_filter)
-
-    def get_findings_by_tag(self):
-        """Retrieves findings from security hub based on a provided query that filters by tag.
+        Args:
+            note: The note of the rule.
+            action: The action of the rule
+            match_on: The match_on field of the rule.
 
         Returns:
-            findings (list): A list of findings from security hub.
+            A list of findings that match the provided rule data.
 
         """
-        query_filter = {}  # fix for tag
-        return self._get_findings(query_filter)
+        rule = Rule(note, action, match_on)
+        query = self.default_query_filter
+        query.update(rule.query_filter)
+        findings = self._get_findings(query)
+        return self._get_matching_findings(rule, findings, self._logger)
 
-    def suppress_findings(self):
-        """Suppresses findings from security hub based on a default query."""
+    @staticmethod
+    def _chunk(iterable, size):
+        """Chunking an interable to pieces of provided size."""
+        iterable = iter(iterable)
+        return iter(lambda: tuple(islice(iterable, size)), ())
 
-    def suppress_findings_by_rule_id(self):
-        """Suppresses findings from security hub based on a query by rule id."""
+    def _validate_rule_in_findings(self, findings: List[Finding]):
+        """Validates that the provided findinds have registered matching rules.
 
-    def suppress_findings_by_control_id(self):
-        """Suppresses findings from security hub based on a query by control id."""
+        Args:
+            findings: A list of findings to validate.
 
-    def suppress_findings_by_tag(self):
-        """Suppresses findings from security hub based on a query by tag."""
+        Returns:
+            A list of findings with valid matching rules configured.
+
+        Raises:
+            NoRuleFindings if strict mode is enabled and any findings do not have matching rules.
+
+        """
+        no_rule_matches = [finding.id for finding in findings if not finding.matched_rule]
+        if no_rule_matches:
+            message = f'Findings with the following ids "{no_rule_matches}" do not have matching rules'
+            if self._strict_mode:
+                raise NoRuleFindings(message)
+            self._logger.warning(message)
+        return findings
+
+    def _get_suppressing_payload(self, findings: List[Finding]):
+        """Constructs a payload compatible with security hub for all findings based on their matching rules.
+
+        Findings are grouped per common rule and a payload of up to MAX_SUPPRESSION_PAYLOAD_SIZE (currently 100 items)
+        is constructed per common rule and yielded.
+
+        Args:
+            findings: A list of findings to generate suppression payloads for.
+
+        Returns:
+            A generator with suppressing payloads per common note chunked at MAX_SUPPRESSION_PAYLOAD_SIZE
+
+        """
+        findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
+        findings = self._validate_rule_in_findings(findings)
+        rule_findings_mapping = defaultdict(list)
+        for finding in findings:
+            rule_findings_mapping[finding.matched_rule].append(finding)
+        # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
+        for rule, findings_ in rule_findings_mapping.items():
+            for chunk in FindingsManager._chunk([{'Id': finding.id,
+                                                  'ProductArn': finding.product_arn}
+                                                 for finding in findings_], MAX_SUPPRESSION_PAYLOAD_SIZE):
+                yield {'FindingIdentifiers': chunk,
+                       'Workflow': {'Status': rule.action},
+                       'Note': {'Text': rule.note,
+                                'UpdatedBy': self._suppress_label}}
+
+    def suppress_matching_findings(self):
+        """Suppresses findings from security hub based the recorded rules."""
+        return self._suppress_findings(self.get_findings())
+
+    def suppress_findings(self, findings: List[Finding]):
+        """Suppresses findings from security hub based on a provided list."""
+        return self._suppress_findings(findings)
+
+    def _suppress_findings(self, findings: List[Finding]):
+        """Suppresses findings from security hub based on a provided list of findings."""
+        security_hub = self._get_security_hub_client(self.aws_region)
+        result = []
+        for payload in self._get_suppressing_payload(findings):
+            self._logger.debug(f'Sending payload {payload} for suppression to Security Hub.')
+            if os.environ.get('FINDINGS_MANAGER_DRY_RUN_MODE'):
+                self._logger.debug('Dry run mode is on, skipping the actual suppression.')
+                continue
+            result.append(self._batch_update_findings(security_hub, payload))
+        return all(result)
+
+    def _batch_update_findings(self, security_hub, payload):
+        """Sends a payload with a batch of max size of 100.
+
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/securityhub/client/batch_update_findings.html
+        The response is of the form :
+
+            {
+            'ProcessedFindings': [
+                {
+                    'Id': 'string',
+                    'ProductArn': 'string'
+                },
+            ],
+                'UnprocessedFindings': [
+                    {
+                        'FindingIdentifier': {
+                            'Id': 'string',
+                            'ProductArn': 'string'
+                        },
+                        'ErrorCode': 'string',
+                        'ErrorMessage': 'string'
+                    },
+                ]
+            }
+
+        if there are any unprocessed findings it is considered an error.
+
+        Args:
+            security_hub: Security hub client
+            payload: The payload to send to the service
+
+        Returns: True on success False otherwise
+
+        Raises:
+            FailedToBatchUpdate: if strict mode is set and there are failures to update.
+
+        """
+        status = True
+        response = security_hub.batch_update_findings(**payload)
+        failed = response.get('UnprocessedFindings')
+        if failed:
+            if self._strict_mode:
+                raise FailedToBatchUpdate(failed)
+            status = False
+            for fail in failed:
+                id_ = fail.get('FindingIdentifier', '').get('Id')
+                error = fail.get('ErrorMessage')
+                self._logger.error(f'Failed to update finding with ID: "{id_}" with error: "{error}"')
+        return status
+
+    def validate_finding_on_matching_rules(self, finding_data: Dict):
+        """Validates that the provided data is correct data for a finding.
+
+        Iterates all registered rules and tries to match the finding with any registered rule (first match is used).
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            A Finding object with a matching rule on success, None if no rule has been matched.
+
+        Raises:
+            InvalidFindingData: The data provided is not valid Finding data.
+
+        """
+        finding = Finding(finding_data)
+        for rule in self.rules:
+            if finding.is_matching_rule(rule):
+                finding.matched_rule = rule
+                break
+        else:
+            return None
+        return finding
+
+    def suppress_finding_on_matching_rules(self, finding_data: Dict):
+        """Suppresses a findings based on the provided finding data.
+
+        A finding gets constructed with the provided data, and all rules are checked for a match with the finding.
+        If one is found, the finding is suppressed with the data of the matching rule.
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            True on success False otherwise.
+
+        Raises:
+            InvalidFindingData: If the data is not valid finding data.
+
+        """
+        return self.suppress_findings_on_matching_rules(finding_data)
+
+    def suppress_findings_on_matching_rules(self, finding_data: Union[List[Dict], Dict]):
+        """Suppresses a list of findings based on the provided list of finding data.
+
+        All findings get constructed with the provided data, and all rules are checked for a match with each finding.
+        If one is found, the finding is suppressed with the data of the matching rule.
+
+        Args:
+            finding_data: The data of a finding as provided by Security Hub.
+
+        Returns:
+            True on success False otherwise.
+
+        Raises:
+            InvalidFindingData: If any data is not valid finding data.
+
+        """
+        if isinstance(finding_data, dict):
+            finding_data = [finding_data]
+        if self._strict_mode:
+            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_data]
+        else:
+            findings = []
+            for payload in finding_data:
+                try:
+                    findings.append(self.validate_finding_on_matching_rules(payload))
+                except InvalidFindingData:
+                    self._logger.error(f'Data {payload} seems to be invalid.')
+        return self._suppress_findings([finding for finding in findings if finding])
