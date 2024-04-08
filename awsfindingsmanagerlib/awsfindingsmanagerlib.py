@@ -636,7 +636,7 @@ class FindingsManager:
                                  for region in self._describe_ec2_regions()
                                  if region.get('OptInStatus', '') != 'not-opted-in']
             self._logger.debug(f'Regions in EC2 that were opted in are : {self._aws_regions}')
-        if self.allowed_account_ids:
+        if self.allowed_regions:
             self._aws_regions = set(self._aws_regions).intersection(set(self.allowed_regions))
             self._logger.debug(f'Working on allowed regions {self._aws_regions}')
         elif self.denied_regions:
@@ -836,25 +836,50 @@ class FindingsManager:
                        'Note': {'Text': rule.note,
                                 'UpdatedBy': self._suppress_label}}
 
+    def _get_unsuppressing_payload(self, findings: List[Finding]):
+        """Constructs a payload compatible with security hub for all findings for unsuppressing.
+
+        Findings are grouped up to MAX_SUPPRESSION_PAYLOAD_SIZE (currently 100 items).
+
+        Args:
+            findings: A list of findings to generate unsuppression payloads for.
+
+        Returns:
+            A generator with unsuppressing payloads chunked at MAX_SUPPRESSION_PAYLOAD_SIZE
+
+        """
+        findings = findings if isinstance(findings, (list, tuple, set)) else [findings]
+        for chunk in FindingsManager._chunk([{'Id': finding.id,
+                                              'ProductArn': finding.product_arn}
+                                             for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
+            yield {'FindingIdentifiers': chunk,
+                   'Workflow': {'Status': 'NEW'}
+                   }
+
     def suppress_matching_findings(self):
         """Suppresses findings from security hub based the recorded rules."""
-        return self._suppress_findings(self.get_findings())
+        return self._workflow_state_change_on_findings(self.get_findings())
 
     def suppress_findings(self, findings: List[Finding]):
         """Suppresses findings from security hub based on a provided list."""
-        return self._suppress_findings(findings)
+        return self._workflow_state_change_on_findings(findings)
 
-    def _suppress_findings(self, findings: List[Finding]):
-        """Suppresses findings from security hub based on a provided list of findings."""
+    def _workflow_state_change_on_findings(self, findings: List[Finding], suppress=True):
+        """Changes workflow state on findings from security hub based on a provided list of findings."""
+        message_state = 'suppression' if suppress else 'unsuppression'
+        method = self._get_suppressing_payload if suppress else self._get_unsuppressing_payload
         security_hub = self._get_security_hub_client(self.aws_region)
-        result = []
-        for payload in self._get_suppressing_payload(findings):
-            self._logger.debug(f'Sending payload {payload} for suppression to Security Hub.')
+        return all((result for result in self._batch_apply_payloads(security_hub,
+                                                                    method(findings),  # noqa
+                                                                    message_state)))
+
+    def _batch_apply_payloads(self, security_hub, payloads, message_state):
+        for payload in payloads:
+            self._logger.debug(f'Sending payload {payload} for {message_state} to Security Hub.')
             if os.environ.get('FINDINGS_MANAGER_DRY_RUN_MODE'):
-                self._logger.debug('Dry run mode is on, skipping the actual suppression.')
+                self._logger.debug(f'Dry run mode is on, skipping the actual {message_state}.')
                 continue
-            result.append(self._batch_update_findings(security_hub, payload))
-        return all(result)
+            yield self._batch_update_findings(security_hub, payload)
 
     def _batch_update_findings(self, security_hub, payload):
         """Sends a payload with a batch of max size of 100.
@@ -975,4 +1000,26 @@ class FindingsManager:
                     findings.append(self.validate_finding_on_matching_rules(payload))
                 except InvalidFindingData:
                     self._logger.error(f'Data {payload} seems to be invalid.')
-        return self._suppress_findings([finding for finding in findings if finding])
+        return self._workflow_state_change_on_findings([finding for finding in findings if finding])
+
+    def get_unmanaged_suppressed_findings(self) -> [Finding]:
+        """Retrieves a list of suppressed findings that are not managed by this library.
+
+        Returns:
+            findings (list): A list of findings.
+
+        """
+        query = {'NoteUpdatedBy': [{'Value': self._suppress_label,
+                                    'Comparison': 'NOT_EQUALS'}],
+                 'WorkflowStatus': [{'Value': 'SUPPRESSED',
+                                     'Comparison': 'EQUALS'}]}
+        return self._get_findings(query)
+
+    def unsuppress_unmanaged_findings(self) -> bool:
+        """Unsuppresses findings that have not been suppressed by this library.
+
+        Returns:
+            True on full success, False otherwise.
+
+        """
+        return self._workflow_state_change_on_findings(self.get_unmanaged_suppressed_findings(), suppress=False)
