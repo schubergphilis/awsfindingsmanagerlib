@@ -5,9 +5,10 @@ Credits
 Development Lead
 ----------------
 
-* Marwin Baumann <mbaumann@schubergphilis.com>
+* Tyfoxylos Costas <ctyfoxylos@schubergphilis.com>
+
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Marwin Baumann <mbaumann@schubergphilis.com>
