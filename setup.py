@@ -32,7 +32,7 @@ setup(
     long_description=readme + '\n\n' + history,
     author='''Marwin Baumann''',
     author_email='''mbaumann@schubergphilis.com''',
-    url='''git@github.com:schubergphilis/awsfindingsmanagerlib.git''',
+    url='''https://github.com/schubergphilis/awsfindingsmanagerlib.git''',
     packages=find_packages(where='.', exclude=('tests', 'hooks', '_CI*')),
     package_dir={'''awsfindingsmanagerlib''':
                  '''awsfindingsmanagerlib'''},
@@ -44,7 +44,7 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License 2.0 License',
+        'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.8',
         ],
