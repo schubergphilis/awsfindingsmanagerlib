@@ -27,7 +27,7 @@ Import all parts from awsfindingsmanagerlib here
 """
 from ._version import __version__
 from .awsfindingsmanagerlib import FindingsManager, Rule, Finding
-from .backends import Http
+from .backends import Http, S3
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -46,3 +46,4 @@ assert Rule
 assert Finding
 
 assert Http
+assert S3

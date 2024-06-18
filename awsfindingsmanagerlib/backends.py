@@ -120,7 +120,7 @@ class S3(Backend):
     @staticmethod
     def _get_file_contents(bucket_name, file_name):
         s3 = boto3.resource('s3')
-        return s3.Object(s3.Bucket(bucket_name), file_name).get()['Body'].read()
+        return s3.Object(bucket_name, file_name).get()['Body'].read()
 
     def _get_rules(self):
         data = yaml.safe_load(self._file_contents)
