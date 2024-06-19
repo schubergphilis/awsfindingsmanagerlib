@@ -14,3 +14,9 @@ History
 ------------------
 
 * Fix s3 backend.
+
+
+0.1.2 (19-06-2024)
+------------------
+
+* Bump dependencies.
