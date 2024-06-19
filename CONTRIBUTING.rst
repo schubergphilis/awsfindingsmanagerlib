@@ -26,7 +26,7 @@ Using of pipenv is highly recommended.
 2. Install your local copy into a virtualenv. Assuming you have pipenv installed, this is how you set up your clone for local development::
 
     $ cd awsfindingsmanagerlib/
-    $ pipenv install --ignore-pipfile
+    $ pipenv install --ignore-pipfile --dev
 
 3. Create a branch for local development::
 
