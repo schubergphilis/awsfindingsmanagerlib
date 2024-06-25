@@ -712,8 +712,7 @@ class FindingsManager:
         regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
         for region in regions_to_retrieve:
             self._logger.debug(f'Trying to get findings for region {region}')
-            session = boto3.Session(region_name=region)
-            security_hub = session.client('securityhub')
+            security_hub = self._get_security_hub_client(region=region)
             paginator = security_hub.get_paginator('get_findings')
             iterator = paginator.paginate(Filters=query_filter)
             try:
