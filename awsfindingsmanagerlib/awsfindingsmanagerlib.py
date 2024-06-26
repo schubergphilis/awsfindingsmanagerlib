@@ -608,6 +608,11 @@ class FindingsManager:
             raise NoRegion(f'Security Hub client requires a valid region set to connect, message was:{msg}') from None
         return client
 
+    def _get_security_hub_paginator_iterator(self, region: str, operation_name: str, query_filter: dict):
+        security_hub = self._get_security_hub_client(region=region)
+        paginator = security_hub.get_paginator(operation_name)
+        return paginator.paginate(Filters=query_filter)
+
     @staticmethod
     def _get_ec2_client(region: str):
         kwargs = {}
@@ -712,18 +717,18 @@ class FindingsManager:
         regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
         for region in regions_to_retrieve:
             self._logger.debug(f'Trying to get findings for region {region}')
-            security_hub = self._get_security_hub_client(region=region)
-            paginator = security_hub.get_paginator('get_findings')
-            iterator = paginator.paginate(Filters=query_filter)
+            iterator = self._get_security_hub_paginator_iterator(region, 'get_findings', query_filter)
             try:
                 for page in iterator:
                     for finding_data in page['Findings']:
                         finding = Finding(finding_data)
                         self._logger.debug(f'Adding finding with id {finding.id}')
                         findings.add(finding)
-            except (security_hub.exceptions.InvalidAccessException, security_hub.exceptions.AccessDeniedException):
-                self._logger.debug(f'No access for Security Hub for region {region}.')
-                continue
+            except botocore.exceptions.ClientError as error:
+                if error.response['Error']['Code'] in ['AccessDeniedException', 'InvalidAccessException']:
+                    self._logger.debug(f'No access for Security Hub for region {region}.')
+                    continue
+                raise error
         return list(findings)
 
     @staticmethod
