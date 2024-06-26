@@ -65,6 +65,17 @@ class Backend(ABC):
         return [validate_rule_data(data) for data in self._get_rules()]
 
 
+class Local(Backend):
+
+    def __init__(self, path):
+        self.path = path
+
+    def _get_rules(self):
+        with open(self.path, encoding='utf-8') as suppressions_file:
+            data = yaml.safe_load(suppressions_file)
+        return data.get('Rules')
+
+
 class Http(Backend):
 
     def __init__(self, url):
