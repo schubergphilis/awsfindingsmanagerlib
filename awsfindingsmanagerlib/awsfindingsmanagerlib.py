@@ -345,8 +345,10 @@ class Finding:
         """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
-        if any([self.control_id == rule.control_id,
-                self.rule_id == rule.control_id,
+        #            control id matches rule control id assuming any of them are set.
+        if any([all([self.control_id == rule.control_id, all([self.control_id, rule.control_id])]),
+                #    rule id matches rule control id assuming any of them are set.
+                all([self.rule_id == rule.control_id, all([self.rule_id, rule.control_id])]),
                 self.security_control_id == rule.security_control_id]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
             if not any([rule.resource_ids, rule.resource_ids]):
