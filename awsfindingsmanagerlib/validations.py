@@ -47,16 +47,16 @@ __maintainer__ = '''Ben van Breukelen, Costas Tyfoxylos, Marwin Baumann'''
 __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com>,<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-rule_schema = Schema({'match_on': {Optional('control_id'): str,
+rule_schema = Schema({'match_on': {Optional('rule_or_control_id'): str,
                                    Optional('security_control_id'): str,
-                                   Optional('resource_ids'): [str],
+                                   Optional('resource_id_regexps'): [str],
                                    Optional('tags'): [{'key': str,
                                                        'value': str}]},
                       'note': str,
                       'action': lambda x: x in ('SUPPRESSED',)})
 
 RULE_SUPPORTED_ACTIONS = ('SUPPRESSED',)
-RULE_MUTUALLY_EXCLUSIVE = [('security_control_id', 'control_id')]
+RULE_MUTUALLY_EXCLUSIVE = [('security_control_id', 'rule_or_control_id')]
 
 
 def validate_rule_data(rule_data) -> Dict:

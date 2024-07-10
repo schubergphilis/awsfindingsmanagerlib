@@ -1,12 +1,12 @@
 # Comments
 Rules:
-    - note: 'Maybe later'
-      action: 'SUPPRESSED'
-      match_on:
-          security_control_id: 'GuardDuty.1'
-    - note: 'Public'
-      action: 'SUPPRESSED'
-      match_on:
-          resource_ids:
-              - '^arn:aws:s3:::public-bucket$'
-              - '^arn:aws:s3:::bucket-public$'
+  - note: 'Maybe later'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'GuardDuty.1'
+  - note: 'Public'
+    action: 'SUPPRESSED'
+    match_on:
+      resource_id_regexps:
+        - '^arn:aws:s3:::public-bucket$'
+        - '^arn:aws:s3:::bucket-public$'

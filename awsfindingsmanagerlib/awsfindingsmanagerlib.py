@@ -326,12 +326,12 @@ class Finding:
         """Checks a rule for a match with the finding.
 
         If any of control_id, security_control_id or rule_id attributes match between the rule and the finding and the
-        rule does not have any filtering attributes like resource_ids or tags then it is considered a match. (Big blast
-        radius) only matching on the control.
+        rule does not have any filtering attributes like resource_id_regexps or tags then it is considered a match.
+        (Big blast radius) only matching on the control.
 
-        If the rule has any attributes like resource_ids or tags then a secondary match is searched for any of them with
-        the corresponding finding attributes. If any match is found then the rule is found matching if none are matching
-        then the rule is not considered a matching rule.
+        If the rule has any attributes like resource_id_regexps or tags then a secondary match is searched for any of
+        them with the corresponding finding attributes. If any match is found then the rule is found matching if none
+        are matching then the rule is not considered a matching rule.
 
         Args:
             rule: The rule object to match with.
@@ -345,14 +345,14 @@ class Finding:
         """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
-        if any([self.control_id == rule.control_id,
-                self.rule_id == rule.control_id,
+        if any([self.control_id == rule.rule_or_control_id,
+                self.rule_id == rule.rule_or_control_id,
                 self.security_control_id == rule.security_control_id]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
-            if not any([rule.resource_ids, rule.resource_ids]):
+            if not any([rule.tags, rule.resource_id_regexps]):
                 self._logger.debug(f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
                 return True
-            if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_ids)]):
+            if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_id_regexps)]):
                 self._logger.debug(f'Matched with rule "{rule.note}" either on resources or tags.')
                 return True
         return False
@@ -402,14 +402,14 @@ class Rule:
         return self.match_on.get('security_control_id', '')
 
     @property
-    def control_id(self) -> str:
+    def rule_or_control_id(self) -> str:
         """The control ID if any, empty string otherwise."""
-        return self.match_on.get('control_id', '')
+        return self.match_on.get('rule_or_control_id', '')
 
     @property
-    def resource_ids(self) -> List[Optional[str]]:
+    def resource_id_regexps(self) -> List[Optional[str]]:
         """The resource ids specified under the match_on attribute."""
-        return self.match_on.get('resource_ids', [])
+        return self.match_on.get('resource_id_regexps', [])
 
     @property
     def tags(self) -> List[Optional[str]]:
@@ -417,7 +417,7 @@ class Rule:
         return self.match_on.get('tags', [])
 
     @staticmethod
-    def _get_control_id_query(match_on_data) -> Dict:
+    def _get_rule_or_control_id_query(match_on_data) -> Dict:
         """Constructs a valid query based on a set control ID if any.
 
         Args:
@@ -427,16 +427,16 @@ class Rule:
              The query matching the set control ID, empty dictionary otherwise.
 
         """
-        control_id = match_on_data.get('control_id')
-        if not control_id:
+        rule_or_control_id = match_on_data.get('rule_or_control_id')
+        if not rule_or_control_id:
             return {}
         # For the CIS AWS Foundations Benchmark standard, the field is RuleId
         # for other standards the field is ControlId, so we use both.
         return {'ProductFields': [{'Key': 'ControlId',
-                                   'Value': control_id,
+                                   'Value': rule_or_control_id,
                                    'Comparison': 'EQUALS'},
                                   {'Key': 'RuleId',
-                                   'Value': control_id,
+                                   'Value': rule_or_control_id,
                                    'Comparison': 'EQUALS'}]}
 
     @staticmethod
@@ -484,7 +484,7 @@ class Rule:
 
         """
         query = deepcopy(DEFAULT_SECURITY_HUB_FILTER)
-        query.update(self._get_control_id_query(self.match_on))
+        query.update(self._get_rule_or_control_id_query(self.match_on))
         query.update(self._get_security_control_id_query(self.match_on))
         query.update(self._get_tag_query(self.match_on))
         return deepcopy(query)
@@ -733,9 +733,9 @@ class FindingsManager:
 
     @staticmethod
     def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger) -> List[Finding]:
-        if any([rule.resource_ids, rule.tags]):
+        if any([rule.resource_id_regexps, rule.tags]):
             matching_findings = [finding for finding in findings
-                                 if any([finding.is_matching_resource_ids(rule.resource_ids),
+                                 if any([finding.is_matching_resource_ids(rule.resource_id_regexps),
                                          finding.is_matching_tags(rule.tags)])]
             logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
                          f'{[finding.id for finding in matching_findings]}')
@@ -1015,7 +1015,7 @@ class FindingsManager:
                     self._logger.error(f'Data {payload} seems to be invalid.')
         return self._workflow_state_change_on_findings([finding for finding in findings if finding])
 
-    def get_unmanaged_suppressed_findings(self) -> [Finding]:
+    def get_unmanaged_suppressed_findings(self) -> List[Finding]:
         """Retrieves a list of suppressed findings that are not managed by this library.
 
         Returns:
