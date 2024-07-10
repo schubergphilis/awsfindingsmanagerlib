@@ -345,8 +345,10 @@ class Finding:
         """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
-        if any([self.control_id == rule.rule_or_control_id,
-                self.rule_id == rule.rule_or_control_id,
+        # control id matches rule control id assuming any of them are set.
+        if any([all([self.control_id == rule.rule_or_control_id, all([self.control_id, rule.rule_or_control_id])]),
+                # rule id matches rule control id assuming any of them are set.
+                all([self.rule_id == rule.rule_or_control_id, all([self.rule_id, rule.rule_or_control_id])]),
                 self.security_control_id == rule.security_control_id]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
             if not any([rule.tags, rule.resource_id_regexps]):
@@ -968,6 +970,20 @@ class FindingsManager:
             return None
         return finding
 
+    def _construct_findings_on_matching_rules(self, finding_data: Union[List[Dict], Dict]) -> List[Finding]:
+        if isinstance(finding_data, dict):
+            finding_data = [finding_data]
+        if self._strict_mode:
+            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_data]
+        else:
+            findings = []
+            for payload in finding_data:
+                try:
+                    findings.append(self.validate_finding_on_matching_rules(payload))
+                except InvalidFindingData:
+                    self._logger.error(f'Data {payload} seems to be invalid.')
+        return [finding for finding in findings if finding]
+
     def suppress_finding_on_matching_rules(self, finding_data: Dict):
         """Suppresses a findings based on the provided finding data.
 
@@ -1002,18 +1018,8 @@ class FindingsManager:
             InvalidFindingData: If any data is not valid finding data.
 
         """
-        if isinstance(finding_data, dict):
-            finding_data = [finding_data]
-        if self._strict_mode:
-            findings = [self.validate_finding_on_matching_rules(payload) for payload in finding_data]
-        else:
-            findings = []
-            for payload in finding_data:
-                try:
-                    findings.append(self.validate_finding_on_matching_rules(payload))
-                except InvalidFindingData:
-                    self._logger.error(f'Data {payload} seems to be invalid.')
-        return self._workflow_state_change_on_findings([finding for finding in findings if finding])
+        matching_findings = self._construct_findings_on_matching_rules(finding_data)
+        return self._workflow_state_change_on_findings(matching_findings)
 
     def get_unmanaged_suppressed_findings(self) -> List[Finding]:
         """Retrieves a list of suppressed findings that are not managed by this library.

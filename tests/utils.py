@@ -27,6 +27,7 @@ Test utils for `awsfindingsmanagerlib` module.
 
 """
 
+from awsfindingsmanagerlib import Local
 from awsfindingsmanagerlib import FindingsManager as FindingsManagerToMock
 from unittest.mock import MagicMock
 from unittest import TestCase
@@ -57,7 +58,15 @@ class FindingsManager(FindingsManagerToMock):
         return MagicMock()
 
 
-class TestCaseWithBatchUpdateFindings(TestCase):
+class FindingsManagerTestCase(TestCase):
+    backend_file = './tests/fixtures/suppressions/multiple.yaml'
+
+    def setUp(self) -> None:
+        local_backend = Local(self.backend_file)
+        rules = local_backend.get_rules()
+
+        self.findings_manager = FindingsManager()
+        self.findings_manager.register_rules(rules)
 
     def assert_batch_update_findings_called_once_with(self, batch_update_findings_expected: dict, _batch_update_findings_mocked: MagicMock):
         """
