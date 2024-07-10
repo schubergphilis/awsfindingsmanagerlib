@@ -528,7 +528,7 @@ class FindingsManager:
                                                           self.denied_account_ids))
 
     @property
-    def rules(self):
+    def rules(self) -> List[Rule]:
         """The registered rules of the manager."""
         return list(self._rules)
 
@@ -732,7 +732,7 @@ class FindingsManager:
         return list(findings)
 
     @staticmethod
-    def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger):
+    def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger) -> List[Finding]:
         if any([rule.resource_ids, rule.tags]):
             matching_findings = [finding for finding in findings
                                  if any([finding.is_matching_resource_ids(rule.resource_ids),
@@ -746,7 +746,7 @@ class FindingsManager:
             finding.matched_rule = rule
         return matching_findings
 
-    def get_findings(self):
+    def get_findings(self) -> List[Finding]:
         """Retrieves findings from security hub based on the registered rules.
 
         Returns:
@@ -755,10 +755,7 @@ class FindingsManager:
         """
         all_findings = []
         for rule in self.rules:
-            query = self.default_query_filter
-            query.update(rule.query_filter)
-            findings = self._get_findings(query)
-            matching_findings = self._get_matching_findings(rule, findings, self._logger)
+            matching_findings = self.get_findings_by_matching_rule(rule)
             all_findings.extend(matching_findings)
         initial_size = len(all_findings)
         findings = list(set(all_findings))
@@ -767,7 +764,22 @@ class FindingsManager:
             self._logger.warning(f'Missmatch of finding numbers, there seems to be an overlap of {diff}')
         return findings
 
-    def get_findings_by_rule_match(self, note: str, action: str, match_on: Dict):
+    def get_findings_by_matching_rule(self, rule: Rule) -> List[Finding]:
+        """Retrieves findings by the provided rule.
+
+        Args:
+            rule: The rule to match findings on.
+
+        Returns:
+            A list of findings that match the provided rule.
+
+        """
+        query = self.default_query_filter
+        query.update(rule.query_filter)
+        findings = self._get_findings(query)
+        return self._get_matching_findings(rule, findings, self._logger)
+
+    def get_findings_by_matching_rule_data(self, note: str, action: str, match_on: Dict) -> List[Finding]:
         """Retrieves findings by the provided rule data.
 
         Args:
@@ -780,10 +792,7 @@ class FindingsManager:
 
         """
         rule = Rule(note, action, match_on)
-        query = self.default_query_filter
-        query.update(rule.query_filter)
-        findings = self._get_findings(query)
-        return self._get_matching_findings(rule, findings, self._logger)
+        return self.get_findings_by_matching_rule(rule)
 
     @staticmethod
     def _chunk(iterable, size):
