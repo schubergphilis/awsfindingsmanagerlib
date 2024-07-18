@@ -42,8 +42,11 @@ __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 
-with open('tests/fixtures/findings.json', encoding='utf-8') as findings_file:
-    findings_fixture = json.load(findings_file)
+with open('tests/fixtures/findings/api_consolidated.json', encoding='utf-8') as findings_file:
+    api_consolidated_findings_fixture = json.load(findings_file)
+
+with open('tests/fixtures/findings/gui_legacy.json', encoding='utf-8') as findings_file:
+    gui_legacy_findings_fixture = json.load(findings_file)
 
 with open('tests/fixtures/batch_update_findings.json', encoding='utf-8') as updates_file:
     batch_update_findings_fixture = json.load(updates_file)
@@ -54,12 +57,21 @@ class TestValidation(FindingsManagerTestCase):
     def test_basic_run(self):
         self.assertEqual(
             [],
-            self.findings_manager._construct_findings_on_matching_rules(findings_fixture['Findings'])
+            self.findings_manager._construct_findings_on_matching_rules(api_consolidated_findings_fixture['Findings'])
+        )
+
+class TestLegacyValidation(FindingsManagerTestCase):
+    backend_file = './tests/fixtures/suppressions/legacy.yaml'
+
+    def test_basic_run(self):
+        self.assertEqual(
+            [],
+            self.findings_manager._construct_findings_on_matching_rules(gui_legacy_findings_fixture)
         )
 
 class TestBasicRun(FindingsManagerTestCase):
 
-    @patch('awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator', lambda *_: [findings_fixture])
+    @patch('awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator', lambda *_: [api_consolidated_findings_fixture])
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
     def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
         self.assertTrue(self.findings_manager.suppress_matching_findings())

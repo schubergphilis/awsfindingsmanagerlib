@@ -322,6 +322,10 @@ class Finding:
                    for rule_tag in rule_tags
                    for tag in self.tags)
 
+    @staticmethod
+    def match_if_set(left, right):
+        return all([left == right, all([left, right])])
+
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
 
@@ -345,11 +349,11 @@ class Finding:
         """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
-        # control id matches rule control id assuming any of them are set.
-        if any([all([self.control_id == rule.rule_or_control_id, all([self.control_id, rule.rule_or_control_id])]),
-                # rule id matches rule control id assuming any of them are set.
-                all([self.rule_id == rule.rule_or_control_id, all([self.rule_id, rule.rule_or_control_id])]),
-                self.security_control_id == rule.security_control_id]):
+        if any([
+            self.match_if_set(self.security_control_id, rule.security_control_id),
+            self.match_if_set(self.control_id, rule.rule_or_control_id),
+            self.match_if_set(self.rule_id, rule.rule_or_control_id)
+        ]):
             self._logger.debug(f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
             if not any([rule.tags, rule.resource_id_regexps]):
                 self._logger.debug(f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
