@@ -1,0 +1,134 @@
+{
+  "SchemaVersion": "2018-10-08",
+  "Id": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0",
+  "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+  "ProductName": "Security Hub",
+  "CompanyName": "AWS",
+  "Region": "eu-west-1",
+  "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5",
+  "AwsAccountId": "222555888333",
+  "Types": [
+    "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+  ],
+  "FirstObservedAt": "2024-07-13T00:32:44.734Z",
+  "LastObservedAt": "2024-07-17T12:36:15.611Z",
+  "CreatedAt": "2024-07-13T00:32:44.734Z",
+  "UpdatedAt": "2024-07-17T12:35:59.820Z",
+  "Severity": {
+    "Product": 70,
+    "Label": "HIGH",
+    "Normalized": 70,
+    "Original": "HIGH"
+  },
+  "Title": "GuardDuty.5 GuardDuty EKS Audit Log Monitoring should be enabled",
+  "Description": "This control checks whether GuardDuty EKS Audit Log Monitoring is enabled. The control fails if GuardDuty EKS Audit Log Monitoring isn't enabled.",
+  "Remediation": {
+    "Recommendation": {
+      "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+      "Url": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.5/remediation"
+    }
+  },
+  "ProductFields": {
+    "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
+    "StandardsSubscriptionArn": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0",
+    "ControlId": "GuardDuty.5",
+    "RecommendationUrl": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.5/remediation",
+    "RelatedAWSResources:0/name": "securityhub-guardduty-eks-protection-audit-enabled-4ea31c89",
+    "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+    "StandardsControlArn": "arn:aws:securityhub:eu-west-1:222555888333:control/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5",
+    "aws/securityhub/ProductName": "Security Hub",
+    "aws/securityhub/CompanyName": "AWS",
+    "Resources:0/Id": "arn:aws:guardduty:eu-west-1:222555888333:detector/c350ca4fd7594d5fbda1f71ac6332dc8",
+    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0"
+  },
+  "Resources": [
+    {
+      "Type": "AwsGuardDutyDetector",
+      "Id": "arn:aws:guardduty:eu-west-1:222555888333:detector/c350ca4fd7594d5fbda1f71ac6332dc8",
+      "Partition": "aws",
+      "Region": "eu-west-1",
+      "Tags": {
+        "Environment": "staging",
+        "Env": "stg",
+        "Stack": "base"
+      },
+      "Details": {
+        "AwsGuardDutyDetector": {
+          "DataSources": {
+            "Kubernetes": {
+              "AuditLogs": {
+                "Status": "DISABLED"
+              }
+            },
+            "S3Logs": {
+              "Status": "ENABLED"
+            }
+          },
+          "Features": [
+            {
+              "Name": "CLOUD_TRAIL",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "DNS_LOGS",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "FLOW_LOGS",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "S3_DATA_EVENTS",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "EKS_AUDIT_LOGS",
+              "Status": "DISABLED"
+            },
+            {
+              "Name": "EBS_MALWARE_PROTECTION",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "RDS_LOGIN_EVENTS",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "EKS_RUNTIME_MONITORING",
+              "Status": "DISABLED"
+            },
+            {
+              "Name": "LAMBDA_NETWORK_LOGS",
+              "Status": "ENABLED"
+            },
+            {
+              "Name": "RUNTIME_MONITORING",
+              "Status": "ENABLED"
+            }
+          ],
+          "FindingPublishingFrequency": "FIFTEEN_MINUTES",
+          "Status": "ENABLED"
+        }
+      }
+    }
+  ],
+  "Compliance": {
+    "Status": "FAILED"
+  },
+  "WorkflowState": "NEW",
+  "Workflow": {
+    "Status": "NEW"
+  },
+  "RecordState": "ACTIVE",
+  "FindingProviderFields": {
+    "Severity": {
+      "Label": "HIGH",
+      "Original": "HIGH"
+    },
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+    ]
+  },
+  "ProcessedAt": "2024-07-17T12:36:18.763Z",
+  "AwsAccountName": "base-client"
+}

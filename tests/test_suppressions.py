@@ -28,8 +28,7 @@ Tests for `awsfindingsmanagerlib` module.
 """
 
 from unittest.mock import patch, MagicMock
-from .utils import FindingsManager, TestCaseWithBatchUpdateFindings
-from awsfindingsmanagerlib import Local
+from .utils import FindingsManagerTestCase
 import json
 
 __author__ = '''Carlo van Overbeek <cvanoverbeek@schubergphilis.com>'''
@@ -43,26 +42,37 @@ __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 
-with open('tests/fixtures/findings.json', encoding='utf-8') as findings_file:
-    findings_fixture = [json.load(findings_file)]
+with open('tests/fixtures/findings/api_consolidated.json', encoding='utf-8') as findings_file:
+    api_consolidated_findings_fixture = json.load(findings_file)
+
+with open('tests/fixtures/findings/gui_legacy.json', encoding='utf-8') as findings_file:
+    gui_legacy_findings_fixture = json.load(findings_file)
 
 with open('tests/fixtures/batch_update_findings.json', encoding='utf-8') as updates_file:
     batch_update_findings_fixture = json.load(updates_file)
 
-class TestBasicRun(TestCaseWithBatchUpdateFindings):
+class TestValidation(FindingsManagerTestCase):
+    backend_file = './tests/fixtures/suppressions/single.yaml'
 
-    @patch('awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator', lambda *_: findings_fixture)
+    def test_basic_run(self):
+        self.assertEqual(
+            [],
+            self.findings_manager._construct_findings_on_matching_rules(api_consolidated_findings_fixture['Findings'])
+        )
+
+class TestLegacyValidation(FindingsManagerTestCase):
+    backend_file = './tests/fixtures/suppressions/legacy.yaml'
+
+    def test_basic_run(self):
+        self.assertEqual(
+            [],
+            self.findings_manager._construct_findings_on_matching_rules(gui_legacy_findings_fixture)
+        )
+
+class TestBasicRun(FindingsManagerTestCase):
+
+    @patch('awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator', lambda *_: [api_consolidated_findings_fixture])
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
     def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
-        # basic init
-        local_backend = Local(path='./tests/fixtures/suppressions.yaml')
-        rules = local_backend.get_rules()
-
-        findings_manager = FindingsManager()
-        findings_manager.register_rules(rules)
-
-        # basic suppression in action
-        self.assertTrue(findings_manager.suppress_matching_findings())
-
-        # created payload validation
+        self.assertTrue(self.findings_manager.suppress_matching_findings())
         self.assert_batch_update_findings_called_once_with(batch_update_findings_fixture, _batch_update_findings_mocked)
