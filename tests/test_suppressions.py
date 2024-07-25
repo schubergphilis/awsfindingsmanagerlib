@@ -51,6 +51,9 @@ with open('tests/fixtures/findings/gui_legacy.json', encoding='utf-8') as findin
 with open('tests/fixtures/batch_update_findings.json', encoding='utf-8') as updates_file:
     batch_update_findings_fixture = json.load(updates_file)
 
+with open('tests/fixtures/batch_update_findings_full.json', encoding='utf-8') as updates_file:
+    batch_update_findings_full_fixture = json.load(updates_file)
+
 full_findings_fixture = []
 for security_control_id in ['S3.8', 'S3.9', 'S3.14', 'S3.20']:
     for env in ['dev', 'acc', 'prd']:
@@ -84,7 +87,7 @@ class TestBasicRun(FindingsManagerTestCase):
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
     def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
         self.assertTrue(self.findings_manager.suppress_matching_findings())
-        self.assert_batch_update_findings_called_once_with(batch_update_findings_fixture, _batch_update_findings_mocked)
+        self.assert_batch_update_findings_called_with([batch_update_findings_fixture], _batch_update_findings_mocked)
 
 class TestFullSuppressions(FindingsManagerTestCase):
     backend_file = "./tests/fixtures/suppressions/full.yaml"
@@ -94,3 +97,8 @@ class TestFullSuppressions(FindingsManagerTestCase):
             [dict(finding._data, matched_rule=finding._matched_rule._data)
              for finding in self.findings_manager._construct_findings_on_matching_rules(full_findings_fixture)]
         )
+
+    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
+    def test_payload_construction(self, _batch_update_findings_mocked: MagicMock):
+        self.assertTrue(self.findings_manager.suppress_findings_on_matching_rules(full_findings_fixture))
+        self.assert_batch_update_findings_called_with(batch_update_findings_full_fixture, _batch_update_findings_mocked)
