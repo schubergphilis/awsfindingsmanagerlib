@@ -1,0 +1,753 @@
+[
+  {
+    "matched_rule": {
+      "note": "Too expensive on non-prod",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.9",
+        "resource_id_regexps": [
+          "^arn:aws:s3:::.*-dev$",
+          "^arn:aws:s3:::.*-acc$"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.9",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:02:52.834Z",
+    "LastObservedAt": "2024-07-24T19:07:26.669Z",
+    "CreatedAt": "2024-07-24T19:02:52.834Z",
+    "UpdatedAt": "2024-07-24T19:07:18.543Z",
+    "Severity": {
+      "Label": "MEDIUM",
+      "Normalized": 40,
+      "Original": "MEDIUM"
+    },
+    "Title": "S3 general purpose buckets should have server access logging enabled",
+    "Description": "This control checks whether server access logging is enabled for an Amazon S3 general purpose bucket. The control fails if server access logging isn't enabled. When logging is enabled, Amazon S3 delivers access logs for a source bucket to a chosen target bucket. The target bucket must be in the same AWS Region as the source bucket and must not have a default retention period configured. The target logging bucket does not need to have server access logging enabled, and you should suppress findings for this bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.9/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-logging-enabled-a2569319",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-dev",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-dev",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "Pulumi",
+          "Terraform": "ManagedBy"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:01:29.000Z",
+            "Name": "boeket-dev"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "NIST.800-53.r5 AC-2(4)",
+        "NIST.800-53.r5 AC-4(26)",
+        "NIST.800-53.r5 AC-6(9)",
+        "NIST.800-53.r5 AU-10",
+        "NIST.800-53.r5 AU-12",
+        "NIST.800-53.r5 AU-2",
+        "NIST.800-53.r5 AU-3",
+        "NIST.800-53.r5 AU-6(3)",
+        "NIST.800-53.r5 AU-6(4)",
+        "NIST.800-53.r5 CA-7",
+        "NIST.800-53.r5 SC-7(9)",
+        "NIST.800-53.r5 SI-3(8)",
+        "NIST.800-53.r5 SI-4(20)",
+        "NIST.800-53.r5 SI-7(8)"
+      ],
+      "SecurityControlId": "S3.9",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+        },
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "MEDIUM",
+        "Original": "MEDIUM"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:07:29.263Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "Too expensive on non-prod",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.9",
+        "resource_id_regexps": [
+          "^arn:aws:s3:::.*-dev$",
+          "^arn:aws:s3:::.*-acc$"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.9",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:02:52.835Z",
+    "LastObservedAt": "2024-07-24T19:05:15.218Z",
+    "CreatedAt": "2024-07-24T19:02:52.835Z",
+    "UpdatedAt": "2024-07-24T19:05:08.371Z",
+    "Severity": {
+      "Label": "MEDIUM",
+      "Normalized": 40,
+      "Original": "MEDIUM"
+    },
+    "Title": "S3 general purpose buckets should have server access logging enabled",
+    "Description": "This control checks whether server access logging is enabled for an Amazon S3 general purpose bucket. The control fails if server access logging isn't enabled. When logging is enabled, Amazon S3 delivers access logs for a source bucket to a chosen target bucket. The target bucket must be in the same AWS Region as the source bucket and must not have a default retention period configured. The target logging bucket does not need to have server access logging enabled, and you should suppress findings for this bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.9/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-logging-enabled-a2569319",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-acc",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-acc",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "CFN"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:02:06.000Z",
+            "Name": "boeket-acc"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "NIST.800-53.r5 AC-2(4)",
+        "NIST.800-53.r5 AC-4(26)",
+        "NIST.800-53.r5 AC-6(9)",
+        "NIST.800-53.r5 AU-10",
+        "NIST.800-53.r5 AU-12",
+        "NIST.800-53.r5 AU-2",
+        "NIST.800-53.r5 AU-3",
+        "NIST.800-53.r5 AU-6(3)",
+        "NIST.800-53.r5 AU-6(4)",
+        "NIST.800-53.r5 CA-7",
+        "NIST.800-53.r5 SC-7(9)",
+        "NIST.800-53.r5 SI-3(8)",
+        "NIST.800-53.r5 SI-4(20)",
+        "NIST.800-53.r5 SI-7(8)"
+      ],
+      "SecurityControlId": "S3.9",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+        },
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "MEDIUM",
+        "Original": "MEDIUM"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:05:17.718Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "Config as code",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.14",
+        "tags": [
+          {
+            "key": "ManagedBy",
+            "value": "Terraform"
+          },
+          {
+            "key": "ManagedBy",
+            "value": "CFN"
+          }
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.14",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:02:50.270Z",
+    "LastObservedAt": "2024-07-24T19:05:18.868Z",
+    "CreatedAt": "2024-07-24T19:02:50.270Z",
+    "UpdatedAt": "2024-07-24T19:05:05.304Z",
+    "Severity": {
+      "Label": "LOW",
+      "Normalized": 1,
+      "Original": "LOW"
+    },
+    "Title": "S3 general purpose buckets should have versioning enabled",
+    "Description": "This control checks whether an Amazon S3 general purpose bucket has versioning enabled. The control fails if versioning is suspended for the bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.14/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-versioning-enabled-a376307d",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-acc",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-acc",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "CFN"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:02:06.000Z",
+            "Name": "boeket-acc"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "NIST.800-53.r5 AU-9(2)",
+        "NIST.800-53.r5 CP-10",
+        "NIST.800-53.r5 CP-6",
+        "NIST.800-53.r5 CP-6(1)",
+        "NIST.800-53.r5 CP-6(2)",
+        "NIST.800-53.r5 CP-9",
+        "NIST.800-53.r5 SC-5(2)",
+        "NIST.800-53.r5 SI-12",
+        "NIST.800-53.r5 SI-13(5)"
+      ],
+      "SecurityControlId": "S3.14",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "LOW",
+        "Original": "LOW"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:05:21.841Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "Config as code",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.14",
+        "tags": [
+          {
+            "key": "ManagedBy",
+            "value": "Terraform"
+          },
+          {
+            "key": "ManagedBy",
+            "value": "CFN"
+          }
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/db101219-4b19-4176-a660-490d30b7945d",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.14",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:05:05.304Z",
+    "LastObservedAt": "2024-07-24T19:05:20.186Z",
+    "CreatedAt": "2024-07-24T19:05:05.304Z",
+    "UpdatedAt": "2024-07-24T19:05:05.304Z",
+    "Severity": {
+      "Label": "LOW",
+      "Normalized": 1,
+      "Original": "LOW"
+    },
+    "Title": "S3 general purpose buckets should have versioning enabled",
+    "Description": "This control checks whether an Amazon S3 general purpose bucket has versioning enabled. The control fails if versioning is suspended for the bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.14/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-versioning-enabled-a376307d",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-prd",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/db101219-4b19-4176-a660-490d30b7945d"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-prd",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "Terraform"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:02:52.000Z",
+            "Name": "boeket-prd"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "NIST.800-53.r5 AU-9(2)",
+        "NIST.800-53.r5 CP-10",
+        "NIST.800-53.r5 CP-6",
+        "NIST.800-53.r5 CP-6(1)",
+        "NIST.800-53.r5 CP-6(2)",
+        "NIST.800-53.r5 CP-9",
+        "NIST.800-53.r5 SC-5(2)",
+        "NIST.800-53.r5 SI-12",
+        "NIST.800-53.r5 SI-13(5)"
+      ],
+      "SecurityControlId": "S3.14",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "LOW",
+        "Original": "LOW"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:05:23.098Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "MF-Neigh",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.20"
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.20",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:02:51.160Z",
+    "LastObservedAt": "2024-07-24T19:07:23.639Z",
+    "CreatedAt": "2024-07-24T19:02:51.160Z",
+    "UpdatedAt": "2024-07-24T19:07:15.150Z",
+    "Severity": {
+      "Label": "LOW",
+      "Normalized": 1,
+      "Original": "LOW"
+    },
+    "Title": "S3 general purpose buckets should have MFA delete enabled",
+    "Description": "This control checks if multi-factor authentication (MFA) delete is enabled on an Amazon S3 general purpose bucket. The control fails if MFA delete isn't enabled on the bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.20/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-mfa-delete-enabled-ecb9e4b4",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-dev",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-dev",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "Pulumi",
+          "Terraform": "ManagedBy"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:01:29.000Z",
+            "Name": "boeket-dev"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "CIS AWS Foundations Benchmark v1.4.0/2.1.3",
+        "CIS AWS Foundations Benchmark v3.0.0/2.1.2",
+        "NIST.800-53.r5 CA-9(1)",
+        "NIST.800-53.r5 CM-2",
+        "NIST.800-53.r5 CM-2(2)",
+        "NIST.800-53.r5 CM-3",
+        "NIST.800-53.r5 SC-5(2)"
+      ],
+      "SecurityControlId": "S3.20",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/1.4.0"
+        },
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/3.0.0"
+        },
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "LOW",
+        "Original": "LOW"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:07:26.943Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "MF-Neigh",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.20"
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.20",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:02:51.161Z",
+    "LastObservedAt": "2024-07-24T19:05:23.043Z",
+    "CreatedAt": "2024-07-24T19:02:51.161Z",
+    "UpdatedAt": "2024-07-24T19:05:07.028Z",
+    "Severity": {
+      "Label": "LOW",
+      "Normalized": 1,
+      "Original": "LOW"
+    },
+    "Title": "S3 general purpose buckets should have MFA delete enabled",
+    "Description": "This control checks if multi-factor authentication (MFA) delete is enabled on an Amazon S3 general purpose bucket. The control fails if MFA delete isn't enabled on the bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.20/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-mfa-delete-enabled-ecb9e4b4",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-acc",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-acc",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "CFN"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:02:06.000Z",
+            "Name": "boeket-acc"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "CIS AWS Foundations Benchmark v1.4.0/2.1.3",
+        "CIS AWS Foundations Benchmark v3.0.0/2.1.2",
+        "NIST.800-53.r5 CA-9(1)",
+        "NIST.800-53.r5 CM-2",
+        "NIST.800-53.r5 CM-2(2)",
+        "NIST.800-53.r5 CM-3",
+        "NIST.800-53.r5 SC-5(2)"
+      ],
+      "SecurityControlId": "S3.20",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/1.4.0"
+        },
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/3.0.0"
+        },
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "LOW",
+        "Original": "LOW"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:05:26.294Z",
+    "AwsAccountName": "watcher"
+  },
+  {
+    "matched_rule": {
+      "note": "MF-Neigh",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "S3.20"
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/c9403a5e-0f03-45f6-a85e-754f043a6b10",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-west-1",
+    "GeneratorId": "security-control/S3.20",
+    "AwsAccountId": "988763490897",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2024-07-24T19:04:59.056Z",
+    "LastObservedAt": "2024-07-24T19:05:08.787Z",
+    "CreatedAt": "2024-07-24T19:04:59.056Z",
+    "UpdatedAt": "2024-07-24T19:04:59.056Z",
+    "Severity": {
+      "Label": "LOW",
+      "Normalized": 1,
+      "Original": "LOW"
+    },
+    "Title": "S3 general purpose buckets should have MFA delete enabled",
+    "Description": "This control checks if multi-factor authentication (MFA) delete is enabled on an Amazon S3 general purpose bucket. The control fails if MFA delete isn't enabled on the bucket.",
+    "Remediation": {
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/S3.20/remediation"
+      }
+    },
+    "ProductFields": {
+      "RelatedAWSResources:0/name": "securityhub-s3-bucket-mfa-delete-enabled-ecb9e4b4",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:s3:::boeket-prd",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/c9403a5e-0f03-45f6-a85e-754f043a6b10"
+    },
+    "Resources": [
+      {
+        "Type": "AwsS3Bucket",
+        "Id": "arn:aws:s3:::boeket-prd",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "ManagedBy": "Terraform"
+        },
+        "Details": {
+          "AwsS3Bucket": {
+            "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+            "CreatedAt": "2024-07-24T19:02:52.000Z",
+            "Name": "boeket-prd"
+          }
+        }
+      }
+    ],
+    "Compliance": {
+      "Status": "FAILED",
+      "RelatedRequirements": [
+        "CIS AWS Foundations Benchmark v1.4.0/2.1.3",
+        "CIS AWS Foundations Benchmark v3.0.0/2.1.2",
+        "NIST.800-53.r5 CA-9(1)",
+        "NIST.800-53.r5 CM-2",
+        "NIST.800-53.r5 CM-2(2)",
+        "NIST.800-53.r5 CM-3",
+        "NIST.800-53.r5 SC-5(2)"
+      ],
+      "SecurityControlId": "S3.20",
+      "AssociatedStandards": [
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/1.4.0"
+        },
+        {
+          "StandardsId": "standards/cis-aws-foundations-benchmark/v/3.0.0"
+        },
+        {
+          "StandardsId": "standards/nist-800-53/v/5.0.0"
+        }
+      ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+      "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+      "Severity": {
+        "Label": "LOW",
+        "Original": "LOW"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+      ]
+    },
+    "ProcessedAt": "2024-07-24T19:05:12.057Z",
+    "AwsAccountName": "watcher"
+  }
+]

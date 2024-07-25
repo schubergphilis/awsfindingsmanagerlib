@@ -1,0 +1,101 @@
+{
+  "SchemaVersion": "2018-10-08",
+  "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
+  "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+  "ProductName": "Security Hub",
+  "CompanyName": "AWS",
+  "Region": "eu-west-1",
+  "GeneratorId": "security-control/S3.9",
+  "AwsAccountId": "988763490897",
+  "Types": [
+    "Software and Configuration Checks/Industry and Regulatory Standards"
+  ],
+  "FirstObservedAt": "2024-07-24T19:02:52.834Z",
+  "LastObservedAt": "2024-07-24T19:07:26.669Z",
+  "CreatedAt": "2024-07-24T19:02:52.834Z",
+  "UpdatedAt": "2024-07-24T19:07:18.543Z",
+  "Severity": {
+    "Label": "MEDIUM",
+    "Normalized": 40,
+    "Original": "MEDIUM"
+  },
+  "Title": "S3 general purpose buckets should have server access logging enabled",
+  "Description": "This control checks whether server access logging is enabled for an Amazon S3 general purpose bucket. The control fails if server access logging isn't enabled. When logging is enabled, Amazon S3 delivers access logs for a source bucket to a chosen target bucket. The target bucket must be in the same AWS Region as the source bucket and must not have a default retention period configured. The target logging bucket does not need to have server access logging enabled, and you should suppress findings for this bucket.",
+  "Remediation": {
+    "Recommendation": {
+      "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+      "Url": "https://docs.aws.amazon.com/console/securityhub/S3.9/remediation"
+    }
+  },
+  "ProductFields": {
+    "RelatedAWSResources:0/name": "securityhub-s3-bucket-logging-enabled-a2569319",
+    "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+    "aws/securityhub/ProductName": "Security Hub",
+    "aws/securityhub/CompanyName": "AWS",
+    "Resources:0/Id": "arn:aws:s3:::boeket-dev",
+    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e"
+  },
+  "Resources": [
+    {
+      "Type": "AwsS3Bucket",
+      "Id": "arn:aws:s3:::boeket-dev",
+      "Partition": "aws",
+      "Region": "eu-west-1",
+      "Tags": {
+        "ManagedBy": "Pulumi",
+        "Terraform": "ManagedBy"
+      },
+      "Details": {
+        "AwsS3Bucket": {
+          "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+          "CreatedAt": "2024-07-24T19:01:29.000Z",
+          "Name": "boeket-dev"
+        }
+      }
+    }
+  ],
+  "Compliance": {
+    "Status": "FAILED",
+    "RelatedRequirements": [
+      "NIST.800-53.r5 AC-2(4)",
+      "NIST.800-53.r5 AC-4(26)",
+      "NIST.800-53.r5 AC-6(9)",
+      "NIST.800-53.r5 AU-10",
+      "NIST.800-53.r5 AU-12",
+      "NIST.800-53.r5 AU-2",
+      "NIST.800-53.r5 AU-3",
+      "NIST.800-53.r5 AU-6(3)",
+      "NIST.800-53.r5 AU-6(4)",
+      "NIST.800-53.r5 CA-7",
+      "NIST.800-53.r5 SC-7(9)",
+      "NIST.800-53.r5 SI-3(8)",
+      "NIST.800-53.r5 SI-4(20)",
+      "NIST.800-53.r5 SI-7(8)"
+    ],
+    "SecurityControlId": "S3.9",
+    "AssociatedStandards": [
+      {
+        "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+      },
+      {
+        "StandardsId": "standards/nist-800-53/v/5.0.0"
+      }
+    ]
+  },
+  "WorkflowState": "NEW",
+  "Workflow": {
+    "Status": "NEW"
+  },
+  "RecordState": "ACTIVE",
+  "FindingProviderFields": {
+    "Severity": {
+      "Label": "MEDIUM",
+      "Original": "MEDIUM"
+    },
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ]
+  },
+  "ProcessedAt": "2024-07-24T19:07:29.263Z",
+  "AwsAccountName": "watcher"
+}
