@@ -1,6 +1,6 @@
 {
   "SchemaVersion": "2018-10-08",
-  "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246",
+  "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/4b0d331f-2396-4663-847b-344126c3e780",
   "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
   "ProductName": "Security Hub",
   "CompanyName": "AWS",
@@ -33,7 +33,7 @@
     "aws/securityhub/ProductName": "Security Hub",
     "aws/securityhub/CompanyName": "AWS",
     "Resources:0/Id": "arn:aws:s3:::boeket-dev",
-    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246"
+    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/4b0d331f-2396-4663-847b-344126c3e780"
   },
   "Resources": [
     {

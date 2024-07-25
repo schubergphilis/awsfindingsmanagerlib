@@ -723,7 +723,11 @@ class FindingsManager:
         regions_to_retrieve = [aggregating_region] if aggregating_region else self.regions
         for region in regions_to_retrieve:
             self._logger.debug(f'Trying to get findings for region {region}')
-            iterator = self._get_security_hub_paginator_iterator(region, 'get_findings', query_filter)
+            iterator = self._get_security_hub_paginator_iterator(
+                region=region,
+                operation_name='get_findings',
+                query_filter=query_filter
+            )
             try:
                 for page in iterator:
                     for finding_data in page['Findings']:
