@@ -1,0 +1,63 @@
+[
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Too expensive on non-prod",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/db101219-4b19-4176-a660-490d30b7945d",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Config as code",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/c9403a5e-0f03-45f6-a85e-754f043a6b10",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "MF-Neigh",
+      "UpdatedBy": "FindingsManager"
+    }
+  }
+]

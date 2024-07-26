@@ -1,0 +1,96 @@
+{
+  "SchemaVersion": "2018-10-08",
+  "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
+  "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+  "ProductName": "Security Hub",
+  "CompanyName": "AWS",
+  "Region": "eu-west-1",
+  "GeneratorId": "security-control/S3.20",
+  "AwsAccountId": "988763490897",
+  "Types": [
+    "Software and Configuration Checks/Industry and Regulatory Standards"
+  ],
+  "FirstObservedAt": "2024-07-24T19:02:51.161Z",
+  "LastObservedAt": "2024-07-24T19:05:23.043Z",
+  "CreatedAt": "2024-07-24T19:02:51.161Z",
+  "UpdatedAt": "2024-07-24T19:05:07.028Z",
+  "Severity": {
+    "Label": "LOW",
+    "Normalized": 1,
+    "Original": "LOW"
+  },
+  "Title": "S3 general purpose buckets should have MFA delete enabled",
+  "Description": "This control checks if multi-factor authentication (MFA) delete is enabled on an Amazon S3 general purpose bucket. The control fails if MFA delete isn't enabled on the bucket.",
+  "Remediation": {
+    "Recommendation": {
+      "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+      "Url": "https://docs.aws.amazon.com/console/securityhub/S3.20/remediation"
+    }
+  },
+  "ProductFields": {
+    "RelatedAWSResources:0/name": "securityhub-s3-bucket-mfa-delete-enabled-ecb9e4b4",
+    "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+    "aws/securityhub/ProductName": "Security Hub",
+    "aws/securityhub/CompanyName": "AWS",
+    "Resources:0/Id": "arn:aws:s3:::boeket-acc",
+    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f"
+  },
+  "Resources": [
+    {
+      "Type": "AwsS3Bucket",
+      "Id": "arn:aws:s3:::boeket-acc",
+      "Partition": "aws",
+      "Region": "eu-west-1",
+      "Tags": {
+        "ManagedBy": "CFN"
+      },
+      "Details": {
+        "AwsS3Bucket": {
+          "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+          "CreatedAt": "2024-07-24T19:02:06.000Z",
+          "Name": "boeket-acc"
+        }
+      }
+    }
+  ],
+  "Compliance": {
+    "Status": "FAILED",
+    "RelatedRequirements": [
+      "CIS AWS Foundations Benchmark v1.4.0/2.1.3",
+      "CIS AWS Foundations Benchmark v3.0.0/2.1.2",
+      "NIST.800-53.r5 CA-9(1)",
+      "NIST.800-53.r5 CM-2",
+      "NIST.800-53.r5 CM-2(2)",
+      "NIST.800-53.r5 CM-3",
+      "NIST.800-53.r5 SC-5(2)"
+    ],
+    "SecurityControlId": "S3.20",
+    "AssociatedStandards": [
+      {
+        "StandardsId": "standards/cis-aws-foundations-benchmark/v/1.4.0"
+      },
+      {
+        "StandardsId": "standards/cis-aws-foundations-benchmark/v/3.0.0"
+      },
+      {
+        "StandardsId": "standards/nist-800-53/v/5.0.0"
+      }
+    ]
+  },
+  "WorkflowState": "NEW",
+  "Workflow": {
+    "Status": "NEW"
+  },
+  "RecordState": "ACTIVE",
+  "FindingProviderFields": {
+    "Severity": {
+      "Label": "LOW",
+      "Original": "LOW"
+    },
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ]
+  },
+  "ProcessedAt": "2024-07-24T19:05:26.294Z",
+  "AwsAccountName": "watcher"
+}

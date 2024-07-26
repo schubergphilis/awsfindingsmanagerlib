@@ -1,0 +1,93 @@
+{
+  "SchemaVersion": "2018-10-08",
+  "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/4b0d331f-2396-4663-847b-344126c3e780",
+  "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+  "ProductName": "Security Hub",
+  "CompanyName": "AWS",
+  "Region": "eu-west-1",
+  "GeneratorId": "security-control/S3.14",
+  "AwsAccountId": "988763490897",
+  "Types": [
+    "Software and Configuration Checks/Industry and Regulatory Standards"
+  ],
+  "FirstObservedAt": "2024-07-24T19:02:50.271Z",
+  "LastObservedAt": "2024-07-24T19:07:24.672Z",
+  "CreatedAt": "2024-07-24T19:02:50.271Z",
+  "UpdatedAt": "2024-07-24T19:07:14.170Z",
+  "Severity": {
+    "Label": "LOW",
+    "Normalized": 1,
+    "Original": "LOW"
+  },
+  "Title": "S3 general purpose buckets should have versioning enabled",
+  "Description": "This control checks whether an Amazon S3 general purpose bucket has versioning enabled. The control fails if versioning is suspended for the bucket.",
+  "Remediation": {
+    "Recommendation": {
+      "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+      "Url": "https://docs.aws.amazon.com/console/securityhub/S3.14/remediation"
+    }
+  },
+  "ProductFields": {
+    "RelatedAWSResources:0/name": "securityhub-s3-bucket-versioning-enabled-a376307d",
+    "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+    "aws/securityhub/ProductName": "Security Hub",
+    "aws/securityhub/CompanyName": "AWS",
+    "Resources:0/Id": "arn:aws:s3:::boeket-dev",
+    "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/4b0d331f-2396-4663-847b-344126c3e780"
+  },
+  "Resources": [
+    {
+      "Type": "AwsS3Bucket",
+      "Id": "arn:aws:s3:::boeket-dev",
+      "Partition": "aws",
+      "Region": "eu-west-1",
+      "Tags": {
+        "ManagedBy": "Pulumi",
+        "Terraform": "ManagedBy"
+      },
+      "Details": {
+        "AwsS3Bucket": {
+          "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+          "CreatedAt": "2024-07-24T19:01:29.000Z",
+          "Name": "boeket-dev"
+        }
+      }
+    }
+  ],
+  "Compliance": {
+    "Status": "FAILED",
+    "RelatedRequirements": [
+      "NIST.800-53.r5 AU-9(2)",
+      "NIST.800-53.r5 CP-10",
+      "NIST.800-53.r5 CP-6",
+      "NIST.800-53.r5 CP-6(1)",
+      "NIST.800-53.r5 CP-6(2)",
+      "NIST.800-53.r5 CP-9",
+      "NIST.800-53.r5 SC-5(2)",
+      "NIST.800-53.r5 SI-12",
+      "NIST.800-53.r5 SI-13(5)"
+    ],
+    "SecurityControlId": "S3.14",
+    "AssociatedStandards": [
+      {
+        "StandardsId": "standards/nist-800-53/v/5.0.0"
+      }
+    ]
+  },
+  "WorkflowState": "NEW",
+  "Workflow": {
+    "Status": "NEW"
+  },
+  "RecordState": "ACTIVE",
+  "FindingProviderFields": {
+    "Severity": {
+      "Label": "LOW",
+      "Original": "LOW"
+    },
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards"
+    ]
+  },
+  "ProcessedAt": "2024-07-24T19:07:28.104Z",
+  "AwsAccountName": "watcher"
+}

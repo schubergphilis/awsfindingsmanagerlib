@@ -51,6 +51,29 @@ with open('tests/fixtures/findings/gui_legacy.json', encoding='utf-8') as findin
 with open('tests/fixtures/batch_update_findings.json', encoding='utf-8') as updates_file:
     batch_update_findings_fixture = json.load(updates_file)
 
+with open('tests/fixtures/batch_update_findings_full.json', encoding='utf-8') as updates_file:
+    batch_update_findings_full_fixture = json.load(updates_file)
+
+full_findings_fixture = []
+for security_control_id in ['S3.8', 'S3.9', 'S3.14', 'S3.20']:
+    for env in ['dev', 'acc', 'prd']:
+        with open(f'tests/fixtures/findings/full/{security_control_id}/{env}.json', encoding='utf-8') as findings_file:
+            full_findings_fixture.append(json.load(findings_file))
+
+# this one goes together with a query based on suppressions/full.yaml
+findings_by_security_control_id_fixture = {}
+# there is no id S3.8 suppression in suppressions/full.yaml
+for security_control_id in ['S3.9', 'S3.14', 'S3.20']:
+    findings_by_security_control_id_fixture[security_control_id] = []
+    # a query with tags already filters out the non-conforming ones,
+    # hence no dev for S3.14
+    for env in ['dev', 'acc', 'prd'] if security_control_id != 'S3.14' else ['acc', 'prd']:
+        with open(f'tests/fixtures/findings/full/{security_control_id}/{env}.json', encoding='utf-8') as findings_file:
+            findings_by_security_control_id_fixture[security_control_id].append(json.load(findings_file))
+
+with open('tests/fixtures/matches.json', encoding='utf-8') as matches_file:
+    full_matches_fixture = json.load(matches_file)
+
 class TestValidation(FindingsManagerTestCase):
     backend_file = './tests/fixtures/suppressions/single.yaml'
 
@@ -70,9 +93,40 @@ class TestLegacyValidation(FindingsManagerTestCase):
         )
 
 class TestBasicRun(FindingsManagerTestCase):
-
-    @patch('awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator', lambda *_: [api_consolidated_findings_fixture])
+    @patch(
+        'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
+        lambda *_, **__: [api_consolidated_findings_fixture],
+    )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
     def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
         self.assertTrue(self.findings_manager.suppress_matching_findings())
-        self.assert_batch_update_findings_called_once_with(batch_update_findings_fixture, _batch_update_findings_mocked)
+        self.assert_batch_update_findings_called_with(
+            [batch_update_findings_fixture], _batch_update_findings_mocked
+        )
+
+class TestFullSuppressions(FindingsManagerTestCase):
+    backend_file = './tests/fixtures/suppressions/full.yaml'
+
+    def test_validation(self):
+        self.assertEqual(full_matches_fixture,
+            [dict(finding._data, matched_rule=finding._matched_rule._data)
+             for finding in self.findings_manager._construct_findings_on_matching_rules(full_findings_fixture)]
+        )
+
+    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
+    def test_payload_construction(self, _batch_update_findings_mocked: MagicMock):
+        self.assertTrue(self.findings_manager.suppress_findings_on_matching_rules(full_findings_fixture))
+        self.assert_batch_update_findings_called_with(batch_update_findings_full_fixture, _batch_update_findings_mocked)
+
+    @patch(
+        'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
+        lambda *_, **kwargs: [{
+            'Findings': findings_by_security_control_id_fixture[kwargs['query_filter']['ComplianceSecurityControlId'][0]['Value']]
+        }],
+    )
+    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings')
+    def test_from_query(self, _batch_update_findings_mocked: MagicMock):
+        self.assertTrue(self.findings_manager.suppress_matching_findings())
+        self.assert_batch_update_findings_called_with(
+            batch_update_findings_full_fixture, _batch_update_findings_mocked
+        )
