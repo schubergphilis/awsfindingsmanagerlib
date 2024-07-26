@@ -20,3 +20,9 @@ History
 ------------------
 
 * Bump dependencies.
+
+
+1.0.0 (26-07-2024)
+------------------
+
+* Fix event handling.
