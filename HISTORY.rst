@@ -26,3 +26,9 @@ History
 ------------------
 
 * Fix event handling.
+
+
+1.0.1 (02-10-2024)
+------------------
+
+* Bump template python version to 3.11.
