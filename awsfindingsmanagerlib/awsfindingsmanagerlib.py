@@ -105,8 +105,8 @@ class Finding:
     def _validate_data(data: Dict) -> Dict:
         missing = set(Finding.required_fields) - set(data.keys())
         if missing:
-            raise InvalidFindingData(f'Missing required keys: "{
-                                     missing}" for data with ID "{data.get("Id")}"')
+            raise InvalidFindingData(
+                f'Missing required keys: "{missing}" for data with ID "{data.get("Id")}"')
         return data
 
     @property
@@ -280,8 +280,8 @@ class Finding:
         try:
             return parse(datetime_string)
         except ValueError:
-            self._logger.warning(f'Could not automatically parse datetime string: "{
-                                 datetime_string}"')
+            self._logger.warning(
+                f'Could not automatically parse datetime string: "{datetime_string}"')
             return None
 
     @property
@@ -359,15 +359,15 @@ class Finding:
             self.match_if_set(self.control_id, rule.rule_or_control_id),
             self.match_if_set(self.rule_id, rule.rule_or_control_id)
         ]):
-            self._logger.debug(f'Matched with rule "{
-                               rule.note}" on one of "control_id, security_control_id"')
+            self._logger.debug(
+                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
             if not any([rule.tags, rule.resource_id_regexps]):
                 self._logger.debug(
                     f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
                 return True
             if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_id_regexps)]):
-                self._logger.debug(f'Matched with rule "{
-                                   rule.note}" either on resources or tags.')
+                self._logger.debug(
+                    f'Matched with rule "{rule.note}" either on resources or tags.')
                 return True
         return False
 
@@ -622,8 +622,8 @@ class FindingsManager:
             client = boto3.client('securityhub', **kwargs)
         except (botocore.exceptions.NoRegionError,
                 botocore.exceptions.InvalidRegionError) as msg:
-            raise NoRegion(f'Security Hub client requires a valid region set to connect, message was: {
-                           msg}') from None
+            raise NoRegion(
+                f'Security Hub client requires a valid region set to connect, message was: {msg}') from None
         return client
 
     def _get_security_hub_paginator_iterator(self, region: str, operation_name: str, query_filter: dict):
@@ -643,8 +643,8 @@ class FindingsManager:
         except (botocore.exceptions.NoRegionError,
                 botocore.exceptions.InvalidRegionError,
                 botocore.exceptions.EndpointConnectionError) as msg:
-            raise NoRegion(f'Ec2 client requires a valid region set to connect, message was: {
-                           msg}') from None
+            raise NoRegion(
+                f'Ec2 client requires a valid region set to connect, message was: {msg}') from None
         except (botocore.exceptions.ClientError, botocore.exceptions.NoCredentialsError) as msg:
             raise InvalidOrNoCredentials(msg) from None
         return client
@@ -659,16 +659,16 @@ class FindingsManager:
             self._aws_regions = [region.get('RegionName')
                                  for region in self._describe_ec2_regions()
                                  if region.get('OptInStatus', '') != 'not-opted-in']
-            self._logger.debug(f'Regions in EC2 that were opted in are: {
-                               self._aws_regions}')
+            self._logger.debug(
+                f'Regions in EC2 that were opted in are: {self._aws_regions}')
         if self.allowed_regions:
             self._aws_regions = set(self._aws_regions).intersection(
                 set(self.allowed_regions))
-            self._logger.debug(f'Working on allowed regions {
-                               self._aws_regions}')
+            self._logger.debug(
+                f'Working on allowed regions {self._aws_regions}')
         elif self.denied_regions:
-            self._logger.debug(f'Excluding denied regions {
-                               self.denied_regions}')
+            self._logger.debug(
+                f'Excluding denied regions {self.denied_regions}')
             self._aws_regions = set(self._aws_regions) - \
                 set(self.denied_regions)
             self._logger.debug(
@@ -854,8 +854,7 @@ class FindingsManager:
         no_rule_matches = [
             finding.id for finding in findings if not finding.matched_rule]
         if no_rule_matches:
-            message = f'Findings with the following ids "{
-                no_rule_matches}" do not have matching rules'
+            message = f'Findings with the following ids "{no_rule_matches}" do not have matching rules'
             if self._strict_mode:
                 raise NoRuleFindings(message)
             self._logger.warning(message)
@@ -932,8 +931,8 @@ class FindingsManager:
 
     def _batch_apply_payloads(self, security_hub, payloads, message_state):
         for payload in payloads:
-            self._logger.debug(f'Sending payload {payload} for {
-                               message_state} to Security Hub.')
+            self._logger.debug(
+                f'Sending payload {payload} for {message_state} to Security Hub.')
             if os.environ.get('FINDINGS_MANAGER_DRY_RUN_MODE'):
                 self._logger.debug(
                     f'Dry run mode is on, skipping the actual {message_state}.')
@@ -989,8 +988,8 @@ class FindingsManager:
             for fail in failed:
                 id_ = fail.get('FindingIdentifier', '').get('Id')
                 error = fail.get('ErrorMessage')
-                self._logger.error(f'Failed to update finding with ID: "{
-                                   id_}" with error: "{error}"')
+                self._logger.error(
+                    f'Failed to update finding with ID: "{id_}" with error: "{error}"')
         return (status, payload)
 
     def validate_finding_on_matching_rules(self, finding_data: Dict):
