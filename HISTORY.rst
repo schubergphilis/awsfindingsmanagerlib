@@ -32,3 +32,9 @@ History
 ------------------
 
 * Bump template python version to 3.11.
+
+
+1.0.2 (04-10-2024)
+------------------
+
+* Fix development dependencies.
