@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c749e461c12fd0d2dc102cd4b8eebab9051e34c21128210fcdcdef3549a11633"
+            "sha256": "23ca352a4cc39d46eefa3929d4976fd6a077a798a1e5e3ca0297baa116264127"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -166,7 +166,7 @@
                 "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
             ],
             "index": "pypi",
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==2.9.0.post0"
         },
         "pyyaml": {
@@ -259,7 +259,7 @@
                 "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
                 "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==1.16.0"
         },
         "urllib3": {
@@ -871,7 +871,6 @@
                 "sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a",
                 "sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
             ],
-            "index": "pypi",
             "version": "==1.3.7"
         },
         "nose-htmloutput": {
@@ -927,7 +926,7 @@
                 "sha256:49236fe334652d1229a85bc10789ac4390cc5027f6becda989ea473f893dde57"
             ],
             "index": "pypi",
-            "markers": "python_version < '4.0' and python_full_version >= '3.8.1'",
+            "markers": "python_full_version >= '3.8.1' and python_version < '4.0'",
             "version": "==1.11.0"
         },
         "pycodestyle": {
@@ -996,6 +995,15 @@
             ],
             "markers": "python_full_version >= '3.6.2'",
             "version": "==0.7"
+        },
+        "pynose": {
+            "hashes": [
+                "sha256:1b00ab94447cd7fcbb0a344fc1435137404c043db4a8e3cda63ca2893f8e5903",
+                "sha256:f50091f3b11524a0c8a328b3075333af8317cc7a15378494789d88d5cf53fe11"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.7'",
+            "version": "==1.5.3"
         },
         "pyproject-api": {
             "hashes": [
@@ -1233,7 +1241,7 @@
                 "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"
             ],
             "index": "pypi",
-            "markers": "python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==0.10.2"
         },
         "tomlkit": {
