@@ -69,25 +69,28 @@ class FindingsManagerTestCase(TestCase):
         self.findings_manager = FindingsManager()
         self.findings_manager.register_rules(rules)
 
-    def assert_batch_update_findings(self, batch_update_findings_expected: List[dict], batch_update_findings: List[dict]):
+    def assert_batch_update_findings_called_with(self, batch_update_findings_expected: List[dict], _batch_update_findings_mocked: MagicMock):
         """
-        Compare expected to actual api call payload.
+        Compare expected to actual (=mocked) api call payload.
+
+        Sadly, something like this does not work: _batch_update_findings_mocked.assert_called_once_with(ANY, batch_update_findings),
+        because FindingIdentifiers is a randomly ordered collection.
         """
-        self.assertEqual(len(batch_update_findings_expected),
-                         len(batch_update_findings))
+        self.assertEqual(
+            len(batch_update_findings_expected),
+            _batch_update_findings_mocked.call_count
+        )
 
         for expected in batch_update_findings_expected:
-            for finding in batch_update_findings:
+            for call in _batch_update_findings_mocked.call_args_list:
                 try:
-                    self.assertTrue(
-                        set(expected.keys()).issubset(set(finding.keys())))
-                    self.assertEqual(expected['Note'], finding['Note'])
-                    self.assertEqual(
-                        expected['Workflow'], finding['Workflow'])
-                    self.assertEqual(len(expected['FindingIdentifiers']), len(
-                        finding['FindingIdentifiers']))
+                    received_args = call.args[1]
+                    self.assertEqual(expected.keys(), received_args.keys())
+                    self.assertEqual(expected['Note'], received_args['Note'])
+                    self.assertEqual(expected['Workflow'], received_args['Workflow'])
+                    self.assertEqual(len(expected['FindingIdentifiers']), len(received_args['FindingIdentifiers']))
                     for item in expected['FindingIdentifiers']:
-                        self.assertIn(item, finding['FindingIdentifiers'])
+                        self.assertIn(item, received_args['FindingIdentifiers'])
                     break
                 except:
                     continue
