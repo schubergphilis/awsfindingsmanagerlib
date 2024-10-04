@@ -38,3 +38,9 @@ History
 ------------------
 
 * Fix development dependencies.
+
+
+1.0.3 (04-10-2024)
+------------------
+
+* Bump twine to latest version to fix upload on pipeline.
