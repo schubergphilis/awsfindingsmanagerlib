@@ -508,7 +508,7 @@ class Rule:
 class FindingsManager:
     """Models security hub and can retrieve findings and suppress them."""
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(self,
                  region: str = None,
                  allowed_regions: Optional[List[str]] = None,
@@ -923,9 +923,13 @@ class FindingsManager:
         message_state = 'suppression' if suppress else 'unsuppression'
         method = self._get_suppressing_payload if suppress else self._get_unsuppressing_payload
         security_hub = self._get_security_hub_client(self.aws_region)
-        successes, payloads = zip(*(result for result in self._batch_apply_payloads(security_hub,
-                                                                    method(findings),  # noqa
-                                                                    message_state)))
+        result = list(self._batch_apply_payloads(security_hub,
+                                                method(findings),  # noqa
+                                                message_state))
+        if result:
+            successes, payloads = zip(*result)
+        else:
+            return (True, [])
         success = all(successes)
         return (success, list(payloads))
 
