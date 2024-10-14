@@ -44,3 +44,10 @@ History
 ------------------
 
 * Bump twine to latest version to fix upload on pipeline.
+
+
+1.0.4 (14-10-2024)
+------------------
+
+* Bump template python version to 3.12.
+* Bugfixes.
