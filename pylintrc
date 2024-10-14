@@ -1,6 +1,3 @@
 [FORMAT]
 max-line-length=121
-disable=locally-disabled, locally-enabled, logging-format-interpolation, logging-fstring-interpolation
-
-[General]
-init-hook='import sys; sys.path.append("awsfindingsmanagerlib")'
+disable=locally-disabled, logging-format-interpolation, logging-fstring-interpolation

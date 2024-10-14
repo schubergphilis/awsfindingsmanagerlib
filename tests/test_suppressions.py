@@ -114,6 +114,18 @@ class TestBasicRun(FindingsManagerTestCase):
         self.assert_batch_update_findings(
             [batch_update_findings_fixture], payloads)
 
+class TestNoSuppressions(FindingsManagerTestCase):
+    backend_file = './tests/fixtures/suppressions/empty.yaml'
+
+    @patch(
+        'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
+        lambda *_, **__: [api_consolidated_findings_fixture],
+    )
+    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
+    def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
+        success, payloads = self.findings_manager.suppress_matching_findings()
+        self.assertTrue(success)
+        self.assertListEqual([], payloads)
 
 class TestFullSuppressions(FindingsManagerTestCase):
     backend_file = './tests/fixtures/suppressions/full.yaml'
