@@ -48,6 +48,8 @@ __email__ = '''<bvanbreukelen@schubergphilis.com>,<ctyfoxylos@schubergphilis.com
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 rule_schema = Schema({'match_on': {Optional('rule_or_control_id'): str,
+                                   Optional('title'): str,
+                                   Optional('product_name'): str,
                                    Optional('security_control_id'): str,
                                    Optional('resource_id_regexps'): [str],
                                    Optional('tags'): [{'key': str,

@@ -1,0 +1,154 @@
+{
+    "AwsAccountId": "012345678912",
+    "AwsAccountName": "account",
+    "CompanyName": "Amazon",
+    "CreatedAt": "2024-11-11T14:40:00.016Z",
+    "Description": "A flaw was found in python. An improperly handled HTTP response in the HTTP client code of python may allow a remote attacker, who controls the HTTP server, to make the client script enter an infinite loop, consuming CPU time. The highest threat from this vulnerability is to system availability.",
+    "FindingProviderFields": {
+        "Types": [
+            "Software and Configuration Checks/Vulnerabilities/CVE"
+        ],
+        "Severity": {
+            "Normalized": 70,
+            "Label": "HIGH"
+        }
+    },
+    "FirstObservedAt": "2024-11-11T14:40:00.016Z",
+    "GeneratorId": "AWSInspector",
+    "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/m58hv3b9d83b0ee89c7140b30eed55kv",
+    "LastObservedAt": "2024-11-11T14:40:00.016Z",
+    "ProcessedAt": "2024-11-11T14:45:08.567Z",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
+    "ProductFields": {
+        "aws/inspector/ProductVersion": "2",
+        "aws/inspector/FindingStatus": "CLOSED",
+        "aws/inspector/inspectorScore": "7.5",
+        "aws/inspector/instanceId": "i-01e8db61387e018b4",
+        "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
+        "aws/securityhub/ProductName": "Inspector",
+        "aws/securityhub/CompanyName": "Amazon"
+    },
+    "ProductName": "Inspector",
+    "RecordState": "ARCHIVED",
+    "Region": "eu-west-1",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
+        }
+    },
+    "Resources": [
+        {
+            "Details": {
+                "AwsEc2Instance": {
+                    "Type": "t3.large",
+                    "VpcId": "vpc-0d165124e6f1211e6",
+                    "ImageId": "ami-030c1a56dd9a0ccd8",
+                    "IpV4Addresses": [
+                        "192.168.0.74"
+                    ],
+                    "SubnetId": "subnet-062ae210766aa9614",
+                    "LaunchedAt": "2024-11-11T14:38:42.000Z",
+                    "IamInstanceProfileArn": "arn:aws:iam::012345678912:instance-profile/example/example-profile"
+                }
+            },
+            "Id": "arn:aws:ec2:eu-west-1:012345678912:instance/i-01e8db61387e018b4",
+            "Partition": "aws",
+            "Region": "eu-west-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-28b70307-1da4-e616-0cb8-0d20555fe75c",
+                "ghr:environment": "example",
+                "aws:ec2launchtemplate:version": "9",
+                "aws:ec2launchtemplate:id": "lt-0c064043433a6dcfe",
+                "Name": "example-action-runner"
+            },
+            "Type": "AwsEc2Instance"
+        }
+    ],
+    "SchemaVersion": "2018-10-08",
+    "Severity": {
+        "Label": "HIGH",
+        "Normalized": 70
+    },
+    "Title": "CVE-2021-3737 - python3.10, python3.10-minimal",
+    "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CVE"
+    ],
+    "UpdatedAt": "2024-11-11T14:44:51.175Z",
+    "Vulnerabilities": [
+        {
+            "Cvss": [
+                {
+                    "BaseScore": 7.5,
+                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                    "Source": "UBUNTU_CVE",
+                    "Version": "3.1"
+                },
+                {
+                    "BaseScore": 7.5,
+                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                    "Source": "NVD",
+                    "Version": "3.1"
+                },
+                {
+                    "BaseScore": 7.5,
+                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                    "Source": "UBUNTU_CVE",
+                    "Version": "3.1"
+                }
+            ],
+            "EpssScore": 0.01559,
+            "ExploitAvailable": "NO",
+            "FixAvailable": "YES",
+            "Id": "CVE-2021-3737",
+            "ReferenceUrls": [
+                "https://ubuntu.com/security/notices/USN-5083-1",
+                "https://ubuntu.com/security/notices/USN-5201-1",
+                "https://ubuntu.com/security/notices/USN-5200-1",
+                "https://ubuntu.com/security/notices/USN-6891-1",
+                "https://bugs.python.org/issue44022",
+                "https://www.cve.org/CVERecord?id=CVE-2021-3737",
+                "https://ubuntu.com/security/notices/USN-5199-1"
+            ],
+            "RelatedVulnerabilities": [
+                "USN-5200-1",
+                "USN-5201-1",
+                "USN-5083-1",
+                "USN-6891-1",
+                "USN-5199-1"
+            ],
+            "Vendor": {
+                "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
+                "VendorSeverity": "medium",
+                "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
+                "Name": "UBUNTU_CVE"
+            },
+            "VulnerablePackages": [
+                {
+                    "Architecture": "X86_64",
+                    "PackageManager": "OS",
+                    "Version": "3.10.6",
+                    "Epoch": "0",
+                    "FixedInVersion": "0:3.10.12-1~22.04.4",
+                    "Remediation": "apt-get update && apt-get upgrade",
+                    "Release": "1~22.04.2ubuntu1.1",
+                    "Name": "python3.10"
+                },
+                {
+                    "Architecture": "X86_64",
+                    "PackageManager": "OS",
+                    "Version": "3.10.6",
+                    "Epoch": "0",
+                    "FixedInVersion": "0:3.10.12-1~22.04.4",
+                    "Remediation": "apt-get update && apt-get upgrade",
+                    "Release": "1~22.04.2ubuntu1.1",
+                    "Name": "python3.10-minimal"
+                }
+            ]
+        }
+    ],
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "WorkflowState": "NEW"
+}
