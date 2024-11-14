@@ -338,9 +338,9 @@ class Finding:
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
 
-        If any of control_id, security_control_id or rule_id attributes match between the rule and the finding and the
+        If any of control_id, security_control_id, rule_id or product_name attributes match between the rule and the finding and the
         rule does not have any filtering attributes like resource_id_regexps or tags then it is considered a match.
-        (Big blast radius) only matching on the control.
+        (Big blast radius) only matching on the control or product.
 
         If the rule has any attributes like resource_id_regexps or tags then a secondary match is searched for any of
         them with the corresponding finding attributes. If any match is found then the rule is found matching if none
