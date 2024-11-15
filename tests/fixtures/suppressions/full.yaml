@@ -20,3 +20,10 @@ Rules:
       resource_id_regexps:
         - '^arn:aws:s3:::.*-dev$'
         - '^arn:aws:s3:::.*-acc$'
+  - note: 'We support Inspector too'
+    action: 'SUPPRESSED'
+    match_on:
+      product_name: 'Inspector'
+      title: 'CVE-2021-3737 - python3.10, python3.10-minimal'
+      resource_id_regexps:
+        - '^arn:aws:ec2:.*:.*:instance/.*$'

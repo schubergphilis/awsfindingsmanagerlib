@@ -133,6 +133,11 @@ class Finding:
         return self._data.get('ProductArn')
 
     @property
+    def product_name(self) -> str:
+        """Product Name."""
+        return self._data.get('ProductName')
+
+    @property
     def region(self) -> str:
         """Region."""
         return self._data.get('Region')
@@ -333,9 +338,9 @@ class Finding:
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
 
-        If any of control_id, security_control_id or rule_id attributes match between the rule and the finding and the
-        rule does not have any filtering attributes like resource_id_regexps or tags then it is considered a match.
-        (Big blast radius) only matching on the control.
+        If any of control_id, security_control_id, rule_id or product_name attributes match between the rule and the
+        finding and the rule does not have any filtering attributes like resource_id_regexps or tags then it is
+        considered a match. (Big blast radius) only matching on the control or product.
 
         If the rule has any attributes like resource_id_regexps or tags then a secondary match is searched for any of
         them with the corresponding finding attributes. If any match is found then the rule is found matching if none
@@ -357,10 +362,15 @@ class Finding:
             self.match_if_set(self.security_control_id,
                               rule.security_control_id),
             self.match_if_set(self.control_id, rule.rule_or_control_id),
-            self.match_if_set(self.rule_id, rule.rule_or_control_id)
+            self.match_if_set(self.rule_id, rule.rule_or_control_id),
+            self.match_if_set(self.product_name, rule.product_name),
         ]):
             self._logger.debug(
-                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id"')
+                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id, product_name"')
+            if self.match_if_set(self.title, rule.title):
+                self._logger.debug(
+                    f'Matched with rule "{rule.note}" on title.')
+                return True
             if not any([rule.tags, rule.resource_id_regexps]):
                 self._logger.debug(
                     f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
@@ -412,6 +422,11 @@ class Rule:
         return self._data.get('match_on')
 
     @property
+    def product_name(self) -> str:
+        """The product name if any, empty string otherwise."""
+        return self.match_on.get('product_name', '')
+
+    @property
     def security_control_id(self) -> str:
         """The security control ID if any, empty string otherwise."""
         return self.match_on.get('security_control_id', '')
@@ -427,9 +442,31 @@ class Rule:
         return self.match_on.get('resource_id_regexps', [])
 
     @property
+    def title(self) -> str:
+        """The title if any, empty string otherwise."""
+        return self.match_on.get('title', '')
+
+    @property
     def tags(self) -> List[Optional[str]]:
         """The tags specified under the match_on attribute."""
         return self.match_on.get('tags', [])
+
+    @staticmethod
+    def _get_product_name_query(match_on_data) -> Dict:
+        """Constructs a valid query based on product name if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the product name, empty dictionary otherwise.
+
+        """
+        product_name = match_on_data.get('product_name')
+        if not product_name:
+            return {}
+        return {'ProductName': [{'Value': product_name,
+                                 'Comparison': 'EQUALS'}]}
 
     @staticmethod
     def _get_rule_or_control_id_query(match_on_data) -> Dict:
@@ -490,6 +527,23 @@ class Rule:
                                   'Comparison': 'EQUALS'}
                                  for tag in tags]}
 
+    @staticmethod
+    def _get_title_query(match_on_data) -> Dict:
+        """Constructs a valid query based on title if any.
+
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+             The query matching the title, empty dictionary otherwise.
+
+        """
+        title = match_on_data.get('title')
+        if not title:
+            return {}
+        return {'Title': [{'Value': title,
+                           'Comparison': 'EQUALS'}]}
+
     @property
     def query_filter(self) -> Dict:
         """The query filter of the Rule based on all set attributes.
@@ -502,6 +556,8 @@ class Rule:
         query.update(self._get_rule_or_control_id_query(self.match_on))
         query.update(self._get_security_control_id_query(self.match_on))
         query.update(self._get_tag_query(self.match_on))
+        query.update(self._get_title_query(self.match_on))
+        query.update(self._get_product_name_query(self.match_on))
         return deepcopy(query)
 
 

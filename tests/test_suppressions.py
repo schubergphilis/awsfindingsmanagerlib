@@ -55,21 +55,21 @@ with open('tests/fixtures/batch_update_findings_full.json', encoding='utf-8') as
     batch_update_findings_full_fixture = json.load(updates_file)
 
 full_findings_fixture = []
-for security_control_id in ['S3.8', 'S3.9', 'S3.14', 'S3.20']:
+for identifier in ['S3.8', 'S3.9', 'S3.14', 'S3.20', 'Inspector']:
     for env in ['dev', 'acc', 'prd']:
-        with open(f'tests/fixtures/findings/full/{security_control_id}/{env}.json', encoding='utf-8') as findings_file:
+        with open(f'tests/fixtures/findings/full/{identifier}/{env}.json', encoding='utf-8') as findings_file:
             full_findings_fixture.append(json.load(findings_file))
 
 # this one goes together with a query based on suppressions/full.yaml
-findings_by_security_control_id_fixture = {}
+findings_by_identifier_fixture = {}
 # there is no id S3.8 suppression in suppressions/full.yaml
-for security_control_id in ['S3.9', 'S3.14', 'S3.20']:
-    findings_by_security_control_id_fixture[security_control_id] = []
+for identifier in ['S3.9', 'S3.14', 'S3.20', 'Inspector']:
+    findings_by_identifier_fixture[identifier] = []
     # a query with tags already filters out the non-conforming ones,
     # hence no dev for S3.14
-    for env in ['dev', 'acc', 'prd'] if security_control_id != 'S3.14' else ['acc', 'prd']:
-        with open(f'tests/fixtures/findings/full/{security_control_id}/{env}.json', encoding='utf-8') as findings_file:
-            findings_by_security_control_id_fixture[security_control_id].append(
+    for env in ['dev', 'acc', 'prd'] if identifier != 'S3.14' else ['acc', 'prd']:
+        with open(f'tests/fixtures/findings/full/{identifier}/{env}.json', encoding='utf-8') as findings_file:
+            findings_by_identifier_fixture[identifier].append(
                 json.load(findings_file))
 
 with open('tests/fixtures/matches.json', encoding='utf-8') as matches_file:
@@ -147,7 +147,7 @@ class TestFullSuppressions(FindingsManagerTestCase):
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
         lambda *_, **kwargs: [{
-            'Findings': findings_by_security_control_id_fixture[kwargs['query_filter']['ComplianceSecurityControlId'][0]['Value']]
+            'Findings': findings_by_identifier_fixture[kwargs['query_filter']['ComplianceSecurityControlId'][0]['Value'] if 'ComplianceSecurityControlId' in kwargs['query_filter'] else kwargs['query_filter']['ProductName'][0]['Value']]
         }],
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
