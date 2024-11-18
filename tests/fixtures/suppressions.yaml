@@ -27,3 +27,7 @@ Rules:
       title: 'CVE-2021-3737 - python3.10, python3.10-minimal'
       resource_id_regexps:
         - '^arn:aws:ec2:.*:.*:instance/.*$'
+  - note: 'We also support legacy format findings'
+    action: 'SUPPRESSED'
+    match_on:
+      rule_or_control_id: 'GuardDuty.5'  #Legacy format

@@ -2,11 +2,11 @@
   {
     "FindingIdentifiers": [
       {
-        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
       },
       {
-        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57",
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
       }
     ],
@@ -40,11 +40,11 @@
   {
     "FindingIdentifiers": [
       {
-        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36",
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
       },
       {
-        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
       },
       {
@@ -65,14 +65,6 @@
       {
         "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector"
-      },
-      {
-        "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/ioperfb9d83b0ee89c7140b30eed5lf9",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector"
-      },
-      {
-          "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/m58hv3b9d83b0ee89c7140b30eed55kv",
-          "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector"
       }
     ],
     "Workflow": {
@@ -80,6 +72,21 @@
     },
     "Note": {
       "Text": "We support Inspector too",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "We also support legacy format findings",
       "UpdatedBy": "FindingsManager"
     }
   }

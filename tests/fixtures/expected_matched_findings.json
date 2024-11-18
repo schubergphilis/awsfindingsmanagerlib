@@ -752,15 +752,15 @@
   },
   {
     "matched_rule": {
-        "note": "We support Inspector too",
-        "action": "SUPPRESSED",
-        "match_on": {
-            "product_name": "Inspector",
-            "title": "CVE-2021-3737 - python3.10, python3.10-minimal",
-            "resource_id_regexps": [
-                "^arn:aws:ec2:.*:.*:instance/.*$"
-            ]
-        }
+      "note": "We support Inspector too",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "product_name": "Inspector",
+        "title": "CVE-2021-3737 - python3.10, python3.10-minimal",
+        "resource_id_regexps": [
+          "^arn:aws:ec2:.*:.*:instance/.*$"
+        ]
+      }
     },
     "AwsAccountId": "012345678912",
     "AwsAccountName": "account",
@@ -768,13 +768,13 @@
     "CreatedAt": "2024-11-11T14:40:00.016Z",
     "Description": "A flaw was found in python. An improperly handled HTTP response in the HTTP client code of python may allow a remote attacker, who controls the HTTP server, to make the client script enter an infinite loop, consuming CPU time. The highest threat from this vulnerability is to system availability.",
     "FindingProviderFields": {
-        "Types": [
-            "Software and Configuration Checks/Vulnerabilities/CVE"
-        ],
-        "Severity": {
-            "Normalized": 70,
-            "Label": "HIGH"
-        }
+      "Types": [
+        "Software and Configuration Checks/Vulnerabilities/CVE"
+      ],
+      "Severity": {
+        "Normalized": 70,
+        "Label": "HIGH"
+      }
     },
     "FirstObservedAt": "2024-11-11T14:40:00.016Z",
     "GeneratorId": "AWSInspector",
@@ -783,466 +783,277 @@
     "ProcessedAt": "2024-11-11T14:45:08.567Z",
     "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
     "ProductFields": {
-        "aws/inspector/ProductVersion": "2",
-        "aws/inspector/FindingStatus": "CLOSED",
-        "aws/inspector/inspectorScore": "7.5",
-        "aws/inspector/instanceId": "i-01e8db61387e018b4",
-        "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
-        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
-        "aws/securityhub/ProductName": "Inspector",
-        "aws/securityhub/CompanyName": "Amazon"
+      "aws/inspector/ProductVersion": "2",
+      "aws/inspector/FindingStatus": "CLOSED",
+      "aws/inspector/inspectorScore": "7.5",
+      "aws/inspector/instanceId": "i-01e8db61387e018b4",
+      "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
+      "aws/securityhub/ProductName": "Inspector",
+      "aws/securityhub/CompanyName": "Amazon"
     },
     "ProductName": "Inspector",
     "RecordState": "ARCHIVED",
     "Region": "eu-west-1",
     "Remediation": {
-        "Recommendation": {
-            "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
-        }
+      "Recommendation": {
+        "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
+      }
     },
     "Resources": [
-        {
-            "Details": {
-                "AwsEc2Instance": {
-                    "Type": "t3.large",
-                    "VpcId": "vpc-0d165124e6f1211e6",
-                    "ImageId": "ami-030c1a56dd9a0ccd8",
-                    "IpV4Addresses": [
-                        "192.168.0.74"
-                    ],
-                    "SubnetId": "subnet-062ae210766aa9614",
-                    "LaunchedAt": "2024-11-11T14:38:42.000Z",
-                    "IamInstanceProfileArn": "arn:aws:iam::012345678912:instance-profile/example/example-profile"
-                }
-            },
-            "Id": "arn:aws:ec2:eu-west-1:012345678912:instance/i-01e8db61387e018b4",
-            "Partition": "aws",
-            "Region": "eu-west-1",
-            "Tags": {
-                "aws:ec2:fleet-id": "fleet-28b70307-1da4-e616-0cb8-0d20555fe75c",
-                "ghr:environment": "example",
-                "aws:ec2launchtemplate:version": "9",
-                "aws:ec2launchtemplate:id": "lt-0c064043433a6dcfe",
-                "Name": "example-action-runner"
-            },
-            "Type": "AwsEc2Instance"
-        }
+      {
+        "Details": {
+          "AwsEc2Instance": {
+            "Type": "t3.large",
+            "VpcId": "vpc-0d165124e6f1211e6",
+            "ImageId": "ami-030c1a56dd9a0ccd8",
+            "IpV4Addresses": [
+              "192.168.0.74"
+            ],
+            "SubnetId": "subnet-062ae210766aa9614",
+            "LaunchedAt": "2024-11-11T14:38:42.000Z",
+            "IamInstanceProfileArn": "arn:aws:iam::012345678912:instance-profile/example/example-profile"
+          }
+        },
+        "Id": "arn:aws:ec2:eu-west-1:012345678912:instance/i-01e8db61387e018b4",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "aws:ec2:fleet-id": "fleet-28b70307-1da4-e616-0cb8-0d20555fe75c",
+          "ghr:environment": "example",
+          "aws:ec2launchtemplate:version": "9",
+          "aws:ec2launchtemplate:id": "lt-0c064043433a6dcfe",
+          "Name": "example-action-runner"
+        },
+        "Type": "AwsEc2Instance"
+      }
     ],
     "SchemaVersion": "2018-10-08",
     "Severity": {
-        "Label": "HIGH",
-        "Normalized": 70
+      "Label": "HIGH",
+      "Normalized": 70
     },
     "Title": "CVE-2021-3737 - python3.10, python3.10-minimal",
     "Types": [
-        "Software and Configuration Checks/Vulnerabilities/CVE"
+      "Software and Configuration Checks/Vulnerabilities/CVE"
     ],
     "UpdatedAt": "2024-11-11T14:44:51.175Z",
     "Vulnerabilities": [
-        {
-            "Cvss": [
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "NVD",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                }
-            ],
-            "EpssScore": 0.01559,
-            "ExploitAvailable": "NO",
-            "FixAvailable": "YES",
-            "Id": "CVE-2021-3737",
-            "ReferenceUrls": [
-                "https://ubuntu.com/security/notices/USN-5083-1",
-                "https://ubuntu.com/security/notices/USN-5201-1",
-                "https://ubuntu.com/security/notices/USN-5200-1",
-                "https://ubuntu.com/security/notices/USN-6891-1",
-                "https://bugs.python.org/issue44022",
-                "https://www.cve.org/CVERecord?id=CVE-2021-3737",
-                "https://ubuntu.com/security/notices/USN-5199-1"
-            ],
-            "RelatedVulnerabilities": [
-                "USN-5200-1",
-                "USN-5201-1",
-                "USN-5083-1",
-                "USN-6891-1",
-                "USN-5199-1"
-            ],
-            "Vendor": {
-                "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
-                "VendorSeverity": "medium",
-                "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
-                "Name": "UBUNTU_CVE"
-            },
-            "VulnerablePackages": [
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10"
-                },
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10-minimal"
-                }
-            ]
-        }
+      {
+        "Cvss": [
+          {
+            "BaseScore": 7.5,
+            "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "Source": "UBUNTU_CVE",
+            "Version": "3.1"
+          },
+          {
+            "BaseScore": 7.5,
+            "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "Source": "NVD",
+            "Version": "3.1"
+          },
+          {
+            "BaseScore": 7.5,
+            "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+            "Source": "UBUNTU_CVE",
+            "Version": "3.1"
+          }
+        ],
+        "EpssScore": 0.01559,
+        "ExploitAvailable": "NO",
+        "FixAvailable": "YES",
+        "Id": "CVE-2021-3737",
+        "ReferenceUrls": [
+          "https://ubuntu.com/security/notices/USN-5083-1",
+          "https://ubuntu.com/security/notices/USN-5201-1",
+          "https://ubuntu.com/security/notices/USN-5200-1",
+          "https://ubuntu.com/security/notices/USN-6891-1",
+          "https://bugs.python.org/issue44022",
+          "https://www.cve.org/CVERecord?id=CVE-2021-3737",
+          "https://ubuntu.com/security/notices/USN-5199-1"
+        ],
+        "RelatedVulnerabilities": [
+          "USN-5200-1",
+          "USN-5201-1",
+          "USN-5083-1",
+          "USN-6891-1",
+          "USN-5199-1"
+        ],
+        "Vendor": {
+          "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
+          "VendorSeverity": "medium",
+          "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
+          "Name": "UBUNTU_CVE"
+        },
+        "VulnerablePackages": [
+          {
+            "Architecture": "X86_64",
+            "PackageManager": "OS",
+            "Version": "3.10.6",
+            "Epoch": "0",
+            "FixedInVersion": "0:3.10.12-1~22.04.4",
+            "Remediation": "apt-get update && apt-get upgrade",
+            "Release": "1~22.04.2ubuntu1.1",
+            "Name": "python3.10"
+          },
+          {
+            "Architecture": "X86_64",
+            "PackageManager": "OS",
+            "Version": "3.10.6",
+            "Epoch": "0",
+            "FixedInVersion": "0:3.10.12-1~22.04.4",
+            "Remediation": "apt-get update && apt-get upgrade",
+            "Release": "1~22.04.2ubuntu1.1",
+            "Name": "python3.10-minimal"
+          }
+        ]
+      }
     ],
     "Workflow": {
-        "Status": "NEW"
+      "Status": "NEW"
     },
     "WorkflowState": "NEW"
   },
   {
     "matched_rule": {
-        "note": "We support Inspector too",
-        "action": "SUPPRESSED",
-        "match_on": {
-            "product_name": "Inspector",
-            "title": "CVE-2021-3737 - python3.10, python3.10-minimal",
-            "resource_id_regexps": [
-                "^arn:aws:ec2:.*:.*:instance/.*$"
-            ]
-        }
+      "note": "We also support legacy format findings",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "rule_or_control_id": "GuardDuty.5"
+      }
     },
-    "AwsAccountId": "012345678912",
-    "AwsAccountName": "account",
-    "CompanyName": "Amazon",
-    "CreatedAt": "2024-11-11T14:40:00.016Z",
-    "Description": "A flaw was found in python. An improperly handled HTTP response in the HTTP client code of python may allow a remote attacker, who controls the HTTP server, to make the client script enter an infinite loop, consuming CPU time. The highest threat from this vulnerability is to system availability.",
-    "FindingProviderFields": {
-        "Types": [
-            "Software and Configuration Checks/Vulnerabilities/CVE"
-        ],
-        "Severity": {
-            "Normalized": 70,
-            "Label": "HIGH"
-        }
-    },
-    "FirstObservedAt": "2024-11-11T14:40:00.016Z",
-    "GeneratorId": "AWSInspector",
-    "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/ioperfb9d83b0ee89c7140b30eed5lf9",
-    "LastObservedAt": "2024-11-11T14:40:00.016Z",
-    "ProcessedAt": "2024-11-11T14:45:08.567Z",
-    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
-    "ProductFields": {
-        "aws/inspector/ProductVersion": "2",
-        "aws/inspector/FindingStatus": "CLOSED",
-        "aws/inspector/inspectorScore": "7.5",
-        "aws/inspector/instanceId": "i-01e8db61387e018b4",
-        "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
-        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
-        "aws/securityhub/ProductName": "Inspector",
-        "aws/securityhub/CompanyName": "Amazon"
-    },
-    "ProductName": "Inspector",
-    "RecordState": "ARCHIVED",
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0",
+    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
     "Region": "eu-west-1",
+    "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5",
+    "AwsAccountId": "222555888333",
+    "Types": [
+      "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+    ],
+    "FirstObservedAt": "2024-07-13T00:32:44.734Z",
+    "LastObservedAt": "2024-07-17T12:36:15.611Z",
+    "CreatedAt": "2024-07-13T00:32:44.734Z",
+    "UpdatedAt": "2024-07-17T12:35:59.820Z",
+    "Severity": {
+      "Product": 70,
+      "Label": "HIGH",
+      "Normalized": 70,
+      "Original": "HIGH"
+    },
+    "Title": "GuardDuty.5 GuardDuty EKS Audit Log Monitoring should be enabled",
+    "Description": "This control checks whether GuardDuty EKS Audit Log Monitoring is enabled. The control fails if GuardDuty EKS Audit Log Monitoring isn't enabled.",
     "Remediation": {
-        "Recommendation": {
-            "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
-        }
+      "Recommendation": {
+        "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+        "Url": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.5/remediation"
+      }
+    },
+    "ProductFields": {
+      "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
+      "StandardsSubscriptionArn": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0",
+      "ControlId": "GuardDuty.5",
+      "RecommendationUrl": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.5/remediation",
+      "RelatedAWSResources:0/name": "securityhub-guardduty-eks-protection-audit-enabled-4ea31c89",
+      "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+      "StandardsControlArn": "arn:aws:securityhub:eu-west-1:222555888333:control/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5",
+      "aws/securityhub/ProductName": "Security Hub",
+      "aws/securityhub/CompanyName": "AWS",
+      "Resources:0/Id": "arn:aws:guardduty:eu-west-1:222555888333:detector/c350ca4fd7594d5fbda1f71ac6332dc8",
+      "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0"
     },
     "Resources": [
-        {
-            "Details": {
-                "AwsEc2Instance": {
-                    "Type": "t3.large",
-                    "VpcId": "vpc-0d165124e6f1211e6",
-                    "ImageId": "ami-030c1a56dd9a0ccd8",
-                    "IpV4Addresses": [
-                        "192.168.0.74"
-                    ],
-                    "SubnetId": "subnet-062ae210766aa9614",
-                    "LaunchedAt": "2024-11-11T14:38:42.000Z",
-                    "IamInstanceProfileArn": "arn:aws:iam::012345678912:instance-profile/example/example-profile"
+      {
+        "Type": "AwsGuardDutyDetector",
+        "Id": "arn:aws:guardduty:eu-west-1:222555888333:detector/c350ca4fd7594d5fbda1f71ac6332dc8",
+        "Partition": "aws",
+        "Region": "eu-west-1",
+        "Tags": {
+          "Environment": "staging",
+          "Env": "stg",
+          "Stack": "base"
+        },
+        "Details": {
+          "AwsGuardDutyDetector": {
+            "DataSources": {
+              "Kubernetes": {
+                "AuditLogs": {
+                  "Status": "DISABLED"
                 }
+              },
+              "S3Logs": {
+                "Status": "ENABLED"
+              }
             },
-            "Id": "arn:aws:ec2:eu-west-1:012345678912:instance/i-01e8db61387e018b4",
-            "Partition": "aws",
-            "Region": "eu-west-1",
-            "Tags": {
-                "aws:ec2:fleet-id": "fleet-28b70307-1da4-e616-0cb8-0d20555fe75c",
-                "ghr:environment": "example",
-                "aws:ec2launchtemplate:version": "9",
-                "aws:ec2launchtemplate:id": "lt-0c064043433a6dcfe",
-                "Name": "example-action-runner"
-            },
-            "Type": "AwsEc2Instance"
+            "Features": [
+              {
+                "Name": "CLOUD_TRAIL",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "DNS_LOGS",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "FLOW_LOGS",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "S3_DATA_EVENTS",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "EKS_AUDIT_LOGS",
+                "Status": "DISABLED"
+              },
+              {
+                "Name": "EBS_MALWARE_PROTECTION",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "RDS_LOGIN_EVENTS",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "EKS_RUNTIME_MONITORING",
+                "Status": "DISABLED"
+              },
+              {
+                "Name": "LAMBDA_NETWORK_LOGS",
+                "Status": "ENABLED"
+              },
+              {
+                "Name": "RUNTIME_MONITORING",
+                "Status": "ENABLED"
+              }
+            ],
+            "FindingPublishingFrequency": "FIFTEEN_MINUTES",
+            "Status": "ENABLED"
+          }
         }
+      }
     ],
-    "SchemaVersion": "2018-10-08",
-    "Severity": {
-        "Label": "HIGH",
-        "Normalized": 70
+    "Compliance": {
+      "Status": "FAILED"
     },
-    "Title": "CVE-2021-3737 - python3.10, python3.10-minimal",
-    "Types": [
-        "Software and Configuration Checks/Vulnerabilities/CVE"
-    ],
-    "UpdatedAt": "2024-11-11T14:44:51.175Z",
-    "Vulnerabilities": [
-        {
-            "Cvss": [
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "NVD",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                }
-            ],
-            "EpssScore": 0.01559,
-            "ExploitAvailable": "NO",
-            "FixAvailable": "YES",
-            "Id": "CVE-2021-3737",
-            "ReferenceUrls": [
-                "https://ubuntu.com/security/notices/USN-5083-1",
-                "https://ubuntu.com/security/notices/USN-5201-1",
-                "https://ubuntu.com/security/notices/USN-5200-1",
-                "https://ubuntu.com/security/notices/USN-6891-1",
-                "https://bugs.python.org/issue44022",
-                "https://www.cve.org/CVERecord?id=CVE-2021-3737",
-                "https://ubuntu.com/security/notices/USN-5199-1"
-            ],
-            "RelatedVulnerabilities": [
-                "USN-5200-1",
-                "USN-5201-1",
-                "USN-5083-1",
-                "USN-6891-1",
-                "USN-5199-1"
-            ],
-            "Vendor": {
-                "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
-                "VendorSeverity": "medium",
-                "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
-                "Name": "UBUNTU_CVE"
-            },
-            "VulnerablePackages": [
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10"
-                },
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10-minimal"
-                }
-            ]
-        }
-    ],
+    "WorkflowState": "NEW",
     "Workflow": {
-        "Status": "NEW"
+      "Status": "NEW"
     },
-    "WorkflowState": "NEW"
-  },
-  {
-    "matched_rule": {
-        "note": "We support Inspector too",
-        "action": "SUPPRESSED",
-        "match_on": {
-            "product_name": "Inspector",
-            "title": "CVE-2021-3737 - python3.10, python3.10-minimal",
-            "resource_id_regexps": [
-                "^arn:aws:ec2:.*:.*:instance/.*$"
-            ]
-        }
-    },
-    "AwsAccountId": "012345678912",
-    "AwsAccountName": "account",
-    "CompanyName": "Amazon",
-    "CreatedAt": "2024-11-11T14:40:00.016Z",
-    "Description": "A flaw was found in python. An improperly handled HTTP response in the HTTP client code of python may allow a remote attacker, who controls the HTTP server, to make the client script enter an infinite loop, consuming CPU time. The highest threat from this vulnerability is to system availability.",
+    "RecordState": "ACTIVE",
     "FindingProviderFields": {
-        "Types": [
-            "Software and Configuration Checks/Vulnerabilities/CVE"
-        ],
-        "Severity": {
-            "Normalized": 70,
-            "Label": "HIGH"
-        }
-    },
-    "FirstObservedAt": "2024-11-11T14:40:00.016Z",
-    "GeneratorId": "AWSInspector",
-    "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/m58hv3b9d83b0ee89c7140b30eed55kv",
-    "LastObservedAt": "2024-11-11T14:40:00.016Z",
-    "ProcessedAt": "2024-11-11T14:45:08.567Z",
-    "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
-    "ProductFields": {
-        "aws/inspector/ProductVersion": "2",
-        "aws/inspector/FindingStatus": "CLOSED",
-        "aws/inspector/inspectorScore": "7.5",
-        "aws/inspector/instanceId": "i-01e8db61387e018b4",
-        "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
-        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
-        "aws/securityhub/ProductName": "Inspector",
-        "aws/securityhub/CompanyName": "Amazon"
-    },
-    "ProductName": "Inspector",
-    "RecordState": "ARCHIVED",
-    "Region": "eu-west-1",
-    "Remediation": {
-        "Recommendation": {
-            "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
-        }
-    },
-    "Resources": [
-        {
-            "Details": {
-                "AwsEc2Instance": {
-                    "Type": "t3.large",
-                    "VpcId": "vpc-0d165124e6f1211e6",
-                    "ImageId": "ami-030c1a56dd9a0ccd8",
-                    "IpV4Addresses": [
-                        "192.168.0.74"
-                    ],
-                    "SubnetId": "subnet-062ae210766aa9614",
-                    "LaunchedAt": "2024-11-11T14:38:42.000Z",
-                    "IamInstanceProfileArn": "arn:aws:iam::012345678912:instance-profile/example/example-profile"
-                }
-            },
-            "Id": "arn:aws:ec2:eu-west-1:012345678912:instance/i-01e8db61387e018b4",
-            "Partition": "aws",
-            "Region": "eu-west-1",
-            "Tags": {
-                "aws:ec2:fleet-id": "fleet-28b70307-1da4-e616-0cb8-0d20555fe75c",
-                "ghr:environment": "example",
-                "aws:ec2launchtemplate:version": "9",
-                "aws:ec2launchtemplate:id": "lt-0c064043433a6dcfe",
-                "Name": "example-action-runner"
-            },
-            "Type": "AwsEc2Instance"
-        }
-    ],
-    "SchemaVersion": "2018-10-08",
-    "Severity": {
+      "Severity": {
         "Label": "HIGH",
-        "Normalized": 70
+        "Original": "HIGH"
+      },
+      "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+      ]
     },
-    "Title": "CVE-2021-3737 - python3.10, python3.10-minimal",
-    "Types": [
-        "Software and Configuration Checks/Vulnerabilities/CVE"
-    ],
-    "UpdatedAt": "2024-11-11T14:44:51.175Z",
-    "Vulnerabilities": [
-        {
-            "Cvss": [
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "NVD",
-                    "Version": "3.1"
-                },
-                {
-                    "BaseScore": 7.5,
-                    "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
-                    "Source": "UBUNTU_CVE",
-                    "Version": "3.1"
-                }
-            ],
-            "EpssScore": 0.01559,
-            "ExploitAvailable": "NO",
-            "FixAvailable": "YES",
-            "Id": "CVE-2021-3737",
-            "ReferenceUrls": [
-                "https://ubuntu.com/security/notices/USN-5083-1",
-                "https://ubuntu.com/security/notices/USN-5201-1",
-                "https://ubuntu.com/security/notices/USN-5200-1",
-                "https://ubuntu.com/security/notices/USN-6891-1",
-                "https://bugs.python.org/issue44022",
-                "https://www.cve.org/CVERecord?id=CVE-2021-3737",
-                "https://ubuntu.com/security/notices/USN-5199-1"
-            ],
-            "RelatedVulnerabilities": [
-                "USN-5200-1",
-                "USN-5201-1",
-                "USN-5083-1",
-                "USN-6891-1",
-                "USN-5199-1"
-            ],
-            "Vendor": {
-                "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
-                "VendorSeverity": "medium",
-                "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
-                "Name": "UBUNTU_CVE"
-            },
-            "VulnerablePackages": [
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10"
-                },
-                {
-                    "Architecture": "X86_64",
-                    "PackageManager": "OS",
-                    "Version": "3.10.6",
-                    "Epoch": "0",
-                    "FixedInVersion": "0:3.10.12-1~22.04.4",
-                    "Remediation": "apt-get update && apt-get upgrade",
-                    "Release": "1~22.04.2ubuntu1.1",
-                    "Name": "python3.10-minimal"
-                }
-            ]
-        }
-    ],
-    "Workflow": {
-        "Status": "NEW"
-    },
-    "WorkflowState": "NEW"
+    "ProcessedAt": "2024-07-17T12:36:18.763Z",
+    "AwsAccountName": "base-client"
   }
 ]

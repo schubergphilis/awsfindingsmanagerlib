@@ -1,6 +1,0 @@
-# Comments
-Rules:
-  - note: 'I also like to live dangerously'
-    action: 'SUPPRESSED'
-    match_on:
-      security_control_id: 'IAM.19'
