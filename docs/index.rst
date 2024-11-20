@@ -3,52 +3,127 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+===================
 awsfindingsmanagerlib
-*********************
+===================
 
-*Focus on what matters.*
-
-Automated scanning and finding consolidation is a cornerstone in evaluating your security posture.
-AWS Security Hub is the native solution to preform this in job in AWS.
-As with any scanning and reporting tool, the amount of findings it generates can be overwhelming at first.
-Also, you may find that some findings are not relevant or have less urgency to fix in your specific situation.
-
-**awsfindingsmanagerlib** suppresses findings based on a ruleset you define.
 
 Quickstart
 ==========
+
+Installation
+------------
 
 Install with your favorite Python package manager like::
 
   pip install awsfindingsmanagerlib
 
-Define what you don't want to bother you anymore, for example:
+
+Define Your Rules
+-----------------
+
+You can define rules in multiple ways, the most common are:
+
+1. **Using a YAML File**
+
+Create a YAML file, such as ``rules.yaml``, defining the findings you want to suppress. For example:
 
 .. code-block:: yaml
 
   Rules:
-    - note: Mom said it's okay to ignore
+    - note: Suppress DynamoDB Autoscaling findings
       action: SUPPRESSED
       match_on:
-        security_control_id: GuardDuty.1
+        security_control_id: DynamoDB.1
+    - note: Suppress findings for development resources
+      action: SUPPRESSED
+      match_on:
+        tags:
+          - key: env
+            value: dev
 
-Save and serve your ruleset, for example locally as ``suppressions.yaml`` and with ``python3 -m http.server``.
-(More logical/advanced ways of getting your suppressions to your findings manager are covered later.)
-Then you should be able to run the following Python code;
-provided your AWS credentials allow
-``ec2:DescribeRegions``, ``securityhub:GetFindings`` and ``securityhub:BatchUpdateFindings``.
+
+Host the file on an HTTP server (e.g., using ``python3 -m http.server``) or use it directly in your project.
 
 .. code-block:: python
 
   from awsfindingsmanagerlib import FindingsManager, Http
 
-  http_backend = Http('http://localhost:8000/suppressions.yaml')
+  http_backend = Http('http://localhost:8000/rules.yaml')
 
   findings_manager = FindingsManager('eu-west-1')
   findings_manager.register_rules(http_backend.get_rules())
   findings_manager.suppress_matching_findings()
 
 And zip 🤐 all noise is silenced.
+
+2. **Programmatically with `register_rule`**
+
+If you prefer a more dynamic approach, you can define rules programmatically using the ``register_rule`` method:
+
+.. code-block:: python
+
+  from awsfindingsmanagerlib import FindingsManager
+
+  findings_manager = FindingsManager('eu-west-1')
+  findings_manager.register_rule(
+    note="Suppress DynamoDB Autoscaling findings",
+    action="SUPPRESSED",
+    match_on={"security_control_id": "DynamoDB.1"}
+  )
+  findings_manager.suppress_matching_findings()
+
+And zip 🤐 all noise is silenced.
+
+
+Rule Syntax
+===========
+
+Rules in your YAML file follow this general syntax:
+
+.. code-block:: yaml
+
+  Rules:
+    - note: 'str' # A descriptive note for the rule
+      action: 'SUPPRESSED'
+      match_on:
+        security_control_id: 'str'
+        rule_or_control_id: 'str'
+        product_name: 'str'
+        title: 'str' 
+        tags:
+          - key: 'str'
+            value: 'str'
+        resource_id_regexps:
+          - 'regex'
+
+**When Suppressing Native Security Hub Findings**:
+
+Specify either ``security_control_id`` or ``rule_or_control_id`` — but not both!.
+
+*If ``rule_or_control_id`` is used, ensure that "consolidated control findings" is disabled in AWS Security Hub.*
+
+**When Suppressing Findings from AWS Security Hub Service Integrations**:
+
+Specify both ``product_name`` and ``title``. 
+The ``product_name`` field must match the name of the product that created the finding (e.g., Inspector). 
+The ``title`` field must match the title of the finding.
+Read the `AWS service integrations <https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-internal-providers.html#internal-integrations-summary>`_ page for all the supported integrations.
+
+**Additional Filters**:
+
+Either ``tags`` or ``resource_id_regexps`` (or both) can be provided to ensure precise matching.
+
+
+Valid Credentials
+==============================
+
+To ensure successful operation, your AWS credentials must include the following permissions:
+
+- ``ec2:DescribeRegions``
+- ``securityhub:GetFindings``
+- ``securityhub:BatchUpdateFindings``
+
 
 Why use awsfindingsmanagerlib?
 ==============================
@@ -122,44 +197,44 @@ Re-suppressing these findings each time manually is error-prone and can eventual
 To reduce errors further, we recommend storing your suppressions file in a VCS and suppressing in full automation.
 (See below for our :ref:`reference implementation <reference-implementation>`.)
 
-"I use Splunk, Datadog, OpenSearch, AWS Security Hub Automations etc., instead"
--------------------------------------------------------------------------------
 
-The tools above can be divided in AWS Security Hub Automations and third-party tooling.
-We think this lib provides something both categories do not offer.
-First, we'll cover third-party tooling.
+Third-Party Tools
+-----------------
 
-It's generally a good idea to handle an event as close to the source as possible.
-Therefore, we think it's better to suppress findings in AWS Security Hub instead of filtering in third-party tooling.
-There is certainly something to be said for creating aggregation views in such tools, especially in a multi-cloud environment.
-Still, you will more easily create a comprehensive view in any third-party tool if only the relevant data is sent there.
-On top of that, it will save save you money from storage and increase your search speed.
+While tools like Splunk, Datadog, and OpenSearch excel at aggregation and analysis, managing findings **at the source** in AWS Security Hub offers significant advantages. Suppressing irrelevant findings within AWS Security Hub ensures:
 
-AWS Security Hub Automations is AWS' native solution for exactly the same job as this lib.
-However, we think this lib provides usability features that make it a better choice.
-Most importantly, this lib allows you to suppress based on multiple combinations of property values in one rule.
-As in the example above, you can suppress a single check for multiple resources.
-In Automations this would require multiple rules.
+- Only relevant data is forwarded to third-party tools, reducing noise and enhancing visibility.
+- Lower costs due to reduced storage requirements and improved query performance.
 
-Maybe a counter-intuitive strong point of this lib is that the resource matching supports regex.
-Regex has its obvious readability issues, but it's far more flexible than Automations' filter: prefix/suffix.
-Imagine want to suppress for a resource collection in your dev/test accounts.
-With regex you can write something like:
+
+AWS Security Hub Automations
+----------------------------
+
+AWS Security Hub Automations is AWS's native solution for managing findings. However, it has several limitations that can hinder its effectiveness in large or complex environments:
+
+Rule Count
+----------
+Automations are limited to **100 rules**, which can quickly become insufficient in large environments. Each unique suppression scenario often requires its own rule, leading to a rapid depletion of the rule quota.
+
+Flexibility
+-----------
+Automations lack support for **regex** or **multi-property rules**, making them less flexible for complex suppression needs. For example, suppressing a specific check across multiple resources in Automations requires creating multiple rules. 
+
+With regex, you can achieve the same result with a single, concise rule. For instance, to suppress findings for Lambda functions in specific dev/test accounts, you could use:
+
 `arn:aws:lambda:eu-central-1:(1234567890|2345678901):function:(client-a|client-b|client-c)`
-With Automations you would have to write multiple rules for this.
 
-Observant readers will realize that up until now we only listed readability issues.
-We think that readability is a big thing, especially because suppressions should be regularly reviewed.
-Those reviews are likely carried out by someone else than the one who wrote them.
+In Automations, this scenario would require separate rules for each permutation, increasing rule count and reducing manageability.
 
-Not convinced by readability alone?
-Automations has a 100 rule limit.
-That limit fills up quickly if you have to a rule for every permutation without support for regex and multiple property combination.
-In an organization's audit account it's probably impossible to work with.
+Retroactive Suppression
+-----------------------
+Unlike Automations, this library supports **retroactive suppression**, allowing you to address findings from the past. This eliminates the need to wait for the 90-day retention period to expire before irrelevant findings stop cluttering your dashboard.
 
-Finally, this lib can suppress findings from the past if you want.
-Automations can only work with findings in the future.
-With this lib you don't have to wait the 90 days findings retention time before your dashboard stops blaring at you.
+Readability
+-----------
+While regex has some inherent readability challenges, it offersmore flexibility than Automations' filter: prefix/suffix. This flexibility reduces the number of rules required, simplifying suppression management. Additionally, suppressions should be regularly reviewed, often by someone other than the original author. A well-structured regex rule can still be easier to manage than dozens of fragmented rules in Automations.
+
+
 
 .. _reference-implementation:
 
@@ -186,8 +261,8 @@ Contents
    authors
    history
 
-Indices and tables
-------------------
+Indices and Tables
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
