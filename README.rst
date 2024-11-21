@@ -2,11 +2,16 @@
 awsfindingsmanagerlib
 =====================
 
-A library to manage findings in AWS.
+Automated scanning and finding consolidation is a cornerstone in evaluating your security posture.
+AWS Security Hub is the native solution to perform this job in AWS.
+As with any scanning and reporting tool, the amount of findings it generates can be overwhelming at first.
+Also, you may find that some findings are not relevant or have less urgency to fix in your specific situation.
 
+awsfindingsmanagerlib is a framework designed to automatically manage findings recorded by the AWS Security Hub service including it's `AWS service integrations <https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-internal-providers.html#internal-integrations-summary>`_ based on a pre-defined and configurable rules list. 
+At its core, awsfindingsmanagerlib aims to reduce noise and help you prioritize real security issues. 
+Currently, it supports suppressing findings, ensuring you can manage irrelevant or less urgent findings effectively.
 
-* Documentation: https://awsfindingsmanagerlib.readthedocs.org/en/latest
-
+**Documentation: https://awsfindingsmanagerlib.readthedocs.org/en/latest**
 
 Development Workflow
 ====================
@@ -59,14 +64,6 @@ So when building a package out of this **do not** simple call
 
 **as this will produce an unusable artifact with files missing.**
 Instead use the provided build and upload scripts that create all the necessary files in the artifact.
-
-
-
-Project Features
-================
-
-* TODO
-
 
 
 License info
