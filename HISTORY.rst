@@ -51,3 +51,9 @@ History
 
 * Bump template python version to 3.12.
 * Bugfixes.
+
+
+1.1.0 (21-11-2024)
+------------------
+
+* Adds support for SecurityHub Integration findings
