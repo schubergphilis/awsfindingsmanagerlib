@@ -56,4 +56,4 @@ History
 1.1.0 (21-11-2024)
 ------------------
 
-* 
+* Adds support for SecurityHub Integration findings
