@@ -3,7 +3,7 @@ awsfindingsmanagerlib
 =====================
 
 Automated scanning and finding consolidation is a cornerstone in evaluating your security posture.
-AWS Security Hub is the native solution to preform this in job in AWS.
+AWS Security Hub is the native solution to perform this job in AWS.
 As with any scanning and reporting tool, the amount of findings it generates can be overwhelming at first.
 Also, you may find that some findings are not relevant or have less urgency to fix in your specific situation.
 
