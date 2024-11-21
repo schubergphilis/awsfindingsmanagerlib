@@ -32,6 +32,7 @@ from awsfindingsmanagerlib import FindingsManager as FindingsManagerToMock
 from unittest.mock import MagicMock
 from unittest import TestCase
 from typing import List
+import json
 
 __author__ = '''Carlo van Overbeek <cvanoverbeek@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -43,6 +44,19 @@ __maintainer__ = '''Carlo van Overbeek'''
 __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
+with open('tests/fixtures/matching_findings.json', encoding='utf-8') as matching_findings_file:
+    findings_fixture = json.load(matching_findings_file)
+    with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
+        findings_fixture.extend(json.load(non_matching_findings_file))
+
+with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
+    non_matching_findings_fixture = json.load(non_matching_findings_file)
+
+with open('tests/fixtures/expected_matched_findings.json', encoding='utf-8') as expected_matched_findings_file:
+    expected_matched_findings_fixture = json.load(expected_matched_findings_file)
+
+with open('tests/fixtures/expected_batch_update_findings.json', encoding='utf-8') as batch_update_file:
+    expected_batch_update_findings = json.load(batch_update_file)
 
 class FindingsManager(FindingsManagerToMock):
 
@@ -58,9 +72,8 @@ class FindingsManager(FindingsManagerToMock):
     def _get_sts_client():
         return MagicMock()
 
-
 class FindingsManagerTestCase(TestCase):
-    backend_file = './tests/fixtures/suppressions/multiple.yaml'
+    backend_file = './tests/fixtures/rules.yaml'
 
     def setUp(self) -> None:
         local_backend = Local(self.backend_file)
@@ -93,3 +106,27 @@ class FindingsManagerTestCase(TestCase):
                     continue
             else:
                 self.assertTrue(False, f'expected call not found: {expected}')
+
+def batch_update_findings_mock(_, payload):
+    return (True, payload)   
+
+def mock_security_hub_query_response(*_, **kwargs):
+    findings_by_identifier_fixture = {}
+    for finding in findings_fixture:
+        if 'Compliance' in finding and 'SecurityControlId' in finding['Compliance']:
+            identifier = finding['Compliance']['SecurityControlId']
+        elif 'ControlId' in finding['ProductFields']:
+            identifier = finding['ProductFields']['ControlId']
+        else:
+            identifier = finding['ProductName']
+        findings_by_identifier_fixture.setdefault(identifier, [])
+        findings_by_identifier_fixture[identifier].append(finding)
+    
+    if 'ComplianceSecurityControlId' in kwargs['query_filter']:
+        return [{'Findings': findings_by_identifier_fixture[kwargs['query_filter']['ComplianceSecurityControlId'][0]['Value']]}]
+    elif 'ProductFields' in kwargs['query_filter']:
+        return [{'Findings': findings_by_identifier_fixture[kwargs['query_filter']['ProductFields'][0]['Value']]}]
+    elif 'ProductName' in kwargs['query_filter']:
+        return [{'Findings': findings_by_identifier_fixture[kwargs['query_filter']['ProductName'][0]['Value']]}]
+    else:
+        return [{'Findings': []}]

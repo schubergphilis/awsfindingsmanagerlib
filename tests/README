@@ -1,1 +1,11 @@
 Please place testing code here. The name should be: test_<package name>.py
+
+## Testing Suppressions
+
+The tests for suppressions follow these basic principles:
+
+- The test suppression rules can be found in `fixtures/suppression.yaml`.
+- Findings that should be matched against the suppression rules can be found in `fixtures/matching_findings.json`.
+- Findings that should NOT be matched with any suppression rule can be found in `fixtures/non_matching_findings.json`.
+- The expected match result between findings and rules can be found in `fixtures/expected_matched_findings.json`.
+- The expected suppression requests sent to Security Hub can be found in `fixtures/expected_batch_update_findings.json`.

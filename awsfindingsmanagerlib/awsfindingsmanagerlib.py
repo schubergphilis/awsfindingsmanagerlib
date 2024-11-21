@@ -338,9 +338,9 @@ class Finding:
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
 
-        If any of control_id, security_control_id, rule_id or product_name attributes match between the rule and the
-        finding and the rule does not have any filtering attributes like resource_id_regexps or tags then it is
-        considered a match. (Big blast radius) only matching on the control or product.
+        If any of control_id, security_control_id, rule_id or product_name and title attributes match between the
+        rule and the finding and the rule does not have any filtering attributes like resource_id_regexps or tags
+        then it is considered a match. (Big blast radius) only matching on the control or product.
 
         If the rule has any attributes like resource_id_regexps or tags then a secondary match is searched for any of
         them with the corresponding finding attributes. If any match is found then the rule is found matching if none
@@ -363,14 +363,14 @@ class Finding:
                               rule.security_control_id),
             self.match_if_set(self.control_id, rule.rule_or_control_id),
             self.match_if_set(self.rule_id, rule.rule_or_control_id),
-            self.match_if_set(self.product_name, rule.product_name),
+            all([
+                self.match_if_set(self.product_name, rule.product_name),
+                self.match_if_set(self.title, rule.title),
+            ])
         ]):
             self._logger.debug(
-                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id, product_name"')
-            if self.match_if_set(self.title, rule.title):
-                self._logger.debug(
-                    f'Matched with rule "{rule.note}" on title.')
-                return True
+                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id" or \
+                    "product_name" and "title"')
             if not any([rule.tags, rule.resource_id_regexps]):
                 self._logger.debug(
                     f'Rule "{rule.note}" does not seem to have filters for resources or tags.')

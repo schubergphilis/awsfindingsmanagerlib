@@ -1,0 +1,433 @@
+[
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-west-1:1234567890:security-control/GuardDuty.1/finding/bbfe351f-dc6b-4ea3-9ece-08934a88798d",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-west-1",
+        "GeneratorId": "security-control/GuardDuty.1",
+        "AwsAccountId": "1234567890",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2023-11-21T08:22:16.054Z",
+        "LastObservedAt": "2024-06-24T09:00:51.562Z",
+        "CreatedAt": "2023-11-21T08:22:16.054Z",
+        "UpdatedAt": "2024-06-24T09:00:45.686Z",
+        "Severity": {
+            "Label": "HIGH",
+            "Normalized": 70,
+            "Original": "HIGH"
+        },
+        "Title": "GuardDuty should be enabled",
+        "Description": "This AWS control checks whether Amazon GuardDuty is enabled in your AWS account and region.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-guardduty-enabled-centralized-c07f55ef",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "aws/securityhub/annotation": "Amazon GuardDuty is not configured.",
+            "Resources:0/Id": "arn:aws:iam::1234567890:root",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:1234567890:security-control/GuardDuty.1/finding/bbfe351f-dc6b-4ea3-9ece-08934a88798d"
+        },
+        "Resources": [
+            {
+                "Type": "AwsAccount",
+                "Id": "AWS::::Account:1234567890",
+                "Partition": "aws",
+                "Region": "eu-west-1"
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "RelatedRequirements": [
+                "PCI DSS v3.2.1/11.4"
+            ],
+            "SecurityControlId": "GuardDuty.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                },
+                {
+                    "StandardsId": "standards/pci-dss/v/3.2.1"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "SUPPRESSED"
+        },
+        "RecordState": "ACTIVE",
+        "Note": {
+            "Text": "Maybe later",
+            "UpdatedBy": "FindingsManager",
+            "UpdatedAt": "2024-06-24T12:45:06.677Z"
+        },
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "HIGH",
+                "Original": "HIGH"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2024-06-24T12:45:06.702Z",
+        "AwsAccountName": "account1"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-west-1:2345678901:security-control/GuardDuty.1/finding/a32acb1c-8a92-4122-b32a-5b35e71d0a6e",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-west-1",
+        "GeneratorId": "security-control/GuardDuty.1",
+        "AwsAccountId": "2345678901",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2023-11-21T08:43:17.051Z",
+        "LastObservedAt": "2024-06-24T08:27:57.806Z",
+        "CreatedAt": "2023-11-21T08:43:17.051Z",
+        "UpdatedAt": "2024-06-24T08:27:43.972Z",
+        "Severity": {
+            "Label": "HIGH",
+            "Normalized": 70,
+            "Original": "HIGH"
+        },
+        "Title": "GuardDuty should be enabled",
+        "Description": "This AWS control checks whether Amazon GuardDuty is enabled in your AWS account and region.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/GuardDuty.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-guardduty-enabled-centralized-e9e5d5d1",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "aws/securityhub/annotation": "Amazon GuardDuty is not configured.",
+            "Resources:0/Id": "arn:aws:iam::2345678901:root",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:2345678901:security-control/GuardDuty.1/finding/a32acb1c-8a92-4122-b32a-5b35e71d0a6e"
+        },
+        "Resources": [
+            {
+                "Type": "AwsAccount",
+                "Id": "AWS::::Account:2345678901",
+                "Partition": "aws",
+                "Region": "eu-west-1"
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "RelatedRequirements": [
+                "PCI DSS v3.2.1/11.4"
+            ],
+            "SecurityControlId": "GuardDuty.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                },
+                {
+                    "StandardsId": "standards/pci-dss/v/3.2.1"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "SUPPRESSED"
+        },
+        "RecordState": "ACTIVE",
+        "Note": {
+            "Text": "Maybe later",
+            "UpdatedBy": "FindingsManager",
+            "UpdatedAt": "2024-06-24T12:45:06.677Z"
+        },
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "HIGH",
+                "Original": "HIGH"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2024-06-24T12:45:06.706Z",
+        "AwsAccountName": "account2"
+    },
+    {
+        "AwsAccountId": "012345678912",
+        "AwsAccountName": "account",
+        "CompanyName": "Amazon",
+        "CreatedAt": "2024-11-11T14:40:00.016Z",
+        "Description": "A flaw was found in python. An improperly handled HTTP response in the HTTP client code of python may allow a remote attacker, who controls the HTTP server, to make the client script enter an infinite loop, consuming CPU time. The highest threat from this vulnerability is to system availability.",
+        "FindingProviderFields": {
+            "Types": [
+                "Software and Configuration Checks/Vulnerabilities/CVE"
+            ],
+            "Severity": {
+                "Normalized": 70,
+                "Label": "HIGH"
+            }
+        },
+        "FirstObservedAt": "2024-11-11T14:40:00.016Z",
+        "GeneratorId": "AWSInspector",
+        "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/m58hv3b9d83b0ee89c7140b30eed55kv",
+        "LastObservedAt": "2024-11-11T14:40:00.016Z",
+        "ProcessedAt": "2024-11-11T14:45:08.567Z",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
+        "ProductFields": {
+            "aws/inspector/ProductVersion": "2",
+            "aws/inspector/FindingStatus": "CLOSED",
+            "aws/inspector/inspectorScore": "7.5",
+            "aws/inspector/instanceId": "i-01e8db61387e018b4",
+            "aws/inspector/resources/1/resourceDetails/awsEc2InstanceDetails/platform": "UBUNTU_22_04",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/inspector/arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
+            "aws/securityhub/ProductName": "Inspector",
+            "aws/securityhub/CompanyName": "Amazon"
+        },
+        "ProductName": "Inspector",
+        "RecordState": "ARCHIVED",
+        "Region": "eu-west-1",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "Remediation is available. Please refer to the Fixed version in the vulnerability details section above.For detailed remediation guidance for each of the affected packages, refer to the vulnerabilities section of the detailed finding JSON."
+            }
+        },
+        "Resources": [
+            {
+                "Details": {
+                    "AwsLambdaFunction": {
+                        "LastModified": "2024-11-18T15:44:49.000Z",
+                        "Role": "arn:aws:iam::012345678912:role/MyLambdaRole",
+                        "FunctionName": "my-lambda-function",
+                        "Runtime": "PYTHON_3_9",
+                        "Version": "$LATEST",
+                        "VpcConfig": {
+                            "VpcId": "vpc-0dc65cacb70bc5d71",
+                            "SubnetIds": [
+                                "subnet-08946011afffcfa56"
+                            ],
+                            "SecurityGroupIds": [
+                                "sg-083a41c038a94aebc"
+                            ]
+                        },
+                        "PackageType": "ZIP",
+                        "CodeSha256": "Nmr6MtHQ9qO0uD97mA/vAyfDh590xqy77R0141mmxbM=",
+                        "Layers": [
+                            {
+                                "Arn": "arn:aws:lambda:eu-west-1:012345678912:layer:my-layer:206"
+                            }
+                        ],
+                        "Architectures": [
+                            "X86_64"
+                        ]
+                    }
+                },
+                "Id": "arn:aws:lambda:eu-west-1:012345678912:function:my-lambda-function:$LATEST",
+                "Partition": "aws",
+                "Region": "eu-west-1",
+                "Tags": {
+                    "FunctionName": "my-lambda-function"
+                },
+                "Type": "AwsLambdaFunction"
+            }
+        ],
+        "SchemaVersion": "2018-10-08",
+        "Severity": {
+            "Label": "HIGH",
+            "Normalized": 70
+        },
+        "Title": "CVE-2021-3737 - python3.10, python3.10-minimal",
+        "Types": [
+            "Software and Configuration Checks/Vulnerabilities/CVE"
+        ],
+        "UpdatedAt": "2024-11-11T14:44:51.175Z",
+        "Vulnerabilities": [
+            {
+                "Cvss": [
+                    {
+                        "BaseScore": 7.5,
+                        "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "Source": "UBUNTU_CVE",
+                        "Version": "3.1"
+                    },
+                    {
+                        "BaseScore": 7.5,
+                        "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "Source": "NVD",
+                        "Version": "3.1"
+                    },
+                    {
+                        "BaseScore": 7.5,
+                        "BaseVector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+                        "Source": "UBUNTU_CVE",
+                        "Version": "3.1"
+                    }
+                ],
+                "EpssScore": 0.01559,
+                "ExploitAvailable": "NO",
+                "FixAvailable": "YES",
+                "Id": "CVE-2021-3737",
+                "ReferenceUrls": [
+                    "https://ubuntu.com/security/notices/USN-5083-1",
+                    "https://ubuntu.com/security/notices/USN-5201-1",
+                    "https://ubuntu.com/security/notices/USN-5200-1",
+                    "https://ubuntu.com/security/notices/USN-6891-1",
+                    "https://bugs.python.org/issue44022",
+                    "https://www.cve.org/CVERecord?id=CVE-2021-3737",
+                    "https://ubuntu.com/security/notices/USN-5199-1"
+                ],
+                "RelatedVulnerabilities": [
+                    "USN-5200-1",
+                    "USN-5201-1",
+                    "USN-5083-1",
+                    "USN-6891-1",
+                    "USN-5199-1"
+                ],
+                "Vendor": {
+                    "VendorCreatedAt": "2022-03-04T19:15:00.000Z",
+                    "VendorSeverity": "medium",
+                    "Url": "https://people.canonical.com/~ubuntu-security/cve/2021/CVE-2021-3737.html",
+                    "Name": "UBUNTU_CVE"
+                },
+                "VulnerablePackages": [
+                    {
+                        "Architecture": "X86_64",
+                        "PackageManager": "OS",
+                        "Version": "3.10.6",
+                        "Epoch": "0",
+                        "FixedInVersion": "0:3.10.12-1~22.04.4",
+                        "Remediation": "apt-get update && apt-get upgrade",
+                        "Release": "1~22.04.2ubuntu1.1",
+                        "Name": "python3.10"
+                    },
+                    {
+                        "Architecture": "X86_64",
+                        "PackageManager": "OS",
+                        "Version": "3.10.6",
+                        "Epoch": "0",
+                        "FixedInVersion": "0:3.10.12-1~22.04.4",
+                        "Remediation": "apt-get update && apt-get upgrade",
+                        "Release": "1~22.04.2ubuntu1.1",
+                        "Name": "python3.10-minimal"
+                    }
+                ]
+            }
+        ],
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "WorkflowState": "NEW"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/bcf36529-ad44-4d0e-9e34-647920c266e1",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-west-1",
+        "GeneratorId": "security-control/S3.9",
+        "AwsAccountId": "988763490897",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2024-07-24T19:05:01.147Z",
+        "LastObservedAt": "2024-07-24T19:05:15.610Z",
+        "CreatedAt": "2024-07-24T19:05:01.147Z",
+        "UpdatedAt": "2024-07-24T19:05:01.147Z",
+        "Severity": {
+            "Label": "MEDIUM",
+            "Normalized": 40,
+            "Original": "MEDIUM"
+        },
+        "Title": "S3 general purpose buckets should have server access logging enabled",
+        "Description": "This control checks whether server access logging is enabled for an Amazon S3 general purpose bucket. The control fails if server access logging isn't enabled. When logging is enabled, Amazon S3 delivers access logs for a source bucket to a chosen target bucket. The target bucket must be in the same AWS Region as the source bucket and must not have a default retention period configured. The target logging bucket does not need to have server access logging enabled, and you should suppress findings for this bucket.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/S3.9/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-s3-bucket-logging-enabled-a2569319",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "Resources:0/Id": "arn:aws:s3:::boeket-prd",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-west-1::product/aws/securityhub/arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/bcf36529-ad44-4d0e-9e34-647920c266e1"
+        },
+        "Resources": [
+            {
+                "Type": "AwsS3Bucket",
+                "Id": "arn:aws:s3:::boeket-prd",
+                "Partition": "aws",
+                "Region": "eu-west-1",
+                "Tags": {
+                    "ManagedBy": "Terraform"
+                },
+                "Details": {
+                    "AwsS3Bucket": {
+                        "OwnerId": "2240facc0082445db039bc31ec992cbbcbdc1f0f703d4f3dac0f91273a05d33f",
+                        "CreatedAt": "2024-07-24T19:02:52.000Z",
+                        "Name": "boeket-prd"
+                    }
+                }
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "RelatedRequirements": [
+                "NIST.800-53.r5 AC-2(4)",
+                "NIST.800-53.r5 AC-4(26)",
+                "NIST.800-53.r5 AC-6(9)",
+                "NIST.800-53.r5 AU-10",
+                "NIST.800-53.r5 AU-12",
+                "NIST.800-53.r5 AU-2",
+                "NIST.800-53.r5 AU-3",
+                "NIST.800-53.r5 AU-6(3)",
+                "NIST.800-53.r5 AU-6(4)",
+                "NIST.800-53.r5 CA-7",
+                "NIST.800-53.r5 SC-7(9)",
+                "NIST.800-53.r5 SI-3(8)",
+                "NIST.800-53.r5 SI-4(20)",
+                "NIST.800-53.r5 SI-7(8)"
+            ],
+            "SecurityControlId": "S3.9",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                },
+                {
+                    "StandardsId": "standards/nist-800-53/v/5.0.0"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ACTIVE",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "MEDIUM",
+                "Original": "MEDIUM"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2024-07-24T19:05:18.542Z",
+        "AwsAccountName": "watcher"
+    }
+]

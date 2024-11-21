@@ -28,8 +28,15 @@ Tests for `awsfindingsmanagerlib` module.
 """
 
 from unittest.mock import patch, MagicMock
-from .utils import FindingsManagerTestCase
-import json
+from .utils import (
+    FindingsManagerTestCase,
+    mock_security_hub_query_response,
+    batch_update_findings_mock,
+    findings_fixture,
+    non_matching_findings_fixture,
+    expected_matched_findings_fixture,
+    expected_batch_update_findings,
+)
 
 __author__ = '''Carlo van Overbeek <cvanoverbeek@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -41,118 +48,53 @@ __maintainer__ = '''Carlo van Overbeek'''
 __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-
-with open('tests/fixtures/findings/api_consolidated.json', encoding='utf-8') as findings_file:
-    api_consolidated_findings_fixture = json.load(findings_file)
-
-with open('tests/fixtures/findings/gui_legacy.json', encoding='utf-8') as findings_file:
-    gui_legacy_findings_fixture = json.load(findings_file)
-
-with open('tests/fixtures/batch_update_findings.json', encoding='utf-8') as updates_file:
-    batch_update_findings_fixture = json.load(updates_file)
-
-with open('tests/fixtures/batch_update_findings_full.json', encoding='utf-8') as updates_file:
-    batch_update_findings_full_fixture = json.load(updates_file)
-
-full_findings_fixture = []
-for identifier in ['S3.8', 'S3.9', 'S3.14', 'S3.20', 'Inspector']:
-    for env in ['dev', 'acc', 'prd']:
-        with open(f'tests/fixtures/findings/full/{identifier}/{env}.json', encoding='utf-8') as findings_file:
-            full_findings_fixture.append(json.load(findings_file))
-
-# this one goes together with a query based on suppressions/full.yaml
-findings_by_identifier_fixture = {}
-# there is no id S3.8 suppression in suppressions/full.yaml
-for identifier in ['S3.9', 'S3.14', 'S3.20', 'Inspector']:
-    findings_by_identifier_fixture[identifier] = []
-    # a query with tags already filters out the non-conforming ones,
-    # hence no dev for S3.14
-    for env in ['dev', 'acc', 'prd'] if identifier != 'S3.14' else ['acc', 'prd']:
-        with open(f'tests/fixtures/findings/full/{identifier}/{env}.json', encoding='utf-8') as findings_file:
-            findings_by_identifier_fixture[identifier].append(
-                json.load(findings_file))
-
-with open('tests/fixtures/matches.json', encoding='utf-8') as matches_file:
-    full_matches_fixture = json.load(matches_file)
-
-
-def batch_update_findings_mock(_, payload):
-    return (True, payload)
-
-
-class TestValidation(FindingsManagerTestCase):
-    backend_file = './tests/fixtures/suppressions/single.yaml'
-
-    def test_basic_run(self):
-        self.assertEqual(
-            [],
-            self.findings_manager._construct_findings_on_matching_rules(
-                api_consolidated_findings_fixture['Findings'])
-        )
-
-
-class TestLegacyValidation(FindingsManagerTestCase):
-    backend_file = './tests/fixtures/suppressions/legacy.yaml'
-
-    def test_basic_run(self):
-        self.assertEqual(
-            [],
-            self.findings_manager._construct_findings_on_matching_rules(
-                gui_legacy_findings_fixture)
-        )
-
-
-class TestBasicRun(FindingsManagerTestCase):
-    @patch(
-        'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
-        lambda *_, **__: [api_consolidated_findings_fixture],
-    )
-    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
-        success, payloads = self.findings_manager.suppress_matching_findings()
-        self.assertTrue(success)
-        self.assert_batch_update_findings(
-            [batch_update_findings_fixture], payloads)
-
 class TestNoSuppressions(FindingsManagerTestCase):
-    backend_file = './tests/fixtures/suppressions/empty.yaml'
+    backend_file = './tests/fixtures/rules_empty.yaml'
 
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
-        lambda *_, **__: [api_consolidated_findings_fixture],
+        lambda *_, **__: [{'Findings': findings_fixture}],
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
+    def test_can_run_empty_rules(self, _batch_update_findings_mocked: MagicMock):
+        "Test if having findings but no suppression rules returns an empty list."
         success, payloads = self.findings_manager.suppress_matching_findings()
         self.assertTrue(success)
         self.assertListEqual([], payloads)
 
-class TestFullSuppressions(FindingsManagerTestCase):
-    backend_file = './tests/fixtures/suppressions/full.yaml'
+class TestSuppressions(FindingsManagerTestCase):
+    def test_can_ignore_non_suppressed_findings(self):
+        """Test if having no matches between findings and suppression rules returns an empty list."""
+        self.assertEqual(
+            [],
+            self.findings_manager._construct_findings_on_matching_rules(non_matching_findings_fixture)
+        )
 
-    def test_validation(self):
-        self.assertEqual(full_matches_fixture,
-                         [dict(finding._data, matched_rule=finding._matched_rule._data)
-                          for finding in self.findings_manager._construct_findings_on_matching_rules(full_findings_fixture)]
-                         )
+    def test_can_match_suppressions_with_findings(self):
+        """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
+        matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
+                          for finding in self.findings_manager._construct_findings_on_matching_rules(findings_fixture)]
+        self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
+        for finding in matched_findings:
+            self.assertIn(finding, expected_matched_findings_fixture)
 
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_payload_construction(self, _batch_update_findings_mocked: MagicMock):
-        success, payloads = self.findings_manager.suppress_findings_on_matching_rules(
-            full_findings_fixture)
+    def test_can_suppress_using_events(self, _batch_update_findings_mocked: MagicMock):
+        """Test if can suppress based on findings events"""
+        success, suppression_updates = self.findings_manager.suppress_findings_on_matching_rules(
+            findings_fixture)
         self.assertTrue(success)
         self.assert_batch_update_findings(
-            batch_update_findings_full_fixture, payloads)
+            expected_batch_update_findings, suppression_updates)
 
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
-        lambda *_, **kwargs: [{
-            'Findings': findings_by_identifier_fixture[kwargs['query_filter']['ComplianceSecurityControlId'][0]['Value'] if 'ComplianceSecurityControlId' in kwargs['query_filter'] else kwargs['query_filter']['ProductName'][0]['Value']]
-        }],
+        mock_security_hub_query_response,
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_from_query(self, _batch_update_findings_mocked: MagicMock):
-        success, payloads = self.findings_manager.suppress_matching_findings()
+    def test_can_suppress_using_query(self, _batch_update_findings_mocked: MagicMock):
+        """Test if can suppress based on SecurityHub query results"""
+        success, suppression_updates = self.findings_manager.suppress_matching_findings()
         self.assertTrue(success)
         self.assert_batch_update_findings(
-            batch_update_findings_full_fixture, payloads)
+            expected_batch_update_findings, suppression_updates)
