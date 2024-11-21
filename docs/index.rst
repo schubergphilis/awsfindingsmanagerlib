@@ -232,7 +232,7 @@ Unlike Automations, this library supports **retroactive suppression**, allowing 
 
 Readability
 -----------
-While regex has some inherent readability challenges, it offersmore flexibility than Automations' filter: prefix/suffix. This flexibility reduces the number of rules required, simplifying suppression management. Additionally, suppressions should be regularly reviewed, often by someone other than the original author. A well-structured regex rule can still be easier to manage than dozens of fragmented rules in Automations.
+While regex has some inherent readability challenges, it offers more flexibility than Automations' filter: prefix/suffix. This flexibility reduces the number of rules required, simplifying suppression management. Additionally, suppressions should be regularly reviewed, often by someone other than the original author. A well-structured regex rule can still be easier to manage than dozens of fragmented rules in Automations.
 
 
 
