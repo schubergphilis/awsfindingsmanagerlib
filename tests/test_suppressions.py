@@ -49,28 +49,29 @@ __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 class TestNoSuppressions(FindingsManagerTestCase):
-    backend_file = './tests/fixtures/suppresions_empty.yaml'
+    backend_file = './tests/fixtures/rules_empty.yaml'
 
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
         lambda *_, **__: [{'Findings': findings_fixture}],
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_basic_run(self, _batch_update_findings_mocked: MagicMock):
+    def test_can_run_empty_rules(self, _batch_update_findings_mocked: MagicMock):
+        "Test if having findings but no suppression rules returns an empty list."
         success, payloads = self.findings_manager.suppress_matching_findings()
         self.assertTrue(success)
         self.assertListEqual([], payloads)
 
 class TestSuppressions(FindingsManagerTestCase):
     def test_can_ignore_non_suppressed_findings(self):
-        """Test that no findings are returned when there are no matching suppression rules."""
+        """Test if having no matches between findings and suppression rules returns an empty list."""
         self.assertEqual(
             [],
             self.findings_manager._construct_findings_on_matching_rules(non_matching_findings_fixture)
         )
 
     def test_can_match_suppressions_with_findings(self):
-        """Test that correct findings are returned based on matching suppression rules."""
+        """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
         matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
                           for finding in self.findings_manager._construct_findings_on_matching_rules(findings_fixture)]
         self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
@@ -79,7 +80,7 @@ class TestSuppressions(FindingsManagerTestCase):
 
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
     def test_can_suppress_using_events(self, _batch_update_findings_mocked: MagicMock):
-        """Test that can suppress based on findings events"""
+        """Test if can suppress based on findings events"""
         success, suppression_updates = self.findings_manager.suppress_findings_on_matching_rules(
             findings_fixture)
         self.assertTrue(success)
@@ -92,7 +93,7 @@ class TestSuppressions(FindingsManagerTestCase):
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
     def test_can_suppress_using_query(self, _batch_update_findings_mocked: MagicMock):
-        """Test that can suppress based on SecurityHub query results"""
+        """Test if can suppress based on SecurityHub query results"""
         success, suppression_updates = self.findings_manager.suppress_matching_findings()
         self.assertTrue(success)
         self.assert_batch_update_findings(

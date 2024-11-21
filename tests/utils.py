@@ -73,7 +73,7 @@ class FindingsManager(FindingsManagerToMock):
         return MagicMock()
 
 class FindingsManagerTestCase(TestCase):
-    backend_file = './tests/fixtures/suppressions.yaml'
+    backend_file = './tests/fixtures/rules.yaml'
 
     def setUp(self) -> None:
         local_backend = Local(self.backend_file)
