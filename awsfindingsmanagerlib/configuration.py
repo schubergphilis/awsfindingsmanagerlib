@@ -49,12 +49,12 @@ LOGGER.addHandler(logging.NullHandler())
 DEFAULT_SECURITY_HUB_FILTER = {
     'WorkflowStatus': [
         {
-            'Value': 'SUPPRESSED',
-            'Comparison': 'NOT_EQUALS'
+            'Value': 'NEW',
+            'Comparison': 'EQUALS'
         },
         {
-            'Value': 'RESOLVED',
-            'Comparison': 'NOT_EQUALS'
+            'Value': 'NOTIFIED',
+            'Comparison': 'EQUALS'
         }
     ]
 }
