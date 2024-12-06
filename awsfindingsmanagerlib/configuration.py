@@ -46,16 +46,18 @@ LOGGER_BASENAME = '''configuration'''
 LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
-DEFAULT_SECURITY_HUB_FILTER = {'ComplianceStatus': [
-    {
-        'Value': 'FAILED',
-        'Comparison': 'EQUALS'
-    },
-    {
-        'Value': 'WARNING',
-        'Comparison': 'EQUALS'
-    }
-]}
+DEFAULT_SECURITY_HUB_FILTER = {
+    'WorkflowStatus': [
+        {
+            'Value': 'NEW',
+            'Comparison': 'EQUALS'
+        },
+        {
+            'Value': 'NOTIFIED',
+            'Comparison': 'EQUALS'
+        }
+    ]
+}
 
 
 def get_available_security_hub_regions():
