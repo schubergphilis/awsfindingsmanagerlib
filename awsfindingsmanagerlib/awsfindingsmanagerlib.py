@@ -310,16 +310,16 @@ class Finding:
             resource_id_patterns: A list of resource ids regular expression patterns.
 
         Returns:
-            True if any match is found, False otherwise.
-            An empty resource_id_patterns list will always return True, like Security Hub does per resource.
+            True if any resource ID matches any pattern, or if patterns list is empty.
+            False otherwise, like Security Hub filters per resource.
 
         """
-        if resource_id_patterns:
-            return any(search(pattern, resource)
-                        for resource in self.resource_ids
-                        for pattern in resource_id_patterns)
-        else:
-            return True
+        return (
+            not resource_id_patterns
+            or any(search(pattern, resource)
+                   for resource in self.resource_ids
+                   for pattern in resource_id_patterns)
+        )
 
     def is_matching_tags(self, rule_tags) -> bool:
         """Iterates over all finding tags and checks if any match with any of the rule tags provided.
@@ -328,21 +328,20 @@ class Finding:
             rule_tags: A list of tags coming from a Rule match_on field.
 
         Returns:
-            True if any match is found, False otherwise.
-            An empty rule_tags list will always return True, like Security Hub does.
+            True if any finding tag key/value pair matches any rule tag key/value pair, or if the rule_tags is empty.
+            False otherwise, like Security Hub filters per key/value pairs.
 
         """
-        if rule_tags:
-            return any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
-                        for rule_tag in rule_tags
-                        for tag in self.tags)
-        else:
-            return True
-    
+        return (
+            not rule_tags
+            or any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
+                   for rule_tag in rule_tags
+                   for tag in self.tags)
+        )
+
     @staticmethod
     def match_if_left_set(left, right):
-        if left:
-            return left == right
+        return not left or left == right
 
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
@@ -565,7 +564,7 @@ class Rule:
 class FindingsManager:
     """Models security hub and can retrieve findings and suppress them."""
 
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  region: str = None,
                  allowed_regions: Optional[List[str]] = None,
