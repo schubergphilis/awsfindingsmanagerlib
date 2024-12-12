@@ -564,7 +564,7 @@ class Rule:
 class FindingsManager:
     """Models security hub and can retrieve findings and suppress them."""
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(self,
                  region: str = None,
                  allowed_regions: Optional[List[str]] = None,
