@@ -377,7 +377,7 @@ class Finding:
                 self.match_if_left_set(rule.rule_or_control_id, self.rule_id),
             ])
         ]):
-            self._logger.debug(f'Matched with rule "{rule.note}" with finding "{self.id}"')
+            self._logger.debug(f'Matched rule "{rule.note}" with finding "{self.id}"')
             return True
         return False
 
