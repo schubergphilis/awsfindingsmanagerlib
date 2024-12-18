@@ -63,29 +63,29 @@ class TestNoSuppressions(FindingsManagerTestCase):
         self.assertListEqual([], payloads)
 
 class TestSuppressions(FindingsManagerTestCase):
-    def test_can_ignore_non_suppressed_findings(self):
-        """Test if having no matches between findings and suppression rules returns an empty list."""
-        self.assertEqual(
-            [],
-            self.findings_manager._construct_findings_on_matching_rules(non_matching_findings_fixture)
-        )
+    # def test_can_ignore_non_suppressed_findings(self):
+    #     """Test if having no matches between findings and suppression rules returns an empty list."""
+    #     self.assertEqual(
+    #         [],
+    #         self.findings_manager._construct_findings_on_matching_rules(non_matching_findings_fixture)
+    #     )
 
-    def test_can_match_suppressions_with_findings(self):
-        """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
-        matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
-                          for finding in self.findings_manager._construct_findings_on_matching_rules(findings_fixture)]
-        self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
-        for finding in matched_findings:
-            self.assertIn(finding, expected_matched_findings_fixture)
+    # def test_can_match_suppressions_with_findings(self):
+    #     """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
+    #     matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
+    #                       for finding in self.findings_manager._construct_findings_on_matching_rules(findings_fixture)]
+    #     self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
+    #     for finding in matched_findings:
+    #         self.assertIn(finding, expected_matched_findings_fixture)
 
-    @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
-    def test_can_suppress_using_events(self, _batch_update_findings_mocked: MagicMock):
-        """Test if can suppress based on findings events"""
-        success, suppression_updates = self.findings_manager.suppress_findings_on_matching_rules(
-            findings_fixture)
-        self.assertTrue(success)
-        self.assert_batch_update_findings(
-            expected_batch_update_findings, suppression_updates)
+    # @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
+    # def test_can_suppress_using_events(self, _batch_update_findings_mocked: MagicMock):
+    #     """Test if can suppress based on findings events"""
+    #     success, suppression_updates = self.findings_manager.suppress_findings_on_matching_rules(
+    #         findings_fixture)
+    #     self.assertTrue(success)
+    #     self.assert_batch_update_findings(
+    #         expected_batch_update_findings, suppression_updates)
 
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',

@@ -27,6 +27,10 @@
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/db101219-4b19-4176-a660-490d30b7945d",
         "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/4b0d331f-2396-4663-847b-344126c3e780",
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
       }
     ],
     "Workflow": {
