@@ -48,8 +48,10 @@ with open('tests/fixtures/matching_findings.json', encoding='utf-8') as matching
     findings_fixture = json.load(matching_findings_file)
     with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
         findings_fixture.extend(json.load(non_matching_findings_file))
+    with open('tests/fixtures/extra.json', encoding='utf-8') as non_matching_findings_file:
+        findings_fixture.extend(json.load(non_matching_findings_file))
 
-with open('tests/fixtures/matching_findings2.json', encoding='utf-8') as matching_findings_file:
+with open('tests/fixtures/matching_findings.json', encoding='utf-8') as matching_findings_file:
     findings_fixture2 = json.load(matching_findings_file)
     with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
         findings_fixture2.extend(json.load(non_matching_findings_file))
