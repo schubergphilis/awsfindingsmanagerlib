@@ -32,7 +32,7 @@ from .utils import (
     FindingsManagerTestCase,
     mock_security_hub_query_response,
     batch_update_findings_mock,
-    findings_fixture,
+    all_findings_fixture,
     non_matching_findings_fixture,
     expected_matched_findings_fixture,
     expected_batch_update_findings,
@@ -53,7 +53,7 @@ class TestNoSuppressions(FindingsManagerTestCase):
 
     @patch(
         'awsfindingsmanagerlib.FindingsManager._get_security_hub_paginator_iterator',
-        lambda *_, **__: [{'Findings': findings_fixture}],
+        lambda *_, **__: [{'Findings': all_findings_fixture}],
     )
     @patch('awsfindingsmanagerlib.FindingsManager._batch_update_findings', side_effect=batch_update_findings_mock)
     def test_can_run_empty_rules(self, _batch_update_findings_mocked: MagicMock):
@@ -73,7 +73,7 @@ class TestSuppressions(FindingsManagerTestCase):
     def test_can_match_suppressions_with_findings(self):
         """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
         matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
-                          for finding in self.findings_manager._construct_findings_on_matching_rules(findings_fixture)]
+                          for finding in self.findings_manager._construct_findings_on_matching_rules(all_findings_fixture)]
         self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
         for finding in matched_findings:
             self.assertIn(finding, expected_matched_findings_fixture)
@@ -82,7 +82,7 @@ class TestSuppressions(FindingsManagerTestCase):
     def test_can_suppress_using_events(self, _batch_update_findings_mocked: MagicMock):
         """Test if can suppress based on findings events"""
         success, suppression_updates = self.findings_manager.suppress_findings_on_matching_rules(
-            findings_fixture)
+            all_findings_fixture)
         self.assertTrue(success)
         self.assert_batch_update_findings(
             expected_batch_update_findings, suppression_updates)

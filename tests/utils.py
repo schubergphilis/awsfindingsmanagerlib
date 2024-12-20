@@ -44,13 +44,22 @@ __maintainer__ = '''Carlo van Overbeek'''
 __email__ = '''<cvanoverbeek@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
-with open('tests/fixtures/matching_findings.json', encoding='utf-8') as matching_findings_file:
-    findings_fixture = json.load(matching_findings_file)
-    with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
-        findings_fixture.extend(json.load(non_matching_findings_file))
+query_matching_findings_fixture = []
+all_findings_fixture = []
 
 with open('tests/fixtures/non_matching_findings.json', encoding='utf-8') as non_matching_findings_file:
     non_matching_findings_fixture = json.load(non_matching_findings_file)
+
+with open('tests/fixtures/query_non_matching_findings.json', encoding='utf-8') as query_non_matching_findings_file:
+    query_non_matching_findings_fixture = json.load(query_non_matching_findings_file)
+
+with open('tests/fixtures/matching_findings.json', encoding='utf-8') as matching_findings_file:
+    matching_findings_fixture = json.load(matching_findings_file)
+
+query_matching_findings_fixture.extend(non_matching_findings_fixture)
+query_matching_findings_fixture.extend(matching_findings_fixture)
+all_findings_fixture.extend(query_matching_findings_fixture)
+all_findings_fixture.extend(query_non_matching_findings_fixture)
 
 with open('tests/fixtures/expected_matched_findings.json', encoding='utf-8') as expected_matched_findings_file:
     expected_matched_findings_fixture = json.load(expected_matched_findings_file)
@@ -112,7 +121,7 @@ def batch_update_findings_mock(_, payload):
 
 def mock_security_hub_query_response(*_, **kwargs):
     findings_by_identifier_fixture = {}
-    for finding in findings_fixture:
+    for finding in query_matching_findings_fixture:
         if 'Compliance' in finding and 'SecurityControlId' in finding['Compliance']:
             identifier = finding['Compliance']['SecurityControlId']
         elif 'ControlId' in finding['ProductFields']:
