@@ -310,12 +310,16 @@ class Finding:
             resource_id_patterns: A list of resource ids regular expression patterns.
 
         Returns:
-            True if any match is found, False otherwise.
+            True if any resource ID matches any pattern, or if patterns list is empty.
+            False otherwise, like Security Hub filters per resource.
 
         """
-        return any(search(pattern, resource)
+        return (
+            not resource_id_patterns
+            or any(search(pattern, resource)
                    for resource in self.resource_ids
                    for pattern in resource_id_patterns)
+        )
 
     def is_matching_tags(self, rule_tags) -> bool:
         """Iterates over all finding tags and checks if any match with any of the rule tags provided.
@@ -324,16 +328,20 @@ class Finding:
             rule_tags: A list of tags coming from a Rule match_on field.
 
         Returns:
-            True if any match is found, False otherwise.
+            True if any finding tag key/value pair matches any rule tag key/value pair, or if the rule_tags is empty.
+            False otherwise, like Security Hub filters per key/value pairs.
 
         """
-        return any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
+        return (
+            not rule_tags
+            or any(tag.get(rule_tag.get('key')) == rule_tag.get('value')
                    for rule_tag in rule_tags
                    for tag in self.tags)
+        )
 
     @staticmethod
-    def match_if_set(left, right):
-        return all([left == right, all([left, right])])
+    def match_if_left_set(left, right):
+        return not left or left == right
 
     def is_matching_rule(self, rule: Rule) -> bool:
         """Checks a rule for a match with the finding.
@@ -358,27 +366,19 @@ class Finding:
         """
         if not isinstance(rule, Rule):
             raise InvalidRuleType(rule)
-        if any([
-            self.match_if_set(self.security_control_id,
-                              rule.security_control_id),
-            self.match_if_set(self.control_id, rule.rule_or_control_id),
-            self.match_if_set(self.rule_id, rule.rule_or_control_id),
-            all([
-                self.match_if_set(self.product_name, rule.product_name),
-                self.match_if_set(self.title, rule.title),
+        if all([
+            self.match_if_left_set(rule.product_name, self.product_name),
+            self.match_if_left_set(rule.title, self.title),
+            self.match_if_left_set(rule.security_control_id, self.security_control_id),
+            self.is_matching_resource_ids(rule.resource_id_regexps),
+            self.is_matching_tags(rule.tags),
+            any([
+                self.match_if_left_set(rule.rule_or_control_id, self.control_id),
+                self.match_if_left_set(rule.rule_or_control_id, self.rule_id),
             ])
         ]):
-            self._logger.debug(
-                f'Matched with rule "{rule.note}" on one of "control_id, security_control_id" or \
-                    "product_name" and "title"')
-            if not any([rule.tags, rule.resource_id_regexps]):
-                self._logger.debug(
-                    f'Rule "{rule.note}" does not seem to have filters for resources or tags.')
-                return True
-            if any([self.is_matching_tags(rule.tags), self.is_matching_resource_ids(rule.resource_id_regexps)]):
-                self._logger.debug(
-                    f'Matched with rule "{rule.note}" either on resources or tags.')
-                return True
+            self._logger.debug(f'Matched rule "{rule.note}" with finding "{self.id}"')
+            return True
         return False
 
 
@@ -825,15 +825,13 @@ class FindingsManager:
 
     @staticmethod
     def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger) -> List[Finding]:
-        if any([rule.resource_id_regexps, rule.tags]):
+        if rule.resource_id_regexps:
             matching_findings = [finding for finding in findings
-                                 if any([finding.is_matching_resource_ids(rule.resource_id_regexps),
-                                         finding.is_matching_tags(rule.tags)])]
+                                 if finding.is_matching_resource_ids(rule.resource_id_regexps)]
             logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
                          f'{[finding.id for finding in matching_findings]}')
         else:
-            logger.debug(
-                'No resource id patterns or tags are provided in the rule, all findings used.')
+            logger.debug('No resource id patterns are provided in the rule, all findings used.')
             matching_findings = findings
         for finding in matching_findings:
             finding.matched_rule = rule
