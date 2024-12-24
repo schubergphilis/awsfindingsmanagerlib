@@ -57,3 +57,11 @@ History
 ------------------
 
 * Adds support for SecurityHub Integration findings
+
+
+1.2.0 (24-12-2024)
+------------------
+
+* Updates default SecurityHub filter to fix issues with SecurityHub Integration findings support.
+* Adjusted filtering logic to align with SecurityHub filtering: When both `match_on` options: `tags` and `resource_id_regexps` are specified, they are now combined using an **AND** condition instead of an **OR** condition.
+* Introduce pagesize.
