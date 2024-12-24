@@ -71,6 +71,7 @@ LOGGER = logging.getLogger(LOGGER_BASENAME)
 LOGGER.addHandler(logging.NullHandler())
 
 MAX_SUPPRESSION_PAYLOAD_SIZE = 100
+PAGINATION_PAGESIZE = 100
 
 
 class Finding:
@@ -685,7 +686,7 @@ class FindingsManager:
     def _get_security_hub_paginator_iterator(self, region: str, operation_name: str, query_filter: dict):
         security_hub = self._get_security_hub_client(region=region)
         paginator = security_hub.get_paginator(operation_name)
-        return paginator.paginate(Filters=query_filter)
+        return paginator.paginate(Filters=query_filter, PaginationConfig={'PageSize': PAGINATION_PAGESIZE})
 
     @staticmethod
     def _get_ec2_client(region: str):
