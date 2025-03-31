@@ -96,6 +96,8 @@ Rules in your YAML file follow this general syntax:
             value: 'str'
         resource_id_regexps:
           - 'regex'
+        regions:
+          - 'str'
 
 **When Suppressing Native Security Hub Findings**:
 
@@ -112,7 +114,9 @@ Read the `AWS service integrations <https://docs.aws.amazon.com/securityhub/late
 
 **Additional Filters**:
 
-Either ``tags`` or ``resource_id_regexps`` (or both) can be provided to ensure precise matching.
+Either ``regions``, ``tags``, or ``resource_id_regexps`` (or all) can be provided to ensure precise matching.
+
+When no ``regions`` are set, the rule will match findings from all regions.
 
 
 Valid Credentials
