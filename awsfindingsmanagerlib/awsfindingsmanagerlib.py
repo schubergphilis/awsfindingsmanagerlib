@@ -468,6 +468,25 @@ class Rule:
             return {}
         return {'ProductName': [{'Value': product_name,
                                  'Comparison': 'EQUALS'}]}
+    
+    @staticmethod
+    def _get_regions_query(match_on_data) -> Dict:
+        """Constructs a valid query based on set regions if any.
+        
+        Args:
+            match_on_data: The match_on data of the Rule
+
+        Returns:
+            The query matching the set regions, empty dictionary otherwise.
+        
+        """
+        regions = match_on_data.get('regions')
+        if not regions:
+            return {}
+        
+        return {'Region': [{'Value': region,
+                           'Comparison': 'EQUALS'}
+                           for region in regions]}
 
     @staticmethod
     def _get_rule_or_control_id_query(match_on_data) -> Dict:
@@ -559,6 +578,7 @@ class Rule:
         query.update(self._get_tag_query(self.match_on))
         query.update(self._get_title_query(self.match_on))
         query.update(self._get_product_name_query(self.match_on))
+        query.update(self._get_regions_query(self.match_on))
         return deepcopy(query)
 
 
