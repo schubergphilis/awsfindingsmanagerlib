@@ -86,7 +86,8 @@ def validate_rule_data(rule_data) -> Dict:
         raise InvalidRuleAction(f'{rule_data.get("action")}, valid actions are {RULE_SUPPORTED_ACTIONS}')
     if 'regions' in rule_data.get('match_on').keys():
         if not set(rule_data.get('match_on')['regions']).issubset(set(SECURITY_HUB_ACTIVE_REGIONS)):
-            raise InvalidRegionListProvided(f'Invalid region/s set in the suppression rule. Valid regions are {SECURITY_HUB_ACTIVE_REGIONS}')
+            raise InvalidRegionListProvided(f'Invalid regions set in the suppression rule. '
+                                            f'Valid regions are {SECURITY_HUB_ACTIVE_REGIONS}')
     return rule_data
 
 
