@@ -65,9 +65,3 @@ History
 * Updates default SecurityHub filter to fix issues with SecurityHub Integration findings support.
 * Adjusted filtering logic to align with SecurityHub filtering: When both `match_on` options: `tags` and `resource_id_regexps` are specified, they are now combined using an **AND** condition instead of an **OR** condition.
 * Introduce pagesize.
-
-1.3.0 (31-03-2025)
-------------------
-
-* Introduce filtering SecurityHub findings by `regions`.
-* Bump dependencies.
