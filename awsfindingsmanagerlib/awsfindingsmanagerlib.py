@@ -1002,7 +1002,8 @@ class FindingsManager:
         findings = findings if isinstance(
             findings, (list, tuple, set)) else [findings]
         for chunk in FindingsManager._chunk([{'Id': finding.id,
-                                              'ProductArn': finding.product_arn}
+                                              'ProductArn': finding.product_arn,
+                                              'Region': finding.region}
                                              for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
             yield {'FindingIdentifiers': chunk,
                    'Workflow': {'Status': 'NEW'}
