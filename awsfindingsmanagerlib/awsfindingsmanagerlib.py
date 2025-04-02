@@ -322,6 +322,22 @@ class Finding:
                    for pattern in resource_id_patterns)
         )
 
+    def is_matching_regions(self, regions) -> bool:
+        """Checks the finding region if it matches with any of the regions provided.
+
+        Args:
+            regions: A list of regions
+
+        Returns:
+            True if the region matches any of the regions list or if regions list is empty.
+            False otherwise.
+
+        """
+        return (
+            not regions
+            or self.region in regions
+        )
+
     def is_matching_tags(self, rule_tags) -> bool:
         """Iterates over all finding tags and checks if any match with any of the rule tags provided.
 
@@ -372,6 +388,7 @@ class Finding:
             self.match_if_left_set(rule.title, self.title),
             self.match_if_left_set(rule.security_control_id, self.security_control_id),
             self.is_matching_resource_ids(rule.resource_id_regexps),
+            self.is_matching_regions(rule.regions),
             self.is_matching_tags(rule.tags),
             any([
                 self.match_if_left_set(rule.rule_or_control_id, self.control_id),
@@ -446,6 +463,11 @@ class Rule:
     def title(self) -> str:
         """The title if any, empty string otherwise."""
         return self.match_on.get('title', '')
+
+    @property
+    def regions(self) -> List[Optional[str]]:
+        """The tags specified under the match_on attribute, empty list otherwise."""
+        return self.match_on.get('regions', [])
 
     @property
     def tags(self) -> List[Optional[str]]:
@@ -957,7 +979,8 @@ class FindingsManager:
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
         for rule, findings_ in rule_findings_mapping.items():
             for chunk in FindingsManager._chunk([{'Id': finding.id,
-                                                  'ProductArn': finding.product_arn}
+                                                  'ProductArn': finding.product_arn,
+                                                  'Region': finding.region}
                                                  for finding in findings_], MAX_SUPPRESSION_PAYLOAD_SIZE):
                 yield {'FindingIdentifiers': chunk,
                        'Workflow': {'Status': rule.action},

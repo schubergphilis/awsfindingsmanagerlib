@@ -3,11 +3,13 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/71a625e2-1a57-4fee-bc3f-22cf3f9f9e57",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       },
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.9/finding/180e73dc-a807-4ddd-a36a-14696c85ba9e",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       }
     ],
     "Workflow": {
@@ -22,11 +24,13 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/e27c3ee5-4616-4d32-9eaf-adcf01921246",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       },
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.14/finding/db101219-4b19-4176-a660-490d30b7945d",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       }
     ],
     "Workflow": {
@@ -41,15 +45,18 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/2e14352c-2bb5-4dfc-88af-71467172d92f",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       },
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/45fee04a-22ed-4242-a316-ebaecd5a1b36",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       },
       {
         "Id": "arn:aws:securityhub:eu-west-1:988763490897:security-control/S3.20/finding/c9403a5e-0f03-45f6-a85e-754f043a6b10",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       }
     ],
     "Workflow": {
@@ -64,7 +71,8 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:inspector2:eu-west-1:012345678912:finding/ff4ebfb9d83b0ee89c7140b30eed5ef9",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/inspector",
+        "Region": "eu-west-1"
       }
     ],
     "Workflow": {
@@ -79,7 +87,8 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:securityhub:eu-west-1:222555888333:subscription/aws-foundational-security-best-practices/v/1.0.0/GuardDuty.5/finding/fa64b182-1f5d-4c13-828a-50af12336fd0",
-        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:eu-west-1::product/aws/securityhub",
+        "Region": "eu-west-1"
       }
     ],
     "Workflow": {
@@ -94,7 +103,8 @@
     "FindingIdentifiers": [
       {
         "Id": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7",
-        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub"
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+        "Region": "us-east-1"
       }
     ],
     "Workflow": {
