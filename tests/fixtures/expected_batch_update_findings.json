@@ -89,5 +89,20 @@
       "Text": "We also support legacy format findings",
       "UpdatedBy": "FindingsManager"
     }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress Macie.1 on us-east-1 only",
+      "UpdatedBy": "FindingsManager"
+    }
   }
 ]

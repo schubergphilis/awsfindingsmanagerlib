@@ -429,5 +429,76 @@
         },
         "ProcessedAt": "2024-07-24T19:05:18.542Z",
         "AwsAccountName": "watcher"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-central-1:825765418612:security-control/Macie.1/finding/31bbaed3-b029-4690-aa1e-1690e92a8080",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-central-1",
+        "GeneratorId": "security-control/Macie.1",
+        "AwsAccountId": "825765418612",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2025-02-19T12:11:46.394Z",
+        "LastObservedAt": "2025-04-02T13:15:52.751Z",
+        "CreatedAt": "2025-02-19T12:12:15.251Z",
+        "UpdatedAt": "2025-04-02T13:16:33.885Z",
+        "Severity": {
+            "Label": "MEDIUM",
+            "Normalized": 40,
+            "Original": "MEDIUM"
+        },
+        "Title": "Macie should be enabled",
+        "Description": "This control checks whether Amazon Macie is enabled for an account. The control fails if Macie isn't enabled for the account.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-macie-status-check-7e44b7ca",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "Resources:0/Id": "arn:aws:iam::825765418612:root",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:825765418612:security-control/Macie.1/finding/31bbaed3-b029-4690-aa1e-1690e92a8080"
+        },
+        "Resources": [
+            {
+                "Type": "AwsAccount",
+                "Id": "AWS::::Account:825765418612",
+                "Partition": "aws",
+                "Region": "eu-central-1"
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "SecurityControlId": "Macie.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ACTIVE",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "MEDIUM",
+                "Original": "MEDIUM"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2025-04-02T13:16:45.914Z",
+        "AwsAccountName": "myworkload2-test"
     }
 ]

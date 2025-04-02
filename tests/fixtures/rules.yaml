@@ -31,3 +31,13 @@ Rules:
     action: 'SUPPRESSED'
     match_on:
       rule_or_control_id: 'GuardDuty.5'  #Legacy format
+  # Test security_control_id + single region filtering
+  - note: 'Suppress Macie.1 on us-east-1 only'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'Macie.1'
+      regions:
+        - 'us-east-1'
+  # Test security_control_id + multiple region filtering
+  # TODO: Test ProductName + Title + single region filtering
+  # TODO: Test ProductName + Title + multiple region filtering

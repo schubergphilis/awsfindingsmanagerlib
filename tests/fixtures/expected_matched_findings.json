@@ -1055,5 +1055,92 @@
     },
     "ProcessedAt": "2024-07-17T12:36:18.763Z",
     "AwsAccountName": "base-client"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress Macie.1 on us-east-1 only",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "Macie.1",
+        "regions": [
+          "us-east-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7",
+    "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "us-east-1",
+    "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/Macie.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+    ],
+    "FirstObservedAt": "2025-02-19T12:15:40.213Z",
+    "LastObservedAt": "2025-04-02T13:16:36.253Z",
+    "CreatedAt": "2025-02-19T12:16:22.615Z",
+    "UpdatedAt": "2025-04-02T13:16:52.240Z",
+    "Severity": {
+        "Product": 40,
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "Macie.1 Macie should be enabled",
+    "Description": "This control checks whether Amazon Macie is enabled for an account. The control fails if Macie isn't enabled for the account.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
+        "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0",
+        "ControlId": "Macie.1",
+        "RecommendationUrl": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation",
+        "RelatedAWSResources:0/name": "securityhub-macie-status-check-8ad477e2",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "StandardsControlArn": "arn:aws:securityhub:us-east-1:767398049650:control/aws-foundational-security-best-practices/v/1.0.0/Macie.1",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:iam::767398049650:root",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/securityhub/arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7"
+    },
+    "Resources": [
+        {
+            "Type": "AwsAccount",
+            "Id": "AWS::::Account:767398049650",
+            "Partition": "aws",
+            "Region": "us-east-1"
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "Macie.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+        ]
+    },
+    "ProcessedAt": "2025-04-02T13:17:19.177Z",
+    "AwsAccountName": "fih-staging"
   }
 ]
