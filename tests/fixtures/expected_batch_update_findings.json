@@ -123,5 +123,20 @@
       "Text": "Suppress EC2.172 on us-east-1 and eu-central-1",
       "UpdatedBy": "FindingsManager"
     }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:health:global:211125764712:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/health"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1",
+      "UpdatedBy": "FindingsManager"
+    }
   }
 ]

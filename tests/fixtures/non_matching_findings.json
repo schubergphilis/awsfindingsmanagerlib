@@ -500,5 +500,54 @@
         },
         "ProcessedAt": "2025-04-02T13:16:45.914Z",
         "AwsAccountName": "myworkload2-test"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:health:global:767397887189:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/health",
+        "ProductName": "Health",
+        "CompanyName": "AWS",
+        "Region": "us-east-1",
+        "GeneratorId": "AWS_WAF_SECURITY_NOTIFICATION",
+        "AwsAccountId": "767397887189",
+        "Types": [
+            "Software and Configuration Checks"
+        ],
+        "CreatedAt": "2025-02-26T07:45:41.000Z",
+        "UpdatedAt": "2025-02-26T07:45:41.000Z",
+        "Severity": {
+            "Label": "HIGH",
+            "Normalized": 70
+        },
+        "Title": "AWS Health - AWS_WAF_SECURITY_NOTIFICATION",
+        "Description": "\nBeginning February 24, 2025, we are making a change to AWS WAF IP-based rate rules, which may require your action. Currently, AWS WAF rate-based rules aggregates traffic by individual IP addresses for IP-based keys. After this date, AWS WAF will aggregate based on the /64 prefix instead of individual IPs for IPv6 addresses. We identified your account has an IP-based rate rule which may be affected by this change. If you have Web ACLs with IP-based rate rules for IPv6 addresses, the traffic aggregation method will automatically update from individual IP addresses to /64 prefix-based aggregation, and no action is required. However, if your WAF Full Logs ingestion system relies on the previous IP address format, you may need to adjust your parsing logic. If your Web ACL does not use IP-based rate rules for IPv6 addresses, you are not affected and can disregard this message. \n\nFor additional information, please refer to our \"Using rate-based rule statements in AWS WAF\" user guide [1]. \n\nIf you have(truncated)",
+        "SourceUrl": "https://phd.aws.amazon.com/phd/home#/event-log?eventID=arn:aws:health:global::event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531",
+        "ProductFields": {
+            "HealthEventStartTime": "2025-02-26T00:10:00.000Z",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/health/arn:aws:health:global:767397887189:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+            "aws/securityhub/ProductName": "Health",
+            "aws/securityhub/CompanyName": "AWS"
+        },
+        "Resources": [
+            {
+                "Type": "Other",
+                "Id": "767397887189"
+            }
+        ],
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ACTIVE",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "HIGH"
+            },
+            "Types": [
+                "Software and Configuration Checks"
+            ]
+        },
+        "ProcessedAt": "2025-02-26T07:45:46.801Z",
+        "AwsAccountName": "vad-dev"
     }
 ]

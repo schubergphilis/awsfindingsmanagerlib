@@ -51,7 +51,14 @@ Rules:
       regions:
         - 'us-east-1'
         - 'eu-central-1'
-  # TODO: Test ProductName + Title + single region filtering
-  # TODO: Test ProductName + Title + multiple region filtering
+  # Test ProductName + Title + resource_id_regexps + region filtering
+  - note: 'Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1'
+    action: 'SUPPRESSED'
+    match_on:
+      product_name: 'Health'
+      title: 'AWS Health - AWS_WAF_SECURITY_NOTIFICATION'
+      resource_id_regexps:
+        - '^211125764712$'
+      regions:
+        - 'us-east-1'
   # TODO: Test security_control_id + resource_id_regexps + region filtering
-  # TODO: Test ProductName + Title + resource_id_regexps + region filtering
