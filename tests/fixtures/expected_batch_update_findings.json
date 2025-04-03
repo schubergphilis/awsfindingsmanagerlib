@@ -104,5 +104,24 @@
       "Text": "Suppress Macie.1 on us-east-1 only",
       "UpdatedBy": "FindingsManager"
     }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:us-east-1:767397707735:subscription/aws-foundational-security-best-practices/v/1.0.0/EC2.172/finding/dfc01d33-f350-40ff-8fb3-e491844ddbca",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-central-1:637423397782:security-control/EC2.172/finding/d2e0a6de-3536-4031-9643-1cc9b4af2538",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress EC2.172 on us-east-1 and eu-central-1",
+      "UpdatedBy": "FindingsManager"
+    }
   }
 ]
