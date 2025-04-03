@@ -846,7 +846,6 @@ class FindingsManager:
             aggregating_region] if aggregating_region else self.regions
         for region in regions_to_retrieve:
             self._logger.debug(f'Trying to get findings for region {region}')
-            print(f'DEBUG: Query filter is {query_filter}')
             iterator = self._get_security_hub_paginator_iterator(
                 region=region,
                 operation_name='get_findings',
@@ -858,7 +857,6 @@ class FindingsManager:
                         finding = Finding(finding_data)
                         self._logger.debug(
                             f'Adding finding with id {finding.id}')
-                        print(f'DEBUG: Adding finding with id {finding.id}')
                         findings.add(finding)
             except botocore.exceptions.ClientError as error:
                 if error.response['Error']['Code'] in ['AccessDeniedException', 'InvalidAccessException']:
