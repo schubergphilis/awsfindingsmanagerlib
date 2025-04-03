@@ -91,5 +91,266 @@
         },
         "ProcessedAt": "2024-07-24T19:07:28.104Z",
         "AwsAccountName": "watcher"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-central-1:825765418612:security-control/Macie.1/finding/31bbaed3-b029-4690-aa1e-1690e92a8080",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-central-1",
+        "GeneratorId": "security-control/Macie.1",
+        "AwsAccountId": "825765418612",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2025-02-19T12:11:46.394Z",
+        "LastObservedAt": "2025-04-02T13:15:52.751Z",
+        "CreatedAt": "2025-02-19T12:12:15.251Z",
+        "UpdatedAt": "2025-04-02T13:16:33.885Z",
+        "Severity": {
+            "Label": "MEDIUM",
+            "Normalized": 40,
+            "Original": "MEDIUM"
+        },
+        "Title": "Macie should be enabled",
+        "Description": "This control checks whether Amazon Macie is enabled for an account. The control fails if Macie isn't enabled for the account.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-macie-status-check-7e44b7ca",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "Resources:0/Id": "arn:aws:iam::825765418612:root",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:825765418612:security-control/Macie.1/finding/31bbaed3-b029-4690-aa1e-1690e92a8080"
+        },
+        "Resources": [
+            {
+                "Type": "AwsAccount",
+                "Id": "AWS::::Account:825765418612",
+                "Partition": "aws",
+                "Region": "eu-central-1"
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "SecurityControlId": "Macie.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ACTIVE",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "MEDIUM",
+                "Original": "MEDIUM"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2025-04-02T13:16:45.914Z",
+        "AwsAccountName": "myworkload2-test"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/f8881f7d-d77d-4a09-96f8-d2d08c898a42",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-central-1",
+        "GeneratorId": "security-control/SSM.1",
+        "AwsAccountId": "767398049650",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2025-04-03T18:33:45.297Z",
+        "LastObservedAt": "2025-04-03T18:33:45.297Z",
+        "CreatedAt": "2025-04-03T18:33:50.314Z",
+        "UpdatedAt": "2025-04-03T18:33:50.314Z",
+        "Severity": {
+            "Label": "INFORMATIONAL",
+            "Normalized": 0,
+            "Original": "INFORMATIONAL"
+        },
+        "Title": "EC2 instances should be managed by AWS Systems Manager",
+        "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "aws/securityhub/annotation": "This finding has a compliance status of NOT AVAILABLE because AWS Config sent Security Hub a finding with a compliance state of Not Applicable. The potential reasons for a Not Applicable finding from Config are that (1) a resource has been moved out of scope of the Config rule; (2) the Config rule has been deleted; (3) the resource has been deleted; or (4) the logic of the Config rule itself includes scenarios where Not Applicable is returned. The specific reason why Not Applicable is returned is not available in the Config rule evaluation.",
+            "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-02d4cecd92c80f281",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/f8881f7d-d77d-4a09-96f8-d2d08c898a42"
+        },
+        "Resources": [
+            {
+                "Type": "AwsEc2Instance",
+                "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-02d4cecd92c80f281",
+                "Partition": "aws",
+                "Region": "eu-central-1"
+            }
+        ],
+        "Compliance": {
+            "Status": "NOT_AVAILABLE",
+            "StatusReasons": [
+                {
+                    "ReasonCode": "CONFIG_RETURNS_NOT_APPLICABLE",
+                    "Description": "This finding has a compliance status of NOT AVAILABLE because AWS Config sent Security Hub a finding with a compliance state of Not Applicable. The potential reasons for a Not Applicable finding from Config are that (1) a resource has been moved out of scope of the Config rule; (2) the Config rule has been deleted; (3) the resource has been deleted; or (4) the logic of the Config rule itself includes scenarios where Not Applicable is returned. The specific reason why Not Applicable is returned is not available in the Config rule evaluation."
+                }
+            ],
+            "SecurityControlId": "SSM.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ARCHIVED",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "INFORMATIONAL",
+                "Original": "INFORMATIONAL"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2025-04-03T18:33:59.261Z",
+        "AwsAccountName": "fih-staging"
+    },
+    {
+        "SchemaVersion": "2018-10-08",
+        "Id": "arn:aws:securityhub:eu-central-1:767397682144:security-control/SSM.1/finding/4d4f6dc6-86fa-489c-91e5-7855e73bc466",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+        "ProductName": "Security Hub",
+        "CompanyName": "AWS",
+        "Region": "eu-central-1",
+        "GeneratorId": "security-control/SSM.1",
+        "AwsAccountId": "767397682144",
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ],
+        "FirstObservedAt": "2025-04-01T05:55:34.351Z",
+        "LastObservedAt": "2025-04-03T23:36:36.914Z",
+        "CreatedAt": "2025-04-01T05:55:38.469Z",
+        "UpdatedAt": "2025-04-03T23:36:56.456Z",
+        "Severity": {
+            "Label": "MEDIUM",
+            "Normalized": 40,
+            "Original": "MEDIUM"
+        },
+        "Title": "EC2 instances should be managed by AWS Systems Manager",
+        "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+        "Remediation": {
+            "Recommendation": {
+                "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+                "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+            }
+        },
+        "ProductFields": {
+            "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-72bbc1cc",
+            "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+            "aws/securityhub/ProductName": "Security Hub",
+            "aws/securityhub/CompanyName": "AWS",
+            "Resources:0/Id": "arn:aws:ec2:eu-central-1:767397682144:instance/i-066f455ccecae129e",
+            "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767397682144:security-control/SSM.1/finding/4d4f6dc6-86fa-489c-91e5-7855e73bc466"
+        },
+        "Resources": [
+            {
+                "Type": "AwsEc2Instance",
+                "Id": "arn:aws:ec2:eu-central-1:767397682144:instance/i-066f455ccecae129e",
+                "Partition": "aws",
+                "Region": "eu-central-1",
+                "Tags": {
+                    "aws:ec2:fleet-id": "fleet-ac97b62d-928e-ee9e-04b8-0f80c5b2c204",
+                    "manager": "karpenter",
+                    "aws:eks:cluster-name": "fih-prod",
+                    "karpenter.sh/nodepool": "platform",
+                    "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                    "kubernetes.io/cluster/fih-prod": "owned",
+                    "eks:eks-cluster-name": "fih-prod",
+                    "aws:ec2launchtemplate:version": "1",
+                    "aws:ec2launchtemplate:id": "lt-044c7ddb6d19017c3",
+                    "karpenter.sh/nodeclaim": "platform-7w5rd",
+                    "Name": "ip-10-67-67-195.eu-central-1.compute.internal"
+                },
+                "Details": {
+                    "AwsEc2Instance": {
+                        "ImageId": "ami-00430ef1ebb6af13b",
+                        "IamInstanceProfileArn": "arn:aws:iam::767397682144:instance-profile/fih-prod_14541232739907692484",
+                        "VpcId": "vpc-0cb249e33cc9bb17c",
+                        "SubnetId": "subnet-01c72d1238bb86fa7",
+                        "LaunchedAt": "2025-04-01T03:54:35.000Z",
+                        "NetworkInterfaces": [
+                            {
+                                "NetworkInterfaceId": "eni-08dfcf53481b28942"
+                            },
+                            {
+                                "NetworkInterfaceId": "eni-09cec6e2fcf418dde"
+                            }
+                        ],
+                        "VirtualizationType": "hvm",
+                        "MetadataOptions": {
+                            "HttpEndpoint": "enabled",
+                            "HttpProtocolIpv6": "disabled",
+                            "HttpPutResponseHopLimit": 2,
+                            "HttpTokens": "required",
+                            "InstanceMetadataTags": "disabled"
+                        },
+                        "Monitoring": {
+                            "State": "enabled"
+                        }
+                    }
+                }
+            }
+        ],
+        "Compliance": {
+            "Status": "FAILED",
+            "SecurityControlId": "SSM.1",
+            "AssociatedStandards": [
+                {
+                    "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+                }
+            ]
+        },
+        "WorkflowState": "NEW",
+        "Workflow": {
+            "Status": "NEW"
+        },
+        "RecordState": "ACTIVE",
+        "FindingProviderFields": {
+            "Severity": {
+                "Label": "MEDIUM",
+                "Original": "MEDIUM"
+            },
+            "Types": [
+                "Software and Configuration Checks/Industry and Regulatory Standards"
+            ]
+        },
+        "ProcessedAt": "2025-04-03T23:37:00.162Z",
+        "AwsAccountName": "fih-prod"
     }
 ]
