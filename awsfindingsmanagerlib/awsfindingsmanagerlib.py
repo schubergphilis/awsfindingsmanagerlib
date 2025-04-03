@@ -868,9 +868,20 @@ class FindingsManager:
 
     @staticmethod
     def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger) -> List[Finding]:
-        if rule.resource_id_regexps:
+        if rule.resource_id_regexps and rule.regions:
+            matching_findings = [finding for finding in findings
+                                 if finding.is_matching_resource_ids(rule.resource_id_regexps)
+                                 and finding.is_matching_regions(rule.regions)]
+            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
+                         f'{[finding.id for finding in matching_findings]}')
+        elif rule.resource_id_regexps:
             matching_findings = [finding for finding in findings
                                  if finding.is_matching_resource_ids(rule.resource_id_regexps)]
+            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
+                         f'{[finding.id for finding in matching_findings]}')
+        elif rule.regions:
+            matching_findings = [finding for finding in findings
+                                 if finding.is_matching_regions(rule.regions)]
             logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
                          f'{[finding.id for finding in matching_findings]}')
         else:

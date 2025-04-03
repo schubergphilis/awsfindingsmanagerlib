@@ -41,3 +41,4 @@ Rules:
   # Test security_control_id + multiple region filtering
   # TODO: Test ProductName + Title + single region filtering
   # TODO: Test ProductName + Title + multiple region filtering
+  # TODO: Test security_control_id + resource_id_regexps + region filtering
