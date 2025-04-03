@@ -61,4 +61,15 @@ Rules:
         - '^211125764712$'
       regions:
         - 'us-east-1'
-  # TODO: Test security_control_id + resource_id_regexps + region filtering
+  # Test security_control_id + resource_id_regexps + tags + region filtering
+  - note: 'Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'SSM.1'
+      tags:
+        - key: 'karpenter.sh/nodepool'
+          value: 'platform'
+      resource_id_regexps:
+        - '^arn:aws:ec2:eu-central-1:767398049650:instance/.*$'
+      regions:
+        - 'eu-central-1'

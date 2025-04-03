@@ -1389,5 +1389,389 @@
     },
     "ProcessedAt": "2025-02-26T07:45:46.801Z",
     "AwsAccountName": "vad-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/7108cf50-3e39-4190-8f39-91eca9483ee6",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:36.002Z",
+    "LastObservedAt": "2025-04-03T18:09:55.645Z",
+    "CreatedAt": "2025-04-03T11:01:41.299Z",
+    "UpdatedAt": "2025-04-03T18:10:22.148Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0fe80a5297c852f13",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/7108cf50-3e39-4190-8f39-91eca9483ee6"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0fe80a5297c852f13",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-zz2m5",
+                "Name": "ip-10-66-39-17.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-094259346248f45eb"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:10:38.459Z",
+    "AwsAccountName": "fih-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/9b2b38ef-0a49-419a-86c5-7ed6a1bb173f",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:38.282Z",
+    "LastObservedAt": "2025-04-03T18:23:22.264Z",
+    "CreatedAt": "2025-04-03T11:02:21.507Z",
+    "UpdatedAt": "2025-04-03T18:23:40.532Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0935405aafaed7418",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/9b2b38ef-0a49-419a-86c5-7ed6a1bb173f"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0935405aafaed7418",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-z9txb",
+                "Name": "ip-10-66-39-112.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-0af0fb3a8d323fe8c"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:23:50.934Z",
+    "AwsAccountName": "fih-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/1f28b4db-10ee-4ef9-a553-374a5a85a439",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:37.782Z",
+    "LastObservedAt": "2025-04-03T18:29:09.700Z",
+    "CreatedAt": "2025-04-03T11:02:21.506Z",
+    "UpdatedAt": "2025-04-03T18:29:41.079Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0027db18651a0ec01",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/1f28b4db-10ee-4ef9-a553-374a5a85a439"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0027db18651a0ec01",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-jqjrm",
+                "Name": "ip-10-66-39-225.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-01926fc2ae756f1b8"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:30:04.346Z",
+    "AwsAccountName": "fih-staging"
   }
 ]

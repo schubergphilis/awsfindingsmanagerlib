@@ -466,7 +466,7 @@ class Rule:
 
     @property
     def regions(self) -> List[Optional[str]]:
-        """The tags specified under the match_on attribute, empty list otherwise."""
+        """The regions specified under the match_on attribute, empty list otherwise."""
         return self.match_on.get('regions', [])
 
     @property
@@ -846,6 +846,7 @@ class FindingsManager:
             aggregating_region] if aggregating_region else self.regions
         for region in regions_to_retrieve:
             self._logger.debug(f'Trying to get findings for region {region}')
+            print(f'DEBUG: Query filter is {query_filter}')
             iterator = self._get_security_hub_paginator_iterator(
                 region=region,
                 operation_name='get_findings',
@@ -857,6 +858,7 @@ class FindingsManager:
                         finding = Finding(finding_data)
                         self._logger.debug(
                             f'Adding finding with id {finding.id}')
+                        print(f'DEBUG: Adding finding with id {finding.id}')
                         findings.add(finding)
             except botocore.exceptions.ClientError as error:
                 if error.response['Error']['Code'] in ['AccessDeniedException', 'InvalidAccessException']:
@@ -868,20 +870,9 @@ class FindingsManager:
 
     @staticmethod
     def _get_matching_findings(rule: Rule, findings: List[Finding], logger: logging.Logger) -> List[Finding]:
-        if rule.resource_id_regexps and rule.regions:
-            matching_findings = [finding for finding in findings
-                                 if finding.is_matching_resource_ids(rule.resource_id_regexps)
-                                 and finding.is_matching_regions(rule.regions)]
-            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
-                         f'{[finding.id for finding in matching_findings]}')
-        elif rule.resource_id_regexps:
+        if rule.resource_id_regexps:
             matching_findings = [finding for finding in findings
                                  if finding.is_matching_resource_ids(rule.resource_id_regexps)]
-            logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
-                         f'{[finding.id for finding in matching_findings]}')
-        elif rule.regions:
-            matching_findings = [finding for finding in findings
-                                 if finding.is_matching_regions(rule.regions)]
             logger.debug(f'Following findings matched with rule with note: "{rule.note}", '
                          f'{[finding.id for finding in matching_findings]}')
         else:
@@ -907,7 +898,7 @@ class FindingsManager:
         diff = initial_size - len(findings)
         if diff:
             self._logger.warning(
-                f'Missmatch of finding numbers, there seems to be an overlap of {diff}')
+                f'Mismatch of finding numbers, there seems to be an overlap of {diff}')
         return findings
 
     def get_findings_by_matching_rule(self, rule: Rule) -> List[Finding]:

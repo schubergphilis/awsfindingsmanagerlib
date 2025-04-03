@@ -71,7 +71,7 @@ class TestSuppressions(FindingsManagerTestCase):
         )
 
     def test_can_match_suppressions_with_findings(self):
-        """Test if having  matching and non-matching findings returns only the ones that match the suppression rules."""
+        """Test if having matching and non-matching findings returns only the ones that match the suppression rules."""
         matched_findings = [dict(finding._data, matched_rule=finding._matched_rule._data)
                           for finding in self.findings_manager._construct_findings_on_matching_rules(all_findings_fixture)]
         self.assertEqual(len(expected_matched_findings_fixture), len(matched_findings))
