@@ -979,8 +979,7 @@ class FindingsManager:
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
         for rule, findings_ in rule_findings_mapping.items():
             for chunk in FindingsManager._chunk([{'Id': finding.id,
-                                                  'ProductArn': finding.product_arn,
-                                                  'Region': finding.region}
+                                                  'ProductArn': finding.product_arn}
                                                  for finding in findings_], MAX_SUPPRESSION_PAYLOAD_SIZE):
                 yield {'FindingIdentifiers': chunk,
                        'Workflow': {'Status': rule.action},
@@ -1002,8 +1001,7 @@ class FindingsManager:
         findings = findings if isinstance(
             findings, (list, tuple, set)) else [findings]
         for chunk in FindingsManager._chunk([{'Id': finding.id,
-                                              'ProductArn': finding.product_arn,
-                                              'Region': finding.region}
+                                              'ProductArn': finding.product_arn}
                                              for finding in findings], MAX_SUPPRESSION_PAYLOAD_SIZE):
             yield {'FindingIdentifiers': chunk,
                    'Workflow': {'Status': 'NEW'}
