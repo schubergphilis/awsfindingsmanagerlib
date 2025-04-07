@@ -51,6 +51,7 @@ rule_schema = Schema({'match_on': {Optional('rule_or_control_id'): str,
                                    Optional('title'): str,
                                    Optional('product_name'): str,
                                    Optional('security_control_id'): str,
+                                   Optional('regions'): [str],
                                    Optional('resource_id_regexps'): [str],
                                    Optional('tags'): [{'key': str,
                                                        'value': str}]},
@@ -83,6 +84,10 @@ def validate_rule_data(rule_data) -> Dict:
             raise MutuallyExclusiveKeys(set_)
     if rule_data.get('action') not in RULE_SUPPORTED_ACTIONS:
         raise InvalidRuleAction(f'{rule_data.get("action")}, valid actions are {RULE_SUPPORTED_ACTIONS}')
+    if 'regions' in rule_data.get('match_on').keys():
+        if not set(rule_data.get('match_on')['regions']).issubset(set(SECURITY_HUB_ACTIVE_REGIONS)):
+            raise InvalidRegionListProvided(f'Invalid regions set in the suppression rule. '
+                                            f'Valid regions are {SECURITY_HUB_ACTIVE_REGIONS}')
     return rule_data
 
 

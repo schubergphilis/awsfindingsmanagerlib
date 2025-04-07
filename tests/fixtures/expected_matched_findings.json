@@ -1055,5 +1055,723 @@
     },
     "ProcessedAt": "2024-07-17T12:36:18.763Z",
     "AwsAccountName": "base-client"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress Macie.1 on us-east-1 only",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "Macie.1",
+        "regions": [
+          "us-east-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7",
+    "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "us-east-1",
+    "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/Macie.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+    ],
+    "FirstObservedAt": "2025-02-19T12:15:40.213Z",
+    "LastObservedAt": "2025-04-02T13:16:36.253Z",
+    "CreatedAt": "2025-02-19T12:16:22.615Z",
+    "UpdatedAt": "2025-04-02T13:16:52.240Z",
+    "Severity": {
+        "Product": 40,
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "Macie.1 Macie should be enabled",
+    "Description": "This control checks whether Amazon Macie is enabled for an account. The control fails if Macie isn't enabled for the account.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
+        "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0",
+        "ControlId": "Macie.1",
+        "RecommendationUrl": "https://docs.aws.amazon.com/console/securityhub/Macie.1/remediation",
+        "RelatedAWSResources:0/name": "securityhub-macie-status-check-8ad477e2",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "StandardsControlArn": "arn:aws:securityhub:us-east-1:767398049650:control/aws-foundational-security-best-practices/v/1.0.0/Macie.1",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:iam::767398049650:root",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/securityhub/arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7"
+    },
+    "Resources": [
+        {
+            "Type": "AwsAccount",
+            "Id": "AWS::::Account:767398049650",
+            "Partition": "aws",
+            "Region": "us-east-1"
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "Macie.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+        ]
+    },
+    "ProcessedAt": "2025-04-02T13:17:19.177Z",
+    "AwsAccountName": "fih-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress EC2.172 on us-east-1 and eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "EC2.172",
+        "regions": [
+          "us-east-1",
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:us-east-1:767397707735:subscription/aws-foundational-security-best-practices/v/1.0.0/EC2.172/finding/dfc01d33-f350-40ff-8fb3-e491844ddbca",
+    "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "us-east-1",
+    "GeneratorId": "aws-foundational-security-best-practices/v/1.0.0/EC2.172",
+    "AwsAccountId": "767397707735",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+    ],
+    "FirstObservedAt": "2025-02-19T12:14:03.942Z",
+    "LastObservedAt": "2025-02-19T12:14:03.942Z",
+    "CreatedAt": "2025-02-19T12:14:21.795Z",
+    "UpdatedAt": "2025-04-03T15:14:14.110Z",
+    "Severity": {
+        "Product": 40,
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2.172 EC2 VPC Block Public Access settings should block internet gateway traffic",
+    "Description": "This control checks whether Amazon EC2 VPC Block Public Access (BPA) settings are configured to block internet gateway traffic for all Amazon VPCs in the AWS account. The control fails if EC2 VPC BPA settings aren't configured to block internet gateway traffic. If the parameter `vpcBpaInternetGatewayBlockMode` is provided, the control passes only if the EC2 VPC BPA value for InternetGatewayBlockMode matches the parameter.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/EC2.172/remediation"
+        }
+    },
+    "ProductFields": {
+        "StandardsArn": "arn:aws:securityhub:::standards/aws-foundational-security-best-practices/v/1.0.0",
+        "StandardsSubscriptionArn": "arn:aws:securityhub:us-east-1:767397707735:subscription/aws-foundational-security-best-practices/v/1.0.0",
+        "ControlId": "EC2.172",
+        "RecommendationUrl": "https://docs.aws.amazon.com/console/securityhub/EC2.172/remediation",
+        "RelatedAWSResources:0/name": "securityhub-ec2-vpc-bpa-internet-gateway-blocked-b3b6d83a",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "StandardsControlArn": "arn:aws:securityhub:us-east-1:767397707735:control/aws-foundational-security-best-practices/v/1.0.0/EC2.172",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "aws/securityhub/annotation": "InternetGatewayBlockMode is not one of block-bidirectional or block-ingress.",
+        "Resources:0/Id": "arn:aws:ec2:us-east-1:767397707735:vpcblockpublicaccessoptions/767397707735",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/securityhub/arn:aws:securityhub:us-east-1:767397707735:subscription/aws-foundational-security-best-practices/v/1.0.0/EC2.172/finding/dfc01d33-f350-40ff-8fb3-e491844ddbca"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2VPCBlockPublicAccessOptions",
+            "Id": "arn:aws:ec2:us-east-1:767397707735:vpcblockpublicaccessoptions/767397707735",
+            "Partition": "aws",
+            "Region": "us-east-1"
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "EC2.172",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ],
+        "SecurityControlParameters": [
+            {
+                "Name": "vpcBpaInternetGatewayBlockMode",
+                "Value": []
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards/AWS-Foundational-Security-Best-Practices"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T15:14:35.178Z",
+    "AwsAccountName": "mn-support-dev"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress EC2.172 on us-east-1 and eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "EC2.172",
+        "regions": [
+          "us-east-1",
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:637423397782:security-control/EC2.172/finding/d2e0a6de-3536-4031-9643-1cc9b4af2538",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/EC2.172",
+    "AwsAccountId": "637423397782",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-01-16T19:28:44.958Z",
+    "LastObservedAt": "2025-01-16T19:28:44.958Z",
+    "CreatedAt": "2025-01-16T19:29:33.540Z",
+    "UpdatedAt": "2025-04-03T15:29:45.563Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 VPC Block Public Access settings should block internet gateway traffic",
+    "Description": "This control checks whether Amazon EC2 VPC Block Public Access (BPA) settings are configured to block internet gateway traffic for all Amazon VPCs in the AWS account. The control fails if EC2 VPC BPA settings aren't configured to block internet gateway traffic. If the parameter `vpcBpaInternetGatewayBlockMode` is provided, the control passes only if the EC2 VPC BPA value for InternetGatewayBlockMode matches the parameter.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/EC2.172/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-vpc-bpa-internet-gateway-blocked-3ab5e19c",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "aws/securityhub/annotation": "InternetGatewayBlockMode is not one of block-bidirectional or block-ingress.",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:637423397782:vpcblockpublicaccessoptions/637423397782",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:637423397782:security-control/EC2.172/finding/d2e0a6de-3536-4031-9643-1cc9b4af2538"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2VPCBlockPublicAccessOptions",
+            "Id": "arn:aws:ec2:eu-central-1:637423397782:vpcblockpublicaccessoptions/637423397782",
+            "Partition": "aws",
+            "Region": "eu-central-1"
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "EC2.172",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ],
+        "SecurityControlParameters": [
+            {
+                "Name": "vpcBpaInternetGatewayBlockMode",
+                "Value": []
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T15:29:59.202Z",
+    "AwsAccountName": "smart-execution-dev"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "product_name": "Health",
+        "title": "AWS Health - AWS_WAF_SECURITY_NOTIFICATION",
+        "resource_id_regexps": [
+          "^211125764712$"
+        ],
+        "regions": [
+          "us-east-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:health:global:211125764712:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+    "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/health",
+    "ProductName": "Health",
+    "CompanyName": "AWS",
+    "Region": "us-east-1",
+    "GeneratorId": "AWS_WAF_SECURITY_NOTIFICATION",
+    "AwsAccountId": "211125764712",
+    "Types": [
+        "Software and Configuration Checks"
+    ],
+    "CreatedAt": "2025-02-26T07:45:41.000Z",
+    "UpdatedAt": "2025-02-26T07:45:41.000Z",
+    "Severity": {
+        "Label": "HIGH",
+        "Normalized": 70
+    },
+    "Title": "AWS Health - AWS_WAF_SECURITY_NOTIFICATION",
+    "Description": "\nBeginning February 24, 2025, we are making a change to AWS WAF IP-based rate rules, which may require your action. Currently, AWS WAF rate-based rules aggregates traffic by individual IP addresses for IP-based keys. After this date, AWS WAF will aggregate based on the /64 prefix instead of individual IPs for IPv6 addresses. We identified your account has an IP-based rate rule which may be affected by this change. If you have Web ACLs with IP-based rate rules for IPv6 addresses, the traffic aggregation method will automatically update from individual IP addresses to /64 prefix-based aggregation, and no action is required. However, if your WAF Full Logs ingestion system relies on the previous IP address format, you may need to adjust your parsing logic. If your Web ACL does not use IP-based rate rules for IPv6 addresses, you are not affected and can disregard this message. \n\nFor additional information, please refer to our \"Using rate-based rule statements in AWS WAF\" user guide [1]. \n\nIf you have(truncated)",
+    "SourceUrl": "https://phd.aws.amazon.com/phd/home#/event-log?eventID=arn:aws:health:global::event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531",
+    "ProductFields": {
+        "HealthEventStartTime": "2025-02-26T00:10:00.000Z",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:us-east-1::product/aws/health/arn:aws:health:global:211125764712:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+        "aws/securityhub/ProductName": "Health",
+        "aws/securityhub/CompanyName": "AWS"
+    },
+    "Resources": [
+        {
+            "Type": "Other",
+            "Id": "211125764712"
+        }
+    ],
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "HIGH"
+        },
+        "Types": [
+            "Software and Configuration Checks"
+        ]
+    },
+    "ProcessedAt": "2025-02-26T07:45:46.801Z",
+    "AwsAccountName": "vad-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/7108cf50-3e39-4190-8f39-91eca9483ee6",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:36.002Z",
+    "LastObservedAt": "2025-04-03T18:09:55.645Z",
+    "CreatedAt": "2025-04-03T11:01:41.299Z",
+    "UpdatedAt": "2025-04-03T18:10:22.148Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0fe80a5297c852f13",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/7108cf50-3e39-4190-8f39-91eca9483ee6"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0fe80a5297c852f13",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-zz2m5",
+                "Name": "ip-10-66-39-17.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-094259346248f45eb"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:10:38.459Z",
+    "AwsAccountName": "fih-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/9b2b38ef-0a49-419a-86c5-7ed6a1bb173f",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:38.282Z",
+    "LastObservedAt": "2025-04-03T18:23:22.264Z",
+    "CreatedAt": "2025-04-03T11:02:21.507Z",
+    "UpdatedAt": "2025-04-03T18:23:40.532Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0935405aafaed7418",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/9b2b38ef-0a49-419a-86c5-7ed6a1bb173f"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0935405aafaed7418",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-z9txb",
+                "Name": "ip-10-66-39-112.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-0af0fb3a8d323fe8c"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:23:50.934Z",
+    "AwsAccountName": "fih-staging"
+  },
+  {
+    "matched_rule": {
+      "note": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "action": "SUPPRESSED",
+      "match_on": {
+        "security_control_id": "SSM.1",
+        "tags": [
+          {
+            "key": "karpenter.sh/nodepool",
+            "value": "platform"
+          }
+        ],
+        "resource_id_regexps": [
+          "^arn:aws:ec2:eu-central-1:767398049650:instance/.*$"
+        ],
+        "regions": [
+          "eu-central-1"
+        ]
+      }
+    },
+    "SchemaVersion": "2018-10-08",
+    "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/1f28b4db-10ee-4ef9-a553-374a5a85a439",
+    "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub",
+    "ProductName": "Security Hub",
+    "CompanyName": "AWS",
+    "Region": "eu-central-1",
+    "GeneratorId": "security-control/SSM.1",
+    "AwsAccountId": "767398049650",
+    "Types": [
+        "Software and Configuration Checks/Industry and Regulatory Standards"
+    ],
+    "FirstObservedAt": "2025-04-03T11:01:37.782Z",
+    "LastObservedAt": "2025-04-03T18:29:09.700Z",
+    "CreatedAt": "2025-04-03T11:02:21.506Z",
+    "UpdatedAt": "2025-04-03T18:29:41.079Z",
+    "Severity": {
+        "Label": "MEDIUM",
+        "Normalized": 40,
+        "Original": "MEDIUM"
+    },
+    "Title": "EC2 instances should be managed by AWS Systems Manager",
+    "Description": "This AWS control checks whether the Amazon EC2 instances in your account are managed by AWS Systems Manager.",
+    "Remediation": {
+        "Recommendation": {
+            "Text": "For information on how to correct this issue, consult the AWS Security Hub controls documentation.",
+            "Url": "https://docs.aws.amazon.com/console/securityhub/SSM.1/remediation"
+        }
+    },
+    "ProductFields": {
+        "RelatedAWSResources:0/name": "securityhub-ec2-instance-managed-by-ssm-2e07fff5",
+        "RelatedAWSResources:0/type": "AWS::Config::ConfigRule",
+        "aws/securityhub/ProductName": "Security Hub",
+        "aws/securityhub/CompanyName": "AWS",
+        "Resources:0/Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0027db18651a0ec01",
+        "aws/securityhub/FindingId": "arn:aws:securityhub:eu-central-1::product/aws/securityhub/arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/1f28b4db-10ee-4ef9-a553-374a5a85a439"
+    },
+    "Resources": [
+        {
+            "Type": "AwsEc2Instance",
+            "Id": "arn:aws:ec2:eu-central-1:767398049650:instance/i-0027db18651a0ec01",
+            "Partition": "aws",
+            "Region": "eu-central-1",
+            "Tags": {
+                "aws:ec2:fleet-id": "fleet-a69d9425-1004-e636-8eb8-2da0c65c1e7b",
+                "kubernetes.io/cluster/fih-staging": "owned",
+                "manager": "karpenter",
+                "aws:eks:cluster-name": "fih-staging",
+                "karpenter.sh/nodepool": "platform",
+                "karpenter.k8s.aws/ec2nodeclass": "default-platform",
+                "eks:eks-cluster-name": "fih-staging",
+                "aws:ec2launchtemplate:version": "1",
+                "aws:ec2launchtemplate:id": "lt-096cf79d579ed1563",
+                "karpenter.sh/nodeclaim": "platform-jqjrm",
+                "Name": "ip-10-66-39-225.eu-central-1.compute.internal"
+            },
+            "Details": {
+                "AwsEc2Instance": {
+                    "ImageId": "ami-00430ef1ebb6af13b",
+                    "IamInstanceProfileArn": "arn:aws:iam::767398049650:instance-profile/fih-staging_14541232739907692484",
+                    "VpcId": "vpc-0970ffc034e2b48be",
+                    "SubnetId": "subnet-0121bf5aad3d647d9",
+                    "LaunchedAt": "2025-04-03T09:00:24.000Z",
+                    "NetworkInterfaces": [
+                        {
+                            "NetworkInterfaceId": "eni-01926fc2ae756f1b8"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "MetadataOptions": {
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpTokens": "required",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "Monitoring": {
+                        "State": "enabled"
+                    }
+                }
+            }
+        }
+    ],
+    "Compliance": {
+        "Status": "FAILED",
+        "SecurityControlId": "SSM.1",
+        "AssociatedStandards": [
+            {
+                "StandardsId": "standards/aws-foundational-security-best-practices/v/1.0.0"
+            }
+        ]
+    },
+    "WorkflowState": "NEW",
+    "Workflow": {
+        "Status": "NEW"
+    },
+    "RecordState": "ACTIVE",
+    "FindingProviderFields": {
+        "Severity": {
+            "Label": "MEDIUM",
+            "Original": "MEDIUM"
+        },
+        "Types": [
+            "Software and Configuration Checks/Industry and Regulatory Standards"
+        ]
+    },
+    "ProcessedAt": "2025-04-03T18:30:04.346Z",
+    "AwsAccountName": "fih-staging"
   }
 ]

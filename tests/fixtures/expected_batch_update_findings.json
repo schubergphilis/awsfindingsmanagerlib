@@ -89,5 +89,77 @@
       "Text": "We also support legacy format findings",
       "UpdatedBy": "FindingsManager"
     }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:us-east-1:767398049650:subscription/aws-foundational-security-best-practices/v/1.0.0/Macie.1/finding/16867b8b-0bfd-4aa1-aa3e-833b4922bbe7",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress Macie.1 on us-east-1 only",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:us-east-1:767397707735:subscription/aws-foundational-security-best-practices/v/1.0.0/EC2.172/finding/dfc01d33-f350-40ff-8fb3-e491844ddbca",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-central-1:637423397782:security-control/EC2.172/finding/d2e0a6de-3536-4031-9643-1cc9b4af2538",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress EC2.172 on us-east-1 and eu-central-1",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:health:global:211125764712:event/WAF/AWS_WAF_SECURITY_NOTIFICATION/AWS_WAF_SECURITY_NOTIFICATION_76945568b6822c355096fff2f9e00d08b6948f413151dc386d266c1f34e12531/07b74578d3dff37c0698d2f92c54a1f2e709d7ca",
+        "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/health"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1",
+      "UpdatedBy": "FindingsManager"
+    }
+  },
+  {
+    "FindingIdentifiers": [
+      {
+        "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/7108cf50-3e39-4190-8f39-91eca9483ee6",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/9b2b38ef-0a49-419a-86c5-7ed6a1bb173f",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub"
+      },
+      {
+        "Id": "arn:aws:securityhub:eu-central-1:767398049650:security-control/SSM.1/finding/1f28b4db-10ee-4ef9-a553-374a5a85a439",
+        "ProductArn": "arn:aws:securityhub:eu-central-1::product/aws/securityhub"
+      }
+    ],
+    "Workflow": {
+      "Status": "SUPPRESSED"
+    },
+    "Note": {
+      "Text": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
+      "UpdatedBy": "FindingsManager"
+    }
   }
 ]

@@ -1,9 +1,11 @@
 # Comments
 Rules:
+  # Test security_control_id filtering
   - note: 'MF-Neigh'
     action: 'SUPPRESSED'
     match_on:
       security_control_id: 'S3.20'
+  # Test security_control_id + tags filtering
   - note: 'Config as code'
     action: 'SUPPRESSED'
     match_on:
@@ -13,6 +15,7 @@ Rules:
           value: 'Terraform'
         - key: 'ManagedBy'
           value: 'CFN'
+  # Test security_control_id + resource_id_regexps filtering
   - note: 'Too expensive on non-prod'
     action: 'SUPPRESSED'
     match_on:
@@ -20,6 +23,7 @@ Rules:
       resource_id_regexps:
         - '^arn:aws:s3:::.*-dev$'
         - '^arn:aws:s3:::.*-acc$'
+  # Test product_name + title + resource_id_regexps filtering
   - note: 'We support Inspector too'
     action: 'SUPPRESSED'
     match_on:
@@ -27,7 +31,45 @@ Rules:
       title: 'CVE-2021-3737 - python3.10, python3.10-minimal'
       resource_id_regexps:
         - '^arn:aws:ec2:.*:.*:instance/.*$'
+  # Test Legacy format filtering
   - note: 'We also support legacy format findings'
     action: 'SUPPRESSED'
     match_on:
-      rule_or_control_id: 'GuardDuty.5'  #Legacy format
+      rule_or_control_id: 'GuardDuty.5'
+  # Test security_control_id + single region filtering
+  - note: 'Suppress Macie.1 on us-east-1 only'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'Macie.1'
+      regions:
+        - 'us-east-1'
+  # Test security_control_id + multiple region filtering
+  - note: 'Suppress EC2.172 on us-east-1 and eu-central-1'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'EC2.172'
+      regions:
+        - 'us-east-1'
+        - 'eu-central-1'
+  # Test ProductName + Title + resource_id_regexps + region filtering
+  - note: 'Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1'
+    action: 'SUPPRESSED'
+    match_on:
+      product_name: 'Health'
+      title: 'AWS Health - AWS_WAF_SECURITY_NOTIFICATION'
+      resource_id_regexps:
+        - '^211125764712$'
+      regions:
+        - 'us-east-1'
+  # Test security_control_id + resource_id_regexps + tags + region filtering
+  - note: 'Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1'
+    action: 'SUPPRESSED'
+    match_on:
+      security_control_id: 'SSM.1'
+      tags:
+        - key: 'karpenter.sh/nodepool'
+          value: 'platform'
+      resource_id_regexps:
+        - '^arn:aws:ec2:eu-central-1:767398049650:instance/.*$'
+      regions:
+        - 'eu-central-1'
