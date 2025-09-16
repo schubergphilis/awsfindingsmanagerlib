@@ -71,3 +71,9 @@ History
 
 * Adds support for filtering findings by region.
 * Bump dependencies.
+
+
+1.3.1 (16-09-2025)
+------------------
+
+* chore: bump dependencies
