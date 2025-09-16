@@ -49,7 +49,6 @@ def upload():
         LOGGER.error('Prerequisite environment variable for upload missing, cannot continue.')
         raise SystemExit(1)
     upload_command = ('twine upload dist/* '
-                      f'-u {os.environ.get("PYPI_UPLOAD_USERNAME")} '
                       f'-p {os.environ.get("PYPI_UPLOAD_PASSWORD")} '
                       '--skip-existing '
                       f'--repository-url {os.environ.get("PYPI_URL")}')
