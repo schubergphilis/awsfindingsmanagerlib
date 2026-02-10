@@ -27,6 +27,7 @@ Main code for awsfindingsmanagerlib.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 from collections import defaultdict
@@ -272,6 +273,11 @@ class Finding:
     def updated_at(self) -> Optional[datetime]:
         """Updated at."""
         return self._parse_date_time(self._data.get('UpdatedAt'))
+
+    @property
+    def note_text(self) -> str:
+        """Note text."""
+        return self._data.get('Note', {}).get('Text', '')
 
     def _parse_date_time(self, datetime_string) -> Optional[datetime]:
         """Parses a datetime string to a datetime object.
@@ -978,13 +984,28 @@ class FindingsManager:
             rule_findings_mapping[finding.matched_rule].append(finding)
         # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
         for rule, findings_ in rule_findings_mapping.items():
-            for chunk in FindingsManager._chunk([{'Id': finding.id,
-                                                  'ProductArn': finding.product_arn}
-                                                 for finding in findings_], MAX_SUPPRESSION_PAYLOAD_SIZE):
-                yield {'FindingIdentifiers': chunk,
-                       'Workflow': {'Status': rule.action},
-                       'Note': {'Text': rule.note,
-                                'UpdatedBy': self._suppress_label}}
+            # Group findings by their final note content for efficient batching
+            note_findings_mapping = defaultdict(list)
+            for finding in findings_:
+                # Parse existing note and merge if it's valid JSON dict, otherwise create new
+                note_text = finding.note_text
+                try:
+                    existing_note = json.loads(note_text) if note_text else {}
+                    note = {**existing_note, 'suppressionNote': rule.note} if isinstance(existing_note, dict) else {'suppressionNote': rule.note}
+                except json.JSONDecodeError:
+                    note = {'suppressionNote': rule.note}
+
+                note_key = json.dumps(note, sort_keys=True)
+                note_findings_mapping[note_key].append(finding)
+
+            # Batch findings with identical notes
+            for note_key, findings_with_same_note in note_findings_mapping.items():
+                for chunk in FindingsManager._chunk([{'Id': finding.id, 'ProductArn': finding.product_arn}
+                                                     for finding in findings_with_same_note], MAX_SUPPRESSION_PAYLOAD_SIZE):
+                    yield {'FindingIdentifiers': chunk,
+                           'Workflow': {'Status': rule.action},
+                           'Note': {'Text': note_key,
+                                    'UpdatedBy': self._suppress_label}}
 
     def _get_unsuppressing_payload(self, findings: List[Finding]):
         """Constructs a payload compatible with security hub for all findings for unsuppressing.
@@ -1021,8 +1042,8 @@ class FindingsManager:
         method = self._get_suppressing_payload if suppress else self._get_unsuppressing_payload
         security_hub = self._get_security_hub_client(self.aws_region)
         result = list(self._batch_apply_payloads(security_hub,
-                                                method(findings),  # noqa
-                                                message_state))
+                                                 method(findings),  # noqa
+                                                 message_state))
         if result:
             successes, payloads = zip(*result)
         else:

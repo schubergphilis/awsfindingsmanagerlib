@@ -119,6 +119,38 @@ Either ``regions``, ``tags``, or ``resource_id_regexps`` (or all) can be provide
 When no ``regions`` are set, the rule will match findings from all regions.
 
 
+Note Preservation
+=================
+
+When suppressing findings, awsfindingsmanagerlib preserves existing metadata in finding notes.
+Notes are stored in JSON format to support structured data while maintaining the suppression reason.
+
+The library handles three scenarios:
+
+1. **No existing note or empty note**: Creates a new JSON note with the suppression reason
+
+   .. code-block:: json
+
+       {"suppressionNote": "Suppress SSM.7 findings"}
+
+2. **Existing plain text note**: Replaces the plain text with a JSON note containing the suppression reason
+
+   .. code-block:: json
+
+       # Before: "Suppress SSM.7 findings"
+       # After:  {"suppressionNote": "Suppress SSM.7 findings"}
+
+3. **Existing JSON note**: Merges the suppression reason with existing metadata
+
+   .. code-block:: json
+
+       # Before: {"jiraIssue": "PROJ-123"}
+       # After:  {"jiraIssue": "PROJ-123", "suppressionNote": "Suppress SSM.7 findings"}
+
+This approach allows you to track additional metadata (like Jira issues, owners, timestamps) alongside
+the automated suppression, without losing information when findings are updated.
+
+
 Valid Credentials
 ==============================
 
