@@ -991,7 +991,9 @@ class FindingsManager:
                 note_text = finding.note_text
                 try:
                     existing_note = json.loads(note_text) if note_text else {}
-                    note = {**existing_note, 'suppressionNote': rule.note} if isinstance(existing_note, dict) else {'suppressionNote': rule.note}
+                    note = {**existing_note, 'suppressionNote': rule.note} \
+                        if isinstance(existing_note, dict) \
+                        else {'suppressionNote': rule.note}
                 except json.JSONDecodeError:
                     note = {'suppressionNote': rule.note}
 
