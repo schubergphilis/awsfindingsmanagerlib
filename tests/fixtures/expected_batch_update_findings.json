@@ -14,7 +14,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Too expensive on non-prod\"}",
+      "Text": "Too expensive on non-prod",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -33,7 +33,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Config as code\"}",
+      "Text": "Config as code",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -56,7 +56,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"MF-Neigh\"}",
+      "Text": "MF-Neigh",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -71,7 +71,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"We support Inspector too\"}",
+      "Text": "We support Inspector too",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -86,7 +86,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"We also support legacy format findings\"}",
+      "Text": "We also support legacy format findings",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -101,7 +101,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Suppress Macie.1 on us-east-1 only\"}",
+      "Text": "Suppress Macie.1 on us-east-1 only",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -120,7 +120,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Suppress EC2.172 on us-east-1 and eu-central-1\"}",
+      "Text": "Suppress EC2.172 on us-east-1 and eu-central-1",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -135,7 +135,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1\"}",
+      "Text": "Suppress AWS_WAF_SECURITY_NOTIFICATION on us-east-1",
       "UpdatedBy": "FindingsManager"
     }
   },
@@ -158,7 +158,7 @@
       "Status": "SUPPRESSED"
     },
     "Note": {
-      "Text": "{\"suppressionNote\": \"Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1\"}",
+      "Text": "Suppress SSM.1 on Account 767398049650, platform nodepools, eu-central-1",
       "UpdatedBy": "FindingsManager"
     }
   }

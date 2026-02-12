@@ -32,10 +32,11 @@ import logging
 import os
 from collections import defaultdict
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import datetime
 from itertools import islice
 from re import search
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union, Optional, Literal
 
 import boto3
 import botocore.errorfactory
@@ -513,7 +514,7 @@ class Rule:
             return {}
 
         return {'Region': [{'Value': region,
-                           'Comparison': 'EQUALS'}
+                            'Comparison': 'EQUALS'}
                            for region in regions]}
 
     @staticmethod
@@ -610,6 +611,39 @@ class Rule:
         return deepcopy(query)
 
 
+@dataclass(frozen=True)
+class NoteTextConfig:
+    """Configuration for note text handling in findings.
+
+    Controls how note text is formatted when suppressing findings.
+
+    Args:
+        format: Format for note text - "text" for plain text or "json" for structured JSON
+        key: JSON key to store suppression note when format is "json".
+             Defaults to "Note" if not provided.
+
+    """
+
+    format: Literal["text", "json"] = "text"
+    key: Optional[str] = None
+
+    DEFAULT_KEY = "Note"
+
+    def __post_init__(self):
+        if self.format not in ("text", "json"):
+            raise ValueError("format must be 'text' or 'json'.")
+
+        if self.format == "json":
+            # Check if key was explicitly set to empty/whitespace before defaulting
+            if self.key is not None and not self.key.strip():
+                raise ValueError("key must be non-empty when format is 'json'.")
+            key = self.key or self.DEFAULT_KEY
+            object.__setattr__(self, "key", key)
+        elif self.key is not None:
+            # Ensure key is None when format is text
+            object.__setattr__(self, "key", None)
+
+
 class FindingsManager:
     """Models security hub and can retrieve findings and suppress them."""
 
@@ -621,7 +655,8 @@ class FindingsManager:
                  allowed_account_ids: Optional[List[str]] = None,
                  denied_account_ids: Optional[List[str]] = None,
                  strict_mode: bool = True,
-                 suppress_label: str = None):
+                 suppress_label: str = None,
+                 note_text: Optional[NoteTextConfig] = None):
         self._logger = logging.getLogger(
             f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self.allowed_regions, self.denied_regions = validate_allowed_denied_regions(allowed_regions,
@@ -637,6 +672,7 @@ class FindingsManager:
         self._strict_mode = strict_mode
         self._rules_errors = []
         self._suppress_label = suppress_label or self.__class__.__name__
+        self._note_text_config = note_text or NoteTextConfig()
 
     @property
     def default_query_filter(self):
@@ -986,27 +1022,34 @@ class FindingsManager:
         for rule, findings_ in rule_findings_mapping.items():
             # Group findings by their final note content for efficient batching
             note_findings_mapping = defaultdict(list)
-            for finding in findings_:
-                # Parse existing note and merge if it's valid JSON dict, otherwise create new
-                note_text = finding.note_text
-                try:
-                    existing_note = json.loads(note_text) if note_text else {}
-                    note = {**existing_note, 'suppressionNote': rule.note} \
-                        if isinstance(existing_note, dict) \
-                        else {'suppressionNote': rule.note}
-                except json.JSONDecodeError:
-                    note = {'suppressionNote': rule.note}
 
-                note_key = json.dumps(note, sort_keys=True)
-                note_findings_mapping[note_key].append(finding)
+            if self._note_text_config.format == "json":
+                # JSON format: Group findings by their final note content
+                for finding in findings_:
+                    # Parse existing note and merge if it's valid JSON dict, otherwise create new
+                    note_text = finding.note_text
+                    try:
+                        existing_note = json.loads(note_text) if note_text else {}
+                        note = {**existing_note, self._note_text_config.key: rule.note} \
+                            if isinstance(existing_note, dict) \
+                            else {self._note_text_config.key: rule.note}
+                    except json.JSONDecodeError:
+                        note = {self._note_text_config.key: rule.note}
 
-            # Batch findings with identical notes
-            for note_key, findings_with_same_note in note_findings_mapping.items():
-                for chunk in FindingsManager._chunk([{'Id': finding.id, 'ProductArn': finding.product_arn}
+                    note_key = json.dumps(note, sort_keys=True)
+                    note_findings_mapping[note_key].append(finding)
+            else:
+                # Text format: All findings get the same plain text note
+                note_findings_mapping[rule.note] = findings_
+
+            # Batch findings with identical notes and construct payloads
+            for note_text, findings_with_same_note in note_findings_mapping.items():
+                for chunk in FindingsManager._chunk([{'Id': finding.id,
+                                                      'ProductArn': finding.product_arn}
                                                      for finding in findings_with_same_note], MAX_SUPPRESSION_PAYLOAD_SIZE):
                     yield {'FindingIdentifiers': chunk,
                            'Workflow': {'Status': rule.action},
-                           'Note': {'Text': note_key,
+                           'Note': {'Text': note_text,
                                     'UpdatedBy': self._suppress_label}}
 
     def _get_unsuppressing_payload(self, findings: List[Finding]):

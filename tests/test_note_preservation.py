@@ -29,7 +29,7 @@ Tests for `awsfindingsmanagerlib` module.
 
 import json
 from unittest import TestCase
-from awsfindingsmanagerlib import Finding, Rule
+from awsfindingsmanagerlib import Finding, Rule, NoteTextConfig
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>'''
 __docformat__ = '''google'''
@@ -41,9 +41,190 @@ __maintainer__ = '''Marwin Baumann'''
 __email__ = '''<mbaumann@schubergphilis.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
+class TestNoteTextConfig(TestCase):
+    """Test NoteTextConfig dataclass validation."""
 
-class TestNotePreservation(TestCase):
-    """Test note preservation logic when suppressing findings."""
+    def test_default_config(self):
+        """Test default configuration."""
+        config = NoteTextConfig()
+        self.assertEqual(config.format, "text")
+        self.assertIsNone(config.key)
+
+    def test_json_format_default_key(self):
+        """Test JSON format uses default key when not specified."""
+        config = NoteTextConfig(format="json")
+        self.assertEqual(config.format, "json")
+        self.assertEqual(config.key, "Note")
+
+    def test_json_format_custom_key(self):
+        """Test JSON format with custom key."""
+        config = NoteTextConfig(format="json", key="customNote")
+        self.assertEqual(config.format, "json")
+        self.assertEqual(config.key, "customNote")
+
+    def test_text_format_ignores_key(self):
+        """Test text format ignores key parameter."""
+        config = NoteTextConfig(format="text", key="shouldBeIgnored")
+        self.assertEqual(config.format, "text")
+        self.assertIsNone(config.key)
+
+    def test_invalid_format(self):
+        """Test invalid format raises error."""
+        with self.assertRaises(ValueError) as context:
+            NoteTextConfig(format="invalid")
+        self.assertIn("format must be 'text' or 'json'", str(context.exception))
+
+    def test_json_format_empty_key(self):
+        """Test JSON format with empty key raises error."""
+        with self.assertRaises(ValueError) as context:
+            NoteTextConfig(format="json", key="")
+        self.assertIn("key must be non-empty", str(context.exception))
+
+    def test_json_format_whitespace_key(self):
+        """Test JSON format with whitespace-only key raises error."""
+        with self.assertRaises(ValueError) as context:
+            NoteTextConfig(format="json", key="   ")
+        self.assertIn("key must be non-empty", str(context.exception))
+
+
+class TestNoteTextMode(TestCase):
+    """Test note handling when suppressing findings with text mode (default)."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.rule = Rule(
+            note="Default - Suppress SSM.7 findings",
+            action="SUPPRESSED",
+            match_on={"rule_or_control_id": "SSM.7"}
+        )
+
+        self.base_finding_data = {
+            'FindingProviderFields': {'Types': ['test']},
+            'AwsAccountId': '123456789012',
+            'RecordState': 'ACTIVE',
+            'Resources': [{'Type': 'AwsEc2Instance', 'Id': 'i-1234567890abcdef0'}],
+            'UpdatedAt': '2024-01-01T00:00:00.000Z',
+            'CompanyName': 'AWS',
+            'Description': 'Test finding',
+            'Workflow': {'Status': 'NEW'},
+            'Title': 'Test Finding',
+            'ProductFields': {'ControlId': 'SSM.7'},
+            'Id': 'arn:aws:securityhub:eu-west-1:123456789012:security-control/SSM.7/finding/test-1',
+            'Severity': {'Label': 'HIGH'},
+            'Region': 'eu-west-1',
+            'Types': ['Software and Configuration Checks'],
+            'ProductName': 'Security Hub',
+            'WorkflowState': 'NEW',
+            'ProductArn': 'arn:aws:securityhub:eu-west-1::product/aws/securityhub',
+            'SchemaVersion': '2018-10-08',
+            'GeneratorId': 'security-control/SSM.7',
+            'CreatedAt': '2024-01-01T00:00:00.000Z'
+        }
+
+    def test_text_mode_no_existing_note(self):
+        """No existing note results in plain text note."""
+        finding_data = self.base_finding_data.copy()
+        finding = Finding(finding_data)
+        finding.matched_rule = self.rule
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="text")
+
+        payloads = list(manager._get_suppressing_payload([finding]))
+
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        note_text = payload['Note']['Text']
+        self.assertEqual(note_text, "Default - Suppress SSM.7 findings")
+
+    def test_text_mode_existing_note_replaced(self):
+        """Existing note is replaced with plain text note."""
+        finding_data = self.base_finding_data.copy()
+        finding_data['Note'] = {'Text': '{"jiraIssue": "PROJ-123"}'}
+        finding = Finding(finding_data)
+        finding.matched_rule = self.rule
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="text")
+
+        payloads = list(manager._get_suppressing_payload([finding]))
+
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        # Note should be plain text, existing JSON note is replaced
+        note_text = payload['Note']['Text']
+        self.assertEqual(note_text, "Default - Suppress SSM.7 findings")
+
+    def test_text_mode_all_findings_batched_together(self):
+        """All findings with same rule are batched together regardless of existing notes."""
+        findings = []
+
+        # Finding 1: No note
+        finding_data_1 = self.base_finding_data.copy()
+        finding_data_1['Id'] = 'arn:aws:securityhub:eu-west-1:123456789012:security-control/SSM.7/finding/test-1'
+        finding_1 = Finding(finding_data_1)
+        finding_1.matched_rule = self.rule
+        findings.append(finding_1)
+
+        # Finding 2: Text note
+        finding_data_2 = self.base_finding_data.copy()
+        finding_data_2['Id'] = 'arn:aws:securityhub:eu-west-1:123456789012:security-control/SSM.7/finding/test-2'
+        finding_data_2['Note'] = {'Text': 'Default - Suppress SSM.7 findings'}
+        finding_2 = Finding(finding_data_2)
+        finding_2.matched_rule = self.rule
+        findings.append(finding_2)
+
+        # Finding 3: Text note
+        finding_data_3 = self.base_finding_data.copy()
+        finding_data_3['Id'] = 'arn:aws:securityhub:eu-west-1:123456789012:security-control/SSM.7/finding/test-3'
+        finding_data_3['Note'] = {'Text': 'Default - Suppress SSM.7 findings'}
+        finding_3 = Finding(finding_data_3)
+        finding_3.matched_rule = self.rule
+        findings.append(finding_3)
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="text")
+
+        payloads = list(manager._get_suppressing_payload(findings))
+
+        # All 3 findings should be in a single batch since text mode uses the same note for all
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        self.assertEqual(len(payload['FindingIdentifiers']), 3)
+        note_text = payload['Note']['Text']
+        self.assertEqual(note_text, "Default - Suppress SSM.7 findings")
+
+    def test_text_mode_default_config(self):
+        """Test that text mode is the default when no config is provided."""
+        finding_data = self.base_finding_data.copy()
+        finding = Finding(finding_data)
+        finding.matched_rule = self.rule
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig()  # Default config
+
+        payloads = list(manager._get_suppressing_payload([finding]))
+
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        # Should use plain text format
+        note_text = payload['Note']['Text']
+        self.assertEqual(note_text, "Default - Suppress SSM.7 findings")
+
+class TestNoteJsonMode(TestCase):
+    """Test note behaviour logic when suppressing findings with JSON mode."""
 
     def setUp(self):
         """Set up test fixtures."""
@@ -83,10 +264,11 @@ class TestNotePreservation(TestCase):
         finding = Finding(finding_data)
         finding.matched_rule = self.rule
 
-        # Simulate the payload generation
+        # Simulate the payload generation with JSON mode
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -94,7 +276,7 @@ class TestNotePreservation(TestCase):
         payload = payloads[0]
 
         note_text = json.loads(payload['Note']['Text'])
-        self.assertEqual(note_text, {"suppressionNote": "Default - Suppress SSM.7 findings"})
+        self.assertEqual(note_text, {"Note": "Default - Suppress SSM.7 findings"})
 
     def test_empty_existing_note(self):
         """Test scenario 1: Empty string note."""
@@ -106,6 +288,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -113,7 +296,7 @@ class TestNotePreservation(TestCase):
         payload = payloads[0]
 
         note_text = json.loads(payload['Note']['Text'])
-        self.assertEqual(note_text, {"suppressionNote": "Default - Suppress SSM.7 findings"})
+        self.assertEqual(note_text, {"Note": "Default - Suppress SSM.7 findings"})
 
     def test_plain_text_note_replacement(self):
         """Test scenario 2: Existing plain text note should be replaced."""
@@ -125,6 +308,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -132,7 +316,7 @@ class TestNotePreservation(TestCase):
         payload = payloads[0]
 
         note_text = json.loads(payload['Note']['Text'])
-        self.assertEqual(note_text, {"suppressionNote": "Default - Suppress SSM.7 findings"})
+        self.assertEqual(note_text, {"Note": "Default - Suppress SSM.7 findings"})
 
     def test_json_note_preservation(self):
         """Test scenario 3: Existing JSON note should be merged."""
@@ -144,6 +328,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -153,7 +338,7 @@ class TestNotePreservation(TestCase):
         note_text = json.loads(payload['Note']['Text'])
         self.assertEqual(note_text, {
             "jiraIssue": "PROJ-123",
-            "suppressionNote": "Default - Suppress SSM.7 findings"
+            "Note": "Default - Suppress SSM.7 findings"
         })
 
     def test_json_note_with_multiple_fields(self):
@@ -166,6 +351,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -177,19 +363,20 @@ class TestNotePreservation(TestCase):
             "jiraIssue": "PROJ-123",
             "owner": "team-a",
             "timestamp": "2024-01-01",
-            "suppressionNote": "Default - Suppress SSM.7 findings"
+            "Note": "Default - Suppress SSM.7 findings"
         })
 
     def test_json_note_overwrites_existing_suppression_note(self):
-        """Test that existing suppressionNote is overwritten."""
+        """Test scenario 4: Existing Note is overwritten."""
         finding_data = self.base_finding_data.copy()
-        finding_data['Note'] = {'Text': '{"jiraIssue": "PROJ-123", "suppressionNote": "Old note"}'}
+        finding_data['Note'] = {'Text': '{"jiraIssue": "PROJ-123", "Note": "Old note"}'}
         finding = Finding(finding_data)
         finding.matched_rule = self.rule
 
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload([finding]))
 
@@ -199,11 +386,31 @@ class TestNotePreservation(TestCase):
         note_text = json.loads(payload['Note']['Text'])
         self.assertEqual(note_text, {
             "jiraIssue": "PROJ-123",
-            "suppressionNote": "Default - Suppress SSM.7 findings"
+            "Note": "Default - Suppress SSM.7 findings"
         })
 
+    def test_existing_matching_suppression_note(self):
+        """Test Scenario 5: Existing matching Note is preserved unchanged."""
+        finding_data = self.base_finding_data.copy()
+        finding_data['Note'] = {'Text': '{"Note": "Default - Suppress SSM.7 findings"}'}
+        finding = Finding(finding_data)
+        finding.matched_rule = self.rule
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
+
+        payloads = list(manager._get_suppressing_payload([finding]))
+
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        note_text = json.loads(payload['Note']['Text'])
+        self.assertEqual(note_text, {"Note": "Default - Suppress SSM.7 findings"})
+
     def test_batching_by_note_content(self):
-        """Test that findings with identical notes are batched together."""
+        """Test Scenario 6: Test that findings with identical notes are batched together."""
         # Create multiple findings with same note
         findings = []
         for i in range(3):
@@ -217,6 +424,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload(findings))
 
@@ -228,11 +436,11 @@ class TestNotePreservation(TestCase):
         note_text = json.loads(payload['Note']['Text'])
         self.assertEqual(note_text, {
             "jiraIssue": "PROJ-123",
-            "suppressionNote": "Default - Suppress SSM.7 findings"
+            "Note": "Default - Suppress SSM.7 findings"
         })
 
     def test_separate_batches_for_different_notes(self):
-        """Test that findings with different notes are in separate batches."""
+        """Test Scanario 7: Test that findings with different notes are in separate batches."""
         findings = []
 
         # Finding 1: No note
@@ -261,6 +469,7 @@ class TestNotePreservation(TestCase):
         from awsfindingsmanagerlib import FindingsManager
         manager = FindingsManager.__new__(FindingsManager)
         manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json")
 
         payloads = list(manager._get_suppressing_payload(findings))
 
@@ -269,6 +478,33 @@ class TestNotePreservation(TestCase):
 
         # Verify each batch has correct note
         note_texts = [json.loads(p['Note']['Text']) for p in payloads]
-        self.assertIn({"suppressionNote": "Default - Suppress SSM.7 findings"}, note_texts)
-        self.assertIn({"jiraIssue": "PROJ-123", "suppressionNote": "Default - Suppress SSM.7 findings"}, note_texts)
-        self.assertIn({"jiraIssue": "PROJ-456", "suppressionNote": "Default - Suppress SSM.7 findings"}, note_texts)
+        self.assertIn({"Note": "Default - Suppress SSM.7 findings"}, note_texts)
+        self.assertIn({"jiraIssue": "PROJ-123", "Note": "Default - Suppress SSM.7 findings"}, note_texts)
+        self.assertIn({"jiraIssue": "PROJ-456", "Note": "Default - Suppress SSM.7 findings"}, note_texts)
+
+    def test_custom_json_key(self):
+        """Test that custom JSON key is used when configured."""
+        finding_data = self.base_finding_data.copy()
+        finding_data['Note'] = {'Text': '{"jiraIssue": "PROJ-123"}'}
+        finding = Finding(finding_data)
+        finding.matched_rule = self.rule
+
+        from awsfindingsmanagerlib import FindingsManager
+        manager = FindingsManager.__new__(FindingsManager)
+        manager._suppress_label = "TestManager"
+        manager._note_text_config = NoteTextConfig(format="json", key="customNote")
+
+        payloads = list(manager._get_suppressing_payload([finding]))
+
+        self.assertEqual(len(payloads), 1)
+        payload = payloads[0]
+
+        note_text = json.loads(payload['Note']['Text'])
+        self.assertEqual(note_text, {
+            "jiraIssue": "PROJ-123",
+            "customNote": "Default - Suppress SSM.7 findings"
+        })
+        # Ensure default key is not present
+        self.assertNotIn("Note", note_text)
+
+

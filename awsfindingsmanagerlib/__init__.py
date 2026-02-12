@@ -26,7 +26,7 @@ Import all parts from awsfindingsmanagerlib here
    https://google.github.io/styleguide/pyguide.html
 """
 from ._version import __version__
-from .awsfindingsmanagerlib import FindingsManager, Rule, Finding
+from .awsfindingsmanagerlib import FindingsManager, Rule, Finding, NoteTextConfig
 from .backends import Http, Local, S3
 
 __author__ = '''Marwin Baumann <mbaumann@schubergphilis.com>, Costas Tyfoxylos <ctyfoxylos@schubergphilis.com>'''
@@ -44,6 +44,7 @@ assert __version__
 assert FindingsManager
 assert Rule
 assert Finding
+assert NoteTextConfig
 
 assert Http
 assert Local
