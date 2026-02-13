@@ -613,14 +613,29 @@ class Rule:
 
 @dataclass(frozen=True)
 class NoteTextConfig:
-    """Configuration for note text handling in findings.
+    """Immutable configuration for note text handling in findings.
 
-    Controls how note text is formatted when suppressing findings.
+    Controls how note text is formatted when suppressing findings. This class is frozen
+    to prevent accidental modification after initialization.
 
     Args:
-        format: Format for note text - "text" for plain text or "json" for structured JSON
-        key: JSON key to store suppression note when format is "json".
-             Defaults to "Note" if not provided.
+        format: Format for note text - "text" for plain text (default) or "json" for structured JSON.
+        key: JSON key to store suppression note when format is "json". Automatically defaults to "Note".
+
+    Behavior:
+        - When format="json" and key is None: key is set to "Note"
+        - When format="json" and key is provided: uses the provided key
+        - When format="text": key is forced to None (any provided value is ignored)
+
+    Examples:
+        >>> NoteTextConfig()  # Default: text format
+        NoteTextConfig(format='text', key=None)
+
+        >>> NoteTextConfig(format="json")  # JSON format with default key
+        NoteTextConfig(format='json', key='Note')
+
+        >>> NoteTextConfig(format="json", key="SuppressionReason")
+        NoteTextConfig(format='json', key='SuppressionReason')
 
     """
 
@@ -630,17 +645,20 @@ class NoteTextConfig:
     DEFAULT_KEY = "Note"
 
     def __post_init__(self):
+        """Validate and normalize configuration after initialization."""
         if self.format not in ("text", "json"):
             raise ValueError("format must be 'text' or 'json'.")
 
         if self.format == "json":
-            # Check if key was explicitly set to empty/whitespace before defaulting
+            # Validate that key is not empty/whitespace if explicitly provided
             if self.key is not None and not self.key.strip():
                 raise ValueError("key must be non-empty when format is 'json'.")
+            # Default to DEFAULT_KEY if key is None
             key = self.key or self.DEFAULT_KEY
+            # Uses object.__setattr__() because this is a frozen dataclass.
             object.__setattr__(self, "key", key)
         elif self.key is not None:
-            # Ensure key is None when format is text
+            # Force key to None when format is text (ignore any provided value)
             object.__setattr__(self, "key", None)
 
 
@@ -1002,8 +1020,18 @@ class FindingsManager:
     def _get_suppressing_payload(self, findings: List[Finding]):
         """Constructs a payload compatible with security hub for all findings based on their matching rules.
 
-        Findings are grouped per common rule and a payload of up to MAX_SUPPRESSION_PAYLOAD_SIZE (currently 100 items)
-        is constructed per common rule and yielded.
+        This method implements a two-level grouping strategy for efficient batching:
+        1. Group findings by their matched rule
+        2. Within each rule group, further group by final note content
+
+        The second level of grouping is necessary because findings with identical notes can be
+        batched together in a single API call, optimizing performance and API usage.
+
+        Note Format Handling:
+            - Text format: Uses rule.note directly as plain text
+            - JSON format: Merges rule.note into existing note JSON (if valid) under the configured key,
+                          preserving other fields in the note. If existing note is not valid JSON,
+                          creates a new JSON object with just the suppression note.
 
         Args:
             findings: A list of findings to generate suppression payloads for.
@@ -1012,41 +1040,58 @@ class FindingsManager:
             A generator with suppressing payloads per common note chunked at MAX_SUPPRESSION_PAYLOAD_SIZE
 
         """
+        # Normalize input to list format (accepts single finding, list, tuple, or set)
         findings = findings if isinstance(
             findings, (list, tuple, set)) else [findings]
+
+        # Ensure all findings have a matched rule assigned
         findings = self._validate_rule_in_findings(findings)
+
+        # First-level grouping: Organize findings by their matched rule
+        # This groups findings that will use the same suppression action and base note
         rule_findings_mapping = defaultdict(list)
         for finding in findings:
             rule_findings_mapping[finding.matched_rule].append(finding)
-        # payload of FindingIdentifiers cannot be more than 100 items as per 05/01/24
+
+        # Process each rule group separately
         for rule, findings_ in rule_findings_mapping.items():
-            # Group findings by their final note content for efficient batching
+            # Second-level grouping: Organize findings by their final note text
+            # Findings with identical final notes can be batched in a single API call
             note_findings_mapping = defaultdict(list)
 
             if self._note_text_config.format == "json":
-                # JSON format: Group findings by their final note content
+                # JSON format: Merge suppression note into existing note structure
                 for finding in findings_:
-                    # Parse existing note and merge if it's valid JSON dict, otherwise create new
                     note_text = finding.note_text
+
+                    # Attempt to parse and merge with existing note JSON
                     try:
+                        # Parse existing note if present, otherwise start with empty dict
                         existing_note = json.loads(note_text) if note_text else {}
+
+                        # Merge: Add suppression note under configured key, preserving other fields
+                        # If existing note is not a dict (e.g., JSON array), replace it entirely
                         note = {**existing_note, self._note_text_config.key: rule.note} \
                             if isinstance(existing_note, dict) \
                             else {self._note_text_config.key: rule.note}
                     except json.JSONDecodeError:
+                        # Invalid JSON: Create new note object with just the suppression note
                         note = {self._note_text_config.key: rule.note}
 
+                    # Use JSON string as key for grouping (sort_keys ensures consistent ordering)
                     note_key = json.dumps(note, sort_keys=True)
                     note_findings_mapping[note_key].append(finding)
             else:
-                # Text format: All findings get the same plain text note
+                # Text format: All findings under this rule get identical plain text note
                 note_findings_mapping[rule.note] = findings_
 
-            # Batch findings with identical notes and construct payloads
+            # Generate payloads for each note group, respecting the 100-item batch limit
             for note_text, findings_with_same_note in note_findings_mapping.items():
+                # Chunk into batches of max 100 items (Security Hub API limit as of 2024-01-05)
                 for chunk in FindingsManager._chunk([{'Id': finding.id,
                                                       'ProductArn': finding.product_arn}
                                                      for finding in findings_with_same_note], MAX_SUPPRESSION_PAYLOAD_SIZE):
+                    # Yield Security Hub batch_update_findings compatible payload
                     yield {'FindingIdentifiers': chunk,
                            'Workflow': {'Status': rule.action},
                            'Note': {'Text': note_text,
