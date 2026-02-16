@@ -90,7 +90,7 @@ Rules in your YAML file follow this general syntax:
         security_control_id: 'str'
         rule_or_control_id: 'str'
         product_name: 'str'
-        title: 'str' 
+        title: 'str'
         tags:
           - key: 'str'
             value: 'str'
@@ -107,8 +107,8 @@ Specify either ``security_control_id`` or ``rule_or_control_id`` — but not bot
 
 **When Suppressing Findings from AWS Security Hub Service Integrations**:
 
-Specify both ``product_name`` and ``title``. 
-The ``product_name`` field must match the name of the product that created the finding (e.g., Inspector). 
+Specify both ``product_name`` and ``title``.
+The ``product_name`` field must match the name of the product that created the finding (e.g., Inspector).
 The ``title`` field must match the title of the finding.
 Read the `AWS service integrations <https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-internal-providers.html#internal-integrations-summary>`_ page for all the supported integrations.
 
@@ -117,6 +117,91 @@ Read the `AWS service integrations <https://docs.aws.amazon.com/securityhub/late
 Either ``regions``, ``tags``, or ``resource_id_regexps`` (or all) can be provided to ensure precise matching.
 
 When no ``regions`` are set, the rule will match findings from all regions.
+
+
+Note Configuration
+==================
+
+The library supports two modes for handling finding notes: **text mode** (default) and **JSON mode**.
+
+Text Mode (Default)
+-------------------
+
+By default, suppression notes are stored as plain text.
+
+.. code-block:: python
+
+  from awsfindingsmanagerlib import FindingsManager
+
+  findings_manager = FindingsManager('eu-west-1')
+  findings_manager.register_rule(
+    note="Suppress SSM.7 findings",
+    action="SUPPRESSED",
+    match_on={"security_control_id": "SSM.7"}
+  )
+  findings_manager.suppress_matching_findings()
+
+Finding notes will be stored as: ``"Suppress SSM.7 findings"``
+
+
+JSON Mode
+------------------------------
+
+JSON mode enables a more structured way of storing notes and allows for note preservation by merging existing JSON formatted metadata. This is particularly
+useful when integrating with ticketing systems or when multiple teams manage suppressions.
+
+To enable this feature, configure the ``FindingsManager`` with a ``NoteTextConfig`` object:
+
+.. code-block:: python
+
+  from awsfindingsmanagerlib import FindingsManager, NoteTextConfig
+
+  # Enable JSON mode with default key "Note"
+  findings_manager = FindingsManager(
+    region='eu-west-1',
+    note_text=NoteTextConfig(format="json")
+  )
+
+When JSON mode is enabled:
+
+1. **No existing note or empty note**: Creates a new JSON note with the suppression reason
+
+   .. code-block:: json
+
+       {"Note": "Suppress SSM.7 findings"}
+
+2. **Existing plain text note**: Replaces the plain text with a JSON note containing the suppression reason
+
+   .. code-block:: json
+
+       {"Note": "Suppress SSM.7 findings"}
+
+3. **Existing JSON note**: Merges the suppression reason with existing metadata
+
+   .. code-block:: json
+
+       # Before: {"jiraIssue": "PROJ-123"}
+       # After:  {"jiraIssue": "PROJ-123", "Note": "Suppress SSM.7 findings"}
+
+Custom JSON Key
+^^^^^^^^^^^^^^^
+
+You can customize the JSON key used for suppression notes:
+
+.. code-block:: python
+
+  from awsfindingsmanagerlib import FindingsManager, NoteTextConfig
+
+  findings_manager = FindingsManager(
+    region='eu-west-1',
+    note_text=NoteTextConfig(format="json", key="suppressionReason")
+  )
+
+This will store suppression notes using your custom key:
+
+.. code-block:: json
+
+    {"jiraIssue": "PROJ-123", "suppressionReason": "Suppress SSM.7 findings"}
 
 
 Valid Credentials
@@ -222,7 +307,7 @@ Automations are limited to **100 rules**, which can quickly become insufficient 
 
 Flexibility
 -----------
-Automations lack support for **regex** or **multi-property rules**, making them less flexible for complex suppression needs. For example, suppressing a specific check across multiple resources in Automations requires creating multiple rules. 
+Automations lack support for **regex** or **multi-property rules**, making them less flexible for complex suppression needs. For example, suppressing a specific check across multiple resources in Automations requires creating multiple rules.
 
 With regex, you can achieve the same result with a single, concise rule. For instance, to suppress findings for Lambda functions in specific dev/test accounts, you could use:
 
