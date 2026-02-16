@@ -77,3 +77,9 @@ History
 ------------------
 
 * chore: bump dependencies
+
+
+1.4.0 (16-02-2026)
+------------------
+
+* feat: Add configurable note storage (text/JSON)
