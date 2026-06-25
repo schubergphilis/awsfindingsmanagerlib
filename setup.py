@@ -38,6 +38,7 @@ setup(
                  '''awsfindingsmanagerlib'''},
     include_package_data=True,
     install_requires=requirements,
+    python_requires='>=3.10',
     license='Apache Software License 2.0',
     zip_safe=False,
     keywords='''awsfindingsmanagerlib securityhub findings aws''',
@@ -46,7 +47,9 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         ],
     test_suite='tests',
     tests_require=test_requirements
