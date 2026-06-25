@@ -83,3 +83,8 @@ History
 ------------------
 
 * feat: Add configurable note storage (text/JSON)
+
+1.5.0 (25-06-2026)
+------------------
+
+* chore: update dependencies to latest and require Python >=3.10
